@@ -35,11 +35,11 @@ The API documentation can be found in the `/docs` directory in the repository. I
 
 Can be deployed with:
 ```bash
-docker image -t vp-backend .
+docker build -t vp-backend .
 ```
 
 ```bash
-docker run -d -p 8080:8080 --name voice-pick-api vp-backend
+docker run -d -p 8080:8080 --restart unless-stopped --name voice-pick-api vp-backend
 ```
 
 ## Built With
