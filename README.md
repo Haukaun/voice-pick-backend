@@ -33,7 +33,14 @@ The API documentation can be found in the `/docs` directory in the repository. I
 
 ## Deployment
 
-The project can be deployed on any cloud platform that supports Java and Spring Boot applications.
+Can be deployed with:
+```bash
+docker image -t vp-backend .
+```
+
+```bash
+docker run -d -p 8080:8080 --name voice-pick-api vp-backend
+```
 
 ## Built With
 
