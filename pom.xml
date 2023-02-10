@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>no.ntnu.bachelor</groupId>
 	<artifactId>voice-pick</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>voice-pick</name>
 	<description>Backend project for swift voice picking application</description>
 	<properties>
