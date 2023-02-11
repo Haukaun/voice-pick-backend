@@ -1,15 +1,10 @@
-FROM maven:3.6.0-jdk-17
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
-COPY ./src /app/src
-COPY ./pom.xml /app
-
-RUN mvn clean
-RUN mvn package
+COPY ./target/voice-pick*.jar /app
+RUN mv voice-pick*.jar voice-pick.jar
 
 
-WORKDIR /app/target/
 EXPOSE 8080
 
-RUN mv voice-pick* voice-pick.jar
 CMD ["java", "-jar", "voice-pick.jar"]
