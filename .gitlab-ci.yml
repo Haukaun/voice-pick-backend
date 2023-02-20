@@ -1,9 +1,36 @@
 image: maven:3-openjdk-17
 
 stages:
+  - compile
+  - test
   - build
+  - deploy
 
-build:
+mvn compile:
+  stage: compile
+  script:
+    - export DB_HOST=$DB_HOST
+    - export DB_PORT=$DB_PORT
+    - export DB_NAME=$DB_NAME
+    - export DB_USER=$DB_USER
+    - export DB_PASSWORD=$DB_PASSWORD
+    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM
+    - mvn compile
+mvn test:
+  stage: test
+  script:
+    - echo "test app when we make tests"
+#    - export DB_HOST=$DB_HOST
+#    - export DB_PORT=$DB_PORT
+#    - export DB_NAME=$DB_NAME
+#    - export DB_USER=$DB_USER
+#    - export DB_PASSWORD=$DB_PASSWORD
+#    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+#    - export KEYCLOAK_REALM=$KEYCLOAK_REALM
+#    - mvn test
+
+mvn package:
   stage: build
   script:
     - export DB_HOST=$DB_HOST
@@ -13,6 +40,17 @@ build:
     - export DB_PASSWORD=$DB_PASSWORD
     - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
     - export KEYCLOAK_REALM=$KEYCLOAK_REALM
-    - mvn clean
-    - mvn compile
     - mvn package
+    - cp target/voice-pick*.jar ~
+    - cp Dockerfile ~
+docker run:
+  stage: deploy
+  script:
+    - cd ~
+    - ls ~
+    - docker build -t bachelor-b .
+    - docker rm -f bachelor-backend
+    - docker run -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL -e KEYCLOAK_REALM=$KEYCLOAK_REALM -p 8080:8080 --restart unless-stopped -d --name bachelor-backend bachelor-b
+  dependencies:
+    - mvn package
+  when: manual
