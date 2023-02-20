@@ -15,20 +15,14 @@ mvn compile:
     - export DB_USER=$DB_USER
     - export DB_PASSWORD=$DB_PASSWORD
     - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-    - export KEYCLOAK_REALM=$KEYCLOAK_REALM
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD
     - mvn compile
 mvn test:
   stage: test
   script:
-    - echo "test app when we make tests"
-#    - export DB_HOST=$DB_HOST
-#    - export DB_PORT=$DB_PORT
-#    - export DB_NAME=$DB_NAME
-#    - export DB_USER=$DB_USER
-#    - export DB_PASSWORD=$DB_PASSWORD
-#    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-#    - export KEYCLOAK_REALM=$KEYCLOAK_REALM
-#    - mvn test
+    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_TEST
+    - mvn test
 
 mvn package:
   stage: build
@@ -39,7 +33,7 @@ mvn package:
     - export DB_USER=$DB_USER
     - export DB_PASSWORD=$DB_PASSWORD
     - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-    - export KEYCLOAK_REALM=$KEYCLOAK_REALM
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD
     - mvn package
     - cp target/voice-pick*.jar ~
     - cp Dockerfile ~
@@ -50,7 +44,7 @@ docker run:
     - ls ~
     - docker build -t bachelor-b .
     - docker rm -f bachelor-backend
-    - docker run -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL -e KEYCLOAK_REALM=$KEYCLOAK_REALM -p 8080:8080 --restart unless-stopped -d --name bachelor-backend bachelor-b
+    - docker run -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL -e KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD -p 8080:8080 --restart unless-stopped -d --name bachelor-backend bachelor-b
   dependencies:
     - mvn package
   when: manual
