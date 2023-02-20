@@ -41,7 +41,6 @@ docker run:
   stage: deploy
   script:
     - cd ~
-    - ls ~
     - docker build -t bachelor-b .
     - docker rm -f bachelor-backend
     - docker run -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL -e KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD -p 8080:8080 --restart unless-stopped -d --name bachelor-backend bachelor-b
