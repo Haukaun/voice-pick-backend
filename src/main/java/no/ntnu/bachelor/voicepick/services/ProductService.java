@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.models.Location;
@@ -13,8 +12,6 @@ import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 
 /**
  * A service class for the product model
- * 
- * @author Joakim
  */
 @Service
 @RequiredArgsConstructor
@@ -30,9 +27,11 @@ public class ProductService {
    */
   public void addProduct(AddProductRequest product) {
     Location location;
-    try {
-      location = this.locationService.getLocation(product.getLocation());
-    } catch (EntityNotFoundException e) {
+
+    var result = this.locationService.getLocation(product.getLocation());
+    if (result.isPresent()) {
+      location = result.get();
+    } else {
       location = null;
     }
 

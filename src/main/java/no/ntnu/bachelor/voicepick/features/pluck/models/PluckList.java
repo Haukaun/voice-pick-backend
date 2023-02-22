@@ -16,6 +16,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * An entity that represnets a pluck list
+ * 
+ * @author Joakim
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -48,6 +53,12 @@ public class PluckList {
     this.destination = destination;
   }
 
+  /**
+   * Adds a pluck to the pluck list. Also adds the pluck list that was called upon
+   * and adds that pluck list to the pluck
+   * 
+   * @param pluck the pluck to add to the pluck list
+   */
   public void addPluck(Pluck pluck) {
     this.plucks.add(pluck);
     pluck.setPluckList(this);
