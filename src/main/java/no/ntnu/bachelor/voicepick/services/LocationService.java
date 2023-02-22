@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
@@ -24,11 +25,16 @@ public class LocationService {
    * 
    * @param location to add
    */
-  public void addLocation(AddLocationRequest location) throws IllegalArgumentException {
+  public void addLocation(AddLocationRequest location) throws IllegalArgumentException, EntityExistsException {
     if (location.getLocation() == null)
       throw new IllegalArgumentException("Location cannot be null");
     if (location.getControlDigits() == null)
       throw new IllegalArgumentException("Control digits cannot be null");
+
+    var result = this.getLocation(location.getLocation());
+    if (result.isPresent()) {
+      throw new EntityExistsException("Location with serial: " + location.getLocation() + " already exists");
+    }
 
     var _location = new Location(location.getLocation(), location.getControlDigits());
 
@@ -43,14 +49,8 @@ public class LocationService {
    * @throws EntityNotFoundException when a location with the given location
    *                                 string is not found
    */
-  public Location getLocation(String location) throws EntityNotFoundException {
-    Optional<Location> result = this.repository.findFirstByLocation(location);
-
-    if (result.isEmpty()) {
-      throw new EntityNotFoundException("No location found with location: " + location);
-    }
-
-    return result.get();
+  public Optional<Location> getLocation(String location) {
+    return this.repository.findFirstByLocation(location);
   }
 
 }

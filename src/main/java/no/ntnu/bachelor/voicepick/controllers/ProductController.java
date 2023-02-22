@@ -18,6 +18,13 @@ public class ProductController {
 
   private final ProductService service;
 
+  /**
+   * Endpoint for adding a new product
+   * 
+   * @param product a request body containing information about the product
+   * @return {@code 200 OK} if added, {@code 404 METHOD_NOT_ALLOWED} if request
+   *         body is incorrect
+   */
   @PostMapping
   public ResponseEntity<String> addProduct(@RequestBody AddProductRequest product) {
     ResponseEntity<String> response;

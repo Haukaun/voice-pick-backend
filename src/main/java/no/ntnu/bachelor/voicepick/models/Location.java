@@ -13,6 +13,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
 
+/**
+ * An entity that represents a location in a warehouse
+ * 
+ * @author Joakim
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -18,6 +18,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.models.Product;
 
+/**
+ * An entity that represnets a pluck
+ * 
+ * @author Joakim
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,11 +51,6 @@ public class Pluck {
   @Column(name = "plucked_at")
   private LocalDateTime pluckedAt;
 
-  // TODO: Might be redundant since we have a "pluckedAt" field that is null if
-  // its not plucked. Can just check if it's not null or not
-  @Column(name = "is_plucked")
-  private boolean isPlucked;
-
   @JsonBackReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = PluckList.PRIMARY_KEY)
@@ -60,6 +60,5 @@ public class Pluck {
     this.product = product;
     this.amount = amount;
     this.createdAt = createdAt;
-    this.isPlucked = false;
   }
 }
