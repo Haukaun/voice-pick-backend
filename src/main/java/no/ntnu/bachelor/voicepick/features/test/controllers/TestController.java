@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.features.test.controllers;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
