@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "keycloak.realm",
+      "type": "java.lang.String",
+      "description": "Name of the keycloak realm"
+    },
+    {
+      "name": "keycloak.client-id",
+      "type": "java.lang.String",
+      "description": "Name of the keycloak client"
+    },
+    {
+      "name": "keycloak.client-secret",
+      "type": "java.lang.String",
+      "description": "Secret for the keycloak client"
+    },
+    {
+      "name": "keycloak.manager.username",
+      "type": "java.lang.String",
+      "description": "Username of the manager account"
+    },
+    {
+      "name": "keycloak.manager.password",
+      "type": "java.lang.String",
+      "description": "Password of the manager account"
+    }
+  ]
+}

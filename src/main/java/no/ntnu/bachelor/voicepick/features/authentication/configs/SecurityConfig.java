@@ -1,5 +1,6 @@
-package no.ntnu.bachelor.voicepick.configs;
+package no.ntnu.bachelor.voicepick.features.authentication.configs;
 
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Security config for enabling keycloak authenticaion
@@ -45,6 +47,11 @@ public class SecurityConfig {
     JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
     jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
     return jwtAuthenticationConverter;
+  }
+
+  @Bean
+  RestTemplate restTemplate(RestTemplateBuilder builder) {
+    return builder.build();
   }
 
 }
