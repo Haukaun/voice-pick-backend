@@ -26,7 +26,7 @@ import lombok.Getter;
 public class Location {
 
   public static final String TABLE_NAME = "location";
-  public static final String PRIMARY_KEY = "locaiton_id";
+  public static final String PRIMARY_KEY = "location_id";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

@@ -43,7 +43,7 @@ public class AuthController {
 
     try {
       this.authService.signup(request);
-      response = new ResponseEntity<>(HttpStatus.OK);
+      response = new ResponseEntity<>("User created successfully", HttpStatus.OK);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.CONFLICT) {
         response = new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

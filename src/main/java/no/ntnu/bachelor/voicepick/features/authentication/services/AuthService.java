@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -78,6 +79,7 @@ public class AuthService {
    * @throws JsonProcessingException if sign up request cannot be parsed to JSON
    *                                 object
    */
+  @CrossOrigin
   public void signup(SignupRequest request) throws JsonProcessingException {
     // Login as admin user
     LoginResponse adminResponse = this.login(new LoginRequest(this.managerUsername, this.managerPassword));
