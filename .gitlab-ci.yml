@@ -60,6 +60,12 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script:
+    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_TEST
+    - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_TEST
+    - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_TEST
+    - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_TEST
+    - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_TEST
     - mvn verify sonar:sonar -Dsonar.projectKey=IDATA-2900-Group-1_voice-pick-backend_AYbLKMhd0vjnirPHhSYJ
   allow_failure: true
   only:
