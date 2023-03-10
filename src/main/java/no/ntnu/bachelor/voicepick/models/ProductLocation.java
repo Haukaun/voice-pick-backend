@@ -44,6 +44,9 @@ public class ProductLocation {
   private Product product;
 
   public ProductLocation(String location, String controlDigits) {
+    if (location.isBlank()) throw new IllegalArgumentException("Location cannot be empty");
+    if (controlDigits.isBlank()) throw new IllegalArgumentException("Control digits cannot not be empty");
+
     this.location = location;
     this.controlDigit = controlDigits;
   }

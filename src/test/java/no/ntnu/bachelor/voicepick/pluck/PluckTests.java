@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -20,6 +21,7 @@ import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 class PluckTests {
 
   @Test
+  @DisplayName("Create a valid pluck list")
   void testCreatingPluckList() {
     var h201 = new ProductLocation("H201", "321");
     var m119 = new ProductLocation("M119", "875");

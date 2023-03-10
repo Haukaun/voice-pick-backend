@@ -53,4 +53,23 @@ public class ProductService {
     return this.repository.findByLocationIsNotNull();
   }
 
+  /**
+   * Returns a list of all products stored in the repository.
+   * 
+   * @return a list of all products
+   */
+  public List<Product> getAllProducts() {
+    return this.repository.findAll();
+  }
+
+  /**
+   * Returns all of products with the same name as the one given
+   * 
+   * @param name name of the product to filter by
+   * @return a list of products with the name given
+   */
+  public List<Product> getProductsByName(String name) {
+    return this.repository.findByName(name);
+  }
+
 }

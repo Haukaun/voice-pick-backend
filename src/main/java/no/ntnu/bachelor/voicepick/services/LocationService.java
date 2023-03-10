@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -51,6 +52,15 @@ public class LocationService {
    */
   public Optional<ProductLocation> getLocation(String location) {
     return this.repository.findFirstByLocation(location);
+  }
+
+  /**
+   * Returns all locations stored in the repository
+   * 
+   * @return a list of all locations
+   */
+  public List<ProductLocation> getAll() {
+    return this.repository.findAll();
   }
 
 }
