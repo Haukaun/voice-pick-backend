@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
-import no.ntnu.bachelor.voicepick.models.Location;
+import no.ntnu.bachelor.voicepick.models.ProductLocation;
 import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 
@@ -26,16 +26,12 @@ public class ProductService {
    * @param product to add
    */
   public void addProduct(AddProductRequest product) {
-    Location location;
+    ProductLocation location;
 
     var result = this.locationService.getLocation(product.getLocation());
-    if (result.isPresent()) {
-      location = result.get();
-    } else {
-      location = null;
-    }
+    location = result.orElse(null);
 
-    Product _product = new Product(
+    Product productToSave = new Product(
         product.getName(),
         location,
         product.getWeight(),
@@ -44,7 +40,7 @@ public class ProductService {
         product.getType(),
         product.getStatus());
 
-    this.repository.save(_product);
+    this.repository.save(productToSave);
   }
 
   /**

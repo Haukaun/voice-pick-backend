@@ -8,7 +8,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
-import no.ntnu.bachelor.voicepick.models.Location;
+import no.ntnu.bachelor.voicepick.models.ProductLocation;
 import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
 
 /**
@@ -36,9 +36,9 @@ public class LocationService {
       throw new EntityExistsException("Location with serial: " + location.getLocation() + " already exists");
     }
 
-    var _location = new Location(location.getLocation(), location.getControlDigits());
+    var locationToSave = new ProductLocation(location.getLocation(), location.getControlDigits());
 
-    this.repository.save(_location);
+    this.repository.save(locationToSave);
   }
 
   /**
@@ -49,7 +49,7 @@ public class LocationService {
    * @throws EntityNotFoundException when a location with the given location
    *                                 string is not found
    */
-  public Optional<Location> getLocation(String location) {
+  public Optional<ProductLocation> getLocation(String location) {
     return this.repository.findFirstByLocation(location);
   }
 

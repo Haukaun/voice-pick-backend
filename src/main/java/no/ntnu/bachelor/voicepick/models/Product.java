@@ -37,8 +37,8 @@ public class Product {
 
   @JsonManagedReference
   @OneToOne
-  @JoinColumn(name = Location.PRIMARY_KEY)
-  private Location location;
+  @JoinColumn(name = ProductLocation.PRIMARY_KEY)
+  private ProductLocation location;
 
   @Column(name = "weight")
   private double weight;
@@ -55,8 +55,8 @@ public class Product {
   @Column(name = "status")
   private Status status;
 
-  public Product(String name, Location location, double weight, double volume, int quantity, ProductType type,
-      Status status) {
+  public Product(String name, ProductLocation location, double weight, double volume, int quantity, ProductType type,
+                 Status status) {
     this.name = name;
     this.location = location;
     this.weight = weight;

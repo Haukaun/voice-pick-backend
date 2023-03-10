@@ -22,15 +22,15 @@ import lombok.Getter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = Location.TABLE_NAME)
-public class Location {
+@Table(name = ProductLocation.TABLE_NAME)
+public class ProductLocation {
 
-  public static final String TABLE_NAME = "location";
-  public static final String PRIMARY_KEY = "location_id";
+  public static final String TABLE_NAME = "product_location";
+  public static final String PRIMARY_KEY = "product_location_id";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = Location.PRIMARY_KEY)
+  @Column(name = ProductLocation.PRIMARY_KEY)
   private Long id;
 
   @Column(name = "location")
@@ -43,7 +43,7 @@ public class Location {
   @OneToOne(mappedBy = "location")
   private Product product;
 
-  public Location(String location, String controlDigits) {
+  public ProductLocation(String location, String controlDigits) {
     this.location = location;
     this.controlDigit = controlDigits;
   }

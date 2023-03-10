@@ -27,6 +27,10 @@ public class PluckListService {
   private final ProductService productService;
   private final PluckService pluckService;
   private final PluckListRepository pluckListRepository;
+  private final Random random = new Random();
+  private static final String[] ROUTES = { "1234", "3453", "6859", "3423", "0985", "1352" };
+  private static final String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
+          "Afrin Dagligvare Ålesund AS", "Olivers & CO Ålesund" };
 
   /**
    * Generates random pluck list
@@ -35,13 +39,8 @@ public class PluckListService {
    *                            repository
    */
   public PluckList generateRandomPluckList() throws EmptyListException {
-    var random = new Random();
 
     // Generate a random pluck list
-    String[] ROUTES = { "1234", "3453", "6859", "3423", "0985", "1352" };
-    String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
-        "Afrin Dagligvare Ålesund AS", "Olivers & CO Ålesund" };
-
     var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
@@ -49,18 +48,18 @@ public class PluckListService {
 
     this.pluckListRepository.save(pluckList);
 
-    // Retrive all available products
+    // Retrieve all available products
     var availableProducts = this.productService.getAvailableProducts();
 
-    if (availableProducts.size() == 0) {
+    if (availableProducts.isEmpty()) {
       throw new EmptyListException("No available products");
     }
 
-    var MAX_PLUCK_AMOUNT = 10;
+    final int MAX_PLUCK_AMOUNT = 10;
     var productsToPluck = this.extractRandomProduct(availableProducts, MAX_PLUCK_AMOUNT);
 
     // Generate random plucks based on products to pluck
-    var PLUCK_AMOUNT_UPPER_BOUND = 10;
+    final int PLUCK_AMOUNT_UPPER_BOUND = 10;
     for (var product : productsToPluck) {
       var pluck = new Pluck(
           product,
@@ -86,23 +85,22 @@ public class PluckListService {
    * @return a set of products
    */
   private Set<Product> extractRandomProduct(List<Product> products, int max) {
-    var random = new Random();
 
     // Copy the list given so we do not alter the original one
-    var _products = new ArrayList<Product>(products);
+    var productsCopy = new ArrayList<Product>(products);
 
     int numberOfPlucks;
-    if (_products.size() < max) {
-      numberOfPlucks = random.nextInt(_products.size()) + 1;
+    if (productsCopy.size() < max) {
+      numberOfPlucks = random.nextInt(productsCopy.size()) + 1;
     } else {
       numberOfPlucks = random.nextInt(max) + 1;
     }
 
     var extractedProducts = new HashSet<Product>();
     for (var i = 0; i < numberOfPlucks; i++) {
-      var randomProductIndex = random.nextInt(_products.size());
-      extractedProducts.add(_products.get(randomProductIndex));
-      _products.remove(randomProductIndex);
+      var randomProductIndex = random.nextInt(productsCopy.size());
+      extractedProducts.add(productsCopy.get(randomProductIndex));
+      productsCopy.remove(randomProductIndex);
     }
 
     return extractedProducts;

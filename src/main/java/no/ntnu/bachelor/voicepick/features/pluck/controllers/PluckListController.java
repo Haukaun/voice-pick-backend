@@ -27,9 +27,9 @@ public class PluckListController {
   @GetMapping
   public ResponseEntity<?> getPluckList() {
     try {
-      return new ResponseEntity<PluckList>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
+      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 
-import ch.qos.logback.core.subst.Token;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginResponse;
@@ -24,12 +23,12 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-    ResponseEntity<?> response;
+  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    ResponseEntity<LoginResponse> response;
 
     try {
       LoginResponse loginResponse = this.authService.login(request);
-      response = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
+      response = new ResponseEntity<>(loginResponse, HttpStatus.OK);
     } catch (Exception e) {
       response = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
@@ -38,7 +37,7 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<String> signup(@RequestBody SignupRequest request) throws Exception {
+  public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
     ResponseEntity<String> response;
 
     try {
