@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.qos.logback.core.subst.Token;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.IntrospectResponse;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.KeycloakCredentials;

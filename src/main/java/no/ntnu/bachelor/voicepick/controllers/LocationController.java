@@ -32,11 +32,9 @@ public class LocationController {
 
     try {
       this.locationService.addLocation(location);
-      response = new ResponseEntity<String>(HttpStatus.OK);
-    } catch (IllegalArgumentException e) {
-      response = new ResponseEntity<String>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
-    } catch (EntityExistsException e) {
-      response = new ResponseEntity<String>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (IllegalArgumentException | EntityExistsException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     return response;
