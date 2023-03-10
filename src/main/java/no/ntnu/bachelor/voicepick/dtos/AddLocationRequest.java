@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @author Joakim
  */
 @Data
+@AllArgsConstructor
 public class AddLocationRequest {
   private String location;
   private String controlDigits;

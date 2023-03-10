@@ -10,4 +10,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   List<Product> findByLocationIsNotNull();
 
+  List<Product> findByName(String name);
+
 }

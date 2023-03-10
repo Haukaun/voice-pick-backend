@@ -64,4 +64,13 @@ public class PluckList {
     pluck.setPluckList(this);
   }
 
+  /**
+   * Returns all plucks for the pluck list
+   *
+   * @return a set of all plucks
+   */
+  public Set<Pluck> getPlucks() {
+    return this.plucks;
+  }
+
 }

@@ -56,7 +56,13 @@ public class Product {
   private Status status;
 
   public Product(String name, ProductLocation location, double weight, double volume, int quantity, ProductType type,
-                 Status status) {
+      Status status) {
+
+    if (name.isBlank()) throw new IllegalArgumentException("Name cannot be empty");
+    if (weight <= 0) throw new IllegalArgumentException("Cannot create product with negative weight");
+    if (volume <= 0) throw new IllegalArgumentException("Cannot create product with negative volume");
+    if (quantity < 0) throw new IllegalArgumentException("Quantity cannot be negative");
+
     this.name = name;
     this.location = location;
     this.weight = weight;
