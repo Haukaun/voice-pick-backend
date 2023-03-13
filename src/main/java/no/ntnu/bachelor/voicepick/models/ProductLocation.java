@@ -27,7 +27,7 @@ public class ProductLocation {
 
   public static final String TABLE_NAME = "product_location";
   public static final String PRIMARY_KEY = "product_location_id";
-
+  
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = ProductLocation.PRIMARY_KEY)
