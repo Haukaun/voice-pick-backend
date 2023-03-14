@@ -12,19 +12,19 @@ import no.ntnu.bachelor.voicepick.models.Status;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ProductTest {
+class ProductTest {
 
   @Test
   @DisplayName("Create a valid product")
   void createValidProduct() {
     var h201 = new ProductLocation("H201", "321");
-    var melk = new Product("Q-melk", h201, 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
+    var milk = new Product("Q-milk", h201, 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
 
-    assertEquals(melk.getName(), "Q-melk");
-    assertEquals(melk.getLocation().getLocation(), "H201");
-    assertEquals(melk.getLocation().getControlDigit(), "321");
-    assertEquals(melk.getType(), ProductType.D_PAK);
-    assertEquals(melk.getStatus(), Status.READY);
+    assertEquals("Q-milk", milk.getName());
+    assertEquals("H201", milk.getLocation().getLocation());
+    assertEquals("321", milk.getLocation().getControlDigit());
+    assertEquals(ProductType.D_PAK, milk.getType());
+    assertEquals(Status.READY, milk.getStatus());
   }
 
   @Test
