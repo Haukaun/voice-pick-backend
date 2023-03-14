@@ -40,7 +40,7 @@ class PluckListControllerTest {
   void getPluckListWithoutProducts() {
     var plucklist = this.pluckListController.getPluckList();
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, plucklist.getStatusCode());
+    assertEquals(HttpStatus.NO_CONTENT, plucklist.getStatusCode());
   }
 
   @Test

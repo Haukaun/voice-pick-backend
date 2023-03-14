@@ -200,39 +200,8 @@ public class AuthService {
     headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(adminResponse.getAccess_token()));
 
     var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId;
-    var response = restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+    restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
 
-
-//    String userId = "";
-//    try {
-//      userId = this.getUserId(email);
-//    } catch (Exception e) {
-//      throw new EntityNotFoundException("Could not get id for user with username: " + email);
-//    }
-//
-//    // Get token for deleting users
-//    HttpHeaders deletionTokenHeaders = new HttpHeaders();
-//    deletionTokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//
-//    MultiValueMap<String, String> deletionMap = new LinkedMultiValueMap<>();
-//    deletionMap.add(GRANT_TYPE_KEY, "credentials");
-//    deletionMap.add(CLIENT_ID_KEY, this.clientId);
-//    deletionMap.add(CLIENT_SECRET_KEY, this.clientSecret);
-//    deletionMap.add("scope", "realm:delete-users");
-//
-//    HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(deletionMap, deletionTokenHeaders);
-//
-//    var url = baseUrl + "/auth/realms/" + realm + "/protocol/openid-connect/token";
-//    ResponseEntity<LoginResponse> deletionTokenResponse = restTemplate.postForEntity(url, httpEntity, LoginResponse.class);
-//    var deletionToken = deletionTokenResponse.getBody();
-//
-//    HttpHeaders deletionHeaders = new HttpHeaders();
-//    deletionHeaders.setContentType(MediaType.APPLICATION_JSON);
-//    deletionHeaders.set(AUTHORIZATION_KEY, this.getAuthorizationValue(deletionToken.getAccess_token()));
-//
-//    // Delete user
-//    var deleteUrl = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId;
-//    restTemplate.delete(deleteUrl, new HttpEntity<>(deletionHeaders), String.class);
   }
 
   /**

@@ -1,5 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
+import jakarta.annotation.Nullable;
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +26,11 @@ public class PluckListController {
    *         goes wrong
    */
   @GetMapping
-  public ResponseEntity<?> getPluckList() {
+  public ResponseEntity<PluckList> getPluckList() {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(new PluckList(), HttpStatus.NO_CONTENT);
     }
   }
 
