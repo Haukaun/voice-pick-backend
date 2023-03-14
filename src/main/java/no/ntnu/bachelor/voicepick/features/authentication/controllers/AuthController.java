@@ -1,18 +1,13 @@
 package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import lombok.RequiredArgsConstructor;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginResponse;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.TokenRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 
 @RestController
@@ -44,11 +39,9 @@ public class AuthController {
       this.authService.signup(request);
       response = new ResponseEntity<>("User created successfully", HttpStatus.OK);
     } catch (HttpClientErrorException e) {
-      if (e.getStatusCode() == HttpStatus.CONFLICT) {
-        response = new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-      } else {
-        response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-      }
+      response = new ResponseEntity<>(e.getStatusCode());
+    } catch (IllegalArgumentException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
     } catch (Exception e) {
       response = new ResponseEntity<>("Something went wrong! Please try again.", HttpStatus.BAD_REQUEST);
     }
@@ -58,7 +51,7 @@ public class AuthController {
 
   @PostMapping("/signout")
   public ResponseEntity<String> signout(@RequestBody TokenRequest request) {
-    if (this.authService.signout(request)) {
+    if (this.authService.signOut(request)) {
       return new ResponseEntity<>("Signed out successfully", HttpStatus.OK);
     } else {
       return new ResponseEntity<>("Something went wrong! Could not sign you out.", HttpStatus.BAD_REQUEST);
@@ -72,6 +65,24 @@ public class AuthController {
     } else {
       return new ResponseEntity<>("Token is not active", HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  @DeleteMapping("/delete")
+  public ResponseEntity<String> delete(@RequestBody DeleteUserRequest request) {
+    ResponseEntity<String> response;
+
+    try {
+      this.authService.delete(request.getEmail());
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    } catch (HttpClientErrorException e) {
+      response = new ResponseEntity<>(e.getStatusCode());
+    } catch (Exception e) {
+      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return response;
   }
 
 }

@@ -18,7 +18,7 @@ import no.ntnu.bachelor.voicepick.services.LocationService;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
-public class LocationControllerTest {
+class LocationControllerTest {
   
   @Autowired
   private LocationController locationController;

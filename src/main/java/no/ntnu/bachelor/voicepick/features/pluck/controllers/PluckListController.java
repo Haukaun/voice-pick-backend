@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
-import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 
 @RestController

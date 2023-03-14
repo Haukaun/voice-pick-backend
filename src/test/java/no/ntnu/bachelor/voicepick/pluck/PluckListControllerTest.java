@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
-public class PluckListControllerTest {
+class PluckListControllerTest {
 
   @Autowired
   private PluckListController pluckListController;

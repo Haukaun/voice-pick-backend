@@ -9,15 +9,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class LocationTest {
+class LocationTest {
   
   @Test
   @DisplayName("Create a valid location")
   void createValidLocation() {
     var location = new ProductLocation("H201", "346");
 
-    assertEquals(location.getLocation(), "H201");
-    assertEquals(location.getControlDigit(), "346");
+    assertEquals("H201", location.getLocation());
+    assertEquals("346", location.getControlDigit());
   }
 
   @Test
