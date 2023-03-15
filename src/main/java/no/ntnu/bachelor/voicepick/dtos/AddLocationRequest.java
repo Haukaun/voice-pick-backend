@@ -11,6 +11,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AddLocationRequest {
-  private String location;
-  private String controlDigits;
+  private String name;
+  private int controlDigits;
 }

@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import no.ntnu.bachelor.voicepick.models.ProductLocation;
+import no.ntnu.bachelor.voicepick.models.Location;
 
-public interface LocationRepository extends JpaRepository<ProductLocation, Long> {
-  Optional<ProductLocation> findFirstByLocation(String location);
+public interface LocationRepository extends JpaRepository<Location, Long> {
+  Optional<Location> findFirstByName(String location);
 }

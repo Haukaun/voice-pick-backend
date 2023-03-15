@@ -1,6 +1,6 @@
 package no.ntnu.bachelor.voicepick.product;
 
-import no.ntnu.bachelor.voicepick.models.ProductLocation;
+import no.ntnu.bachelor.voicepick.models.Location;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,12 +17,12 @@ class ProductTest {
   @Test
   @DisplayName("Create a valid product")
   void createValidProduct() {
-    var h201 = new ProductLocation("H201", "321");
+    var h201 = new Location("H201", 321);
     var milk = new Product("Q-milk", h201, 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
 
     assertEquals("Q-milk", milk.getName());
-    assertEquals("H201", milk.getLocation().getLocation());
-    assertEquals("321", milk.getLocation().getControlDigit());
+    assertEquals("H201", milk.getLocation().getName());
+    assertEquals(321, milk.getLocation().getControlDigit());
     assertEquals(ProductType.D_PAK, milk.getType());
     assertEquals(Status.READY, milk.getStatus());
   }
@@ -30,7 +30,7 @@ class ProductTest {
   @Test
   @DisplayName("Try to add an invalid product")
   void createInvalidProduct() {
-    var location = new ProductLocation("H201", "321");
+    var location = new Location("H201", 321);
     // Invalid name
     try {
       new Product("", location, 0, 0, -1, ProductType.D_PAK, Status.EMPTY);

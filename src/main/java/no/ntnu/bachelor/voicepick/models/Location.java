@@ -22,32 +22,32 @@ import lombok.Getter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = ProductLocation.TABLE_NAME)
-public class ProductLocation {
+@Table(name = Location.TABLE_NAME)
+public class Location {
 
-  public static final String TABLE_NAME = "product_location";
-  public static final String PRIMARY_KEY = "product_location_id";
+  public static final String TABLE_NAME = "location";
+  public static final String PRIMARY_KEY = "location_id";
   
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = ProductLocation.PRIMARY_KEY)
+  @Column(name = Location.PRIMARY_KEY)
   private Long id;
 
-  @Column(name = "location")
-  private String location;
+  @Column(name = "name")
+  private String name;
 
   @Column(name = "control_digit")
-  private String controlDigit;
+  private int controlDigit;
 
   @JsonBackReference
   @OneToOne(mappedBy = "location")
   private Product product;
 
-  public ProductLocation(String location, String controlDigits) {
-    if (location.isBlank()) throw new IllegalArgumentException("Location cannot be empty");
-    if (controlDigits.isBlank()) throw new IllegalArgumentException("Control digits cannot not be empty");
+  public Location(String name, int controlDigits) {
+    if (name.isBlank()) throw new IllegalArgumentException("Location cannot be empty");
+    if (controlDigits < 0) throw new IllegalArgumentException("Control digits cannot not be negative");
 
-    this.location = location;
+    this.name = name;
     this.controlDigit = controlDigits;
   }
 

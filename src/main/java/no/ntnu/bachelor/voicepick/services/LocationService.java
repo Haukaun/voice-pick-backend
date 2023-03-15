@@ -9,7 +9,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
-import no.ntnu.bachelor.voicepick.models.ProductLocation;
+import no.ntnu.bachelor.voicepick.models.Location;
 import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
 
 /**
@@ -27,17 +27,15 @@ public class LocationService {
    * @param location to add
    */
   public void addLocation(AddLocationRequest location) throws IllegalArgumentException, EntityExistsException {
-    if (location.getLocation() == null)
+    if (location.getName() == null)
       throw new IllegalArgumentException("Location cannot be null");
-    if (location.getControlDigits() == null)
-      throw new IllegalArgumentException("Control digits cannot be null");
 
-    var result = this.getLocation(location.getLocation());
+    var result = this.getLocation(location.getName());
     if (result.isPresent()) {
-      throw new EntityExistsException("Location with serial: " + location.getLocation() + " already exists");
+      throw new EntityExistsException("Location with serial: " + location.getName() + " already exists");
     }
 
-    var locationToSave = new ProductLocation(location.getLocation(), location.getControlDigits());
+    var locationToSave = new Location(location.getName(), location.getControlDigits());
 
     this.repository.save(locationToSave);
   }
@@ -50,8 +48,8 @@ public class LocationService {
    * @throws EntityNotFoundException when a location with the given location
    *                                 string is not found
    */
-  public Optional<ProductLocation> getLocation(String location) {
-    return this.repository.findFirstByLocation(location);
+  public Optional<Location> getLocation(String location) {
+    return this.repository.findFirstByName(location);
   }
 
   /**
@@ -59,7 +57,7 @@ public class LocationService {
    * 
    * @return a list of all locations
    */
-  public List<ProductLocation> getAll() {
+  public List<Location> getAll() {
     return this.repository.findAll();
   }
 
