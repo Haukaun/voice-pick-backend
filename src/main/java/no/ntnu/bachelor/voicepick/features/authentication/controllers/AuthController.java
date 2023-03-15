@@ -67,12 +67,12 @@ public class AuthController {
     }
   }
 
-  @DeleteMapping("/delete")
-  public ResponseEntity<String> delete(@RequestBody DeleteUserRequest request) {
+  @DeleteMapping("/users")
+  public ResponseEntity<String> delete(@RequestBody TokenRequest request) {
     ResponseEntity<String> response;
 
     try {
-      this.authService.delete(request.getEmail());
+      this.authService.delete(request.getToken());
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(HttpStatus.NOT_FOUND);

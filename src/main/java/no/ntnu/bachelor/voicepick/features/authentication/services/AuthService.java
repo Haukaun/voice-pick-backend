@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
   private final RestTemplate restTemplate;
+
+  private final JwtUtil jwtUtil;
 
   @Value("${keycloak.base-url}")
   private String baseUrl;
@@ -101,13 +104,8 @@ public class AuthService {
     if (request.getFirstName().isBlank()) throw new IllegalArgumentException("First name cannot be empty");
     if (request.getLastName().isBlank()) throw new IllegalArgumentException("Last name cannot be empty");
 
-    // Login as admin user
-    LoginResponse adminResponse = this.login(new LoginRequest(this.managerUsername, this.managerPassword));
-
-    // Use token to register new user
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(adminResponse.getAccess_token()));
+    // Admin access
+    HttpHeaders headers = this.getAdminHeaders();
 
     SignupKeycloakRequest body = new SignupKeycloakRequest(
         request.getFirstName(),
@@ -181,28 +179,15 @@ public class AuthService {
   /**
    * Deletes a user
    *
-   * @param email of the user to delete
+   * @param token, a valid token for the user to delete
    * @throws EntityNotFoundException if a user could not be found with the given email
    */
-  public void delete(String email) throws EntityNotFoundException {
-    // TODO: tmp solution
-    String userId;
-    try {
-      userId = this.getUserId(email);
-    } catch (Exception e) {
-      throw new EntityNotFoundException("Could not get id for user with username: " + email);
-    }
+  public void delete(String token) throws JsonProcessingException {
+    var uid = this.jwtUtil.getUid(token);
 
-    var adminResponse = this.login(new LoginRequest(
-            this.managerUsername,
-            this.managerPassword
-    ));
+    var headers = this.getAdminHeaders();
 
-    var headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(adminResponse.getAccess_token()));
-
-    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId;
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uid;
     restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
 
   }
@@ -214,13 +199,8 @@ public class AuthService {
    * @return the id for a given user
    */
   public String getUserId(String username) throws JsonProcessingException {
-    // Login as admin user
-    LoginResponse adminResponse = this.login(new LoginRequest(this.managerUsername, this.managerPassword));
-
-    // Add admin token to headers
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(adminResponse.getAccess_token()));
+    // Admin access
+    HttpHeaders headers = this.getAdminHeaders();
 
     // Search for user
     var userDetailUrl = baseUrl + "/auth/admin/realms/" + realm + "/users/?username=" + username;
@@ -246,13 +226,8 @@ public class AuthService {
    * @param role the role to be added
    */
   public void addRole(String userId, Role role) throws JsonProcessingException {
-    // Login as admin user
-    LoginResponse adminResponse = this.login(new LoginRequest(this.managerUsername, this.managerPassword));
-
     // Add admin token to headers
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(adminResponse.getAccess_token()));
+    HttpHeaders headers = this.getAdminHeaders();
 
     // Get role
     var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
@@ -274,5 +249,23 @@ public class AuthService {
    */
   private String getAuthorizationValue(String token) {
     return "Bearer " + token;
+  }
+
+  /**
+   * Generates headers for http request with admin access
+   *
+   * @return http headers that can be used in an http request with admin access
+   */
+  private HttpHeaders getAdminHeaders() {
+    var response = this.login(new LoginRequest(
+            this.managerUsername,
+            this.managerPassword
+    ));
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(response.getAccess_token()));
+
+    return headers;
   }
 }
