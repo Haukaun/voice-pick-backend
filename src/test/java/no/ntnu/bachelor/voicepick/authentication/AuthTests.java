@@ -20,6 +20,32 @@ class AuthTests {
     private final static String FIRST_NAME = "Knut";
     private final static String LAST_NAME = "Hansen";
 
+    /**
+     * Setup environment for tests
+     */
+    private void setup() {
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+    }
+
+    /**
+     * Tears down the environment
+     */
+    private void tearDown() {
+        var loginResponse = this.authController.login(new LoginRequest(
+                EMAIL,
+                PASSWORD
+        ));
+
+        this.authController.delete(new TokenRequest(
+                loginResponse.getBody().getAccess_token()
+        ));
+    }
+
     @Test
     @DisplayName("Register new user with missing email")
     void registerInvalidUser() {
@@ -45,22 +71,13 @@ class AuthTests {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
+        this.tearDown();
     }
 
     @Test
     @DisplayName("Try to register a new user that already exists")
     void registerUserThatExists() {
-        // Setup
-        this.authController.signup(new SignupRequest(
-                EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME
-        ));
+        this.setup();
 
         var response = this.authController.signup(new SignupRequest(
                 EMAIL,
@@ -71,22 +88,13 @@ class AuthTests {
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
 
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
+        this.tearDown();
     }
 
     @Test
     @DisplayName("Tries to login with invalid credentials")
     void loginWithInvalidCredentials() {
-        // Setup
-        this.authController.signup(new SignupRequest(
-                EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME
-        ));
+        this.setup();
 
         var response = this.authController.login(new LoginRequest(
                 EMAIL,
@@ -95,22 +103,13 @@ class AuthTests {
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
+        this.tearDown();
     }
 
     @Test
     @DisplayName("Test login with valid credentials")
     void loginWithNewUser() {
-        // Setup
-        this.authController.signup(new SignupRequest(
-                EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME
-        ));
+        this.setup();
 
         var response = this.authController.login(new LoginRequest(
                 EMAIL,
@@ -132,22 +131,13 @@ class AuthTests {
 
         assertEquals(HttpStatus.OK, tokenResponse.getStatusCode());
 
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
+        this.tearDown();
     }
 
     @Test
     @DisplayName("Logout endpoint makes the access token invalid")
     void logout() {
-        // Setup
-        this.authController.signup(new SignupRequest(
-                EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME
-        ));
+        this.setup();
 
         var loginResponse = this.authController.login(new LoginRequest(
                 EMAIL,
@@ -179,47 +169,24 @@ class AuthTests {
 
         assertEquals(HttpStatus.UNAUTHORIZED, introReponse.getStatusCode());
 
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
+        this.tearDown();
     }
-
-//    /**
-//     * Tries to delete a user with out the authorization for the user to be deleted
-//     */
-//    @Test
-//    @DisplayName("Delete random user")
-//    @Order(7)
-//    void deleteRandomUser() {
-//        var response = this.authController.delete(new DeleteUserRequest(
-//                "Knut@solwr.com"
-//        ));
-//
-//        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-//    }
     
     @Test
     @DisplayName("Delete your user")
     void deleteYourUser() {
-        // Setup
-        this.authController.signup(new SignupRequest(
+        this.setup();
+
+        var loginResponse = this.authController.login(new LoginRequest(
                 EMAIL,
-                PASSWORD,
-                FIRST_NAME,
-                LAST_NAME
+                PASSWORD
         ));
 
-        var deleteResponse = this.authController.delete(new DeleteUserRequest(
-                EMAIL
+        var deleteResponse = this.authController.delete(new TokenRequest(
+                loginResponse.getBody().getAccess_token()
         ));
 
         assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
-
-        // Tear down
-        this.authController.delete(new DeleteUserRequest(
-                EMAIL
-        ));
     }
 
 }
