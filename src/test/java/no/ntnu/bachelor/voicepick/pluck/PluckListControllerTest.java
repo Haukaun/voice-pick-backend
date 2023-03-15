@@ -48,7 +48,7 @@ class PluckListControllerTest {
   @Order(2)
   void getPluckList() {
     // Add data to database
-    this.locationService.addLocation(new AddLocationRequest("H201", "321"));
+    this.locationService.addLocation(new AddLocationRequest("H201", 321));
     this.productService.addProduct(new AddProductRequest(
             "Q-Melk",
             "H201",

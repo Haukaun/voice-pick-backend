@@ -47,13 +47,16 @@ public class AuthService {
   private static final String GRANT_TYPE_KEY = "grant_type";
   private static final String AUTHORIZATION_KEY = "Authorization";
 
+  /*
+   * Different grant types allowed with keycloak
+   */
   public enum GrantType {
     PASSWORD("password"),
     CREDENTIALS("credentials");
 
     private final String label;
 
-    private GrantType(String label) { this.label = label; }
+    GrantType(String label) { this.label = label; }
 
     public String value() {
       return this.label;
@@ -183,7 +186,7 @@ public class AuthService {
    */
   public void delete(String email) throws EntityNotFoundException {
     // TODO: tmp solution
-    String userId = "";
+    String userId;
     try {
       userId = this.getUserId(email);
     } catch (Exception e) {

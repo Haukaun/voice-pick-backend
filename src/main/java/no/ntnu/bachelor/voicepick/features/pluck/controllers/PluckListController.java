@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
-import jakarta.annotation.Nullable;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

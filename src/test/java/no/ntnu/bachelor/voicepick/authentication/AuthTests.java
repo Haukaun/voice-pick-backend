@@ -10,21 +10,24 @@ import org.springframework.http.HttpStatus;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AuthTests {
 
     @Autowired
     private AuthController authController;
 
+    private final static String EMAIL = "bamel39838@kaudat.com";
+    private final static String PASSWORD = "spodjkfspdojkfef";
+    private final static String FIRST_NAME = "Knut";
+    private final static String LAST_NAME = "Hansen";
+
     @Test
     @DisplayName("Register new user with missing email")
-    @Order(1)
     void registerInvalidUser() {
         var response = this.authController.signup(new SignupRequest(
                 "",
-                "Knut123",
-                "Knut",
-                "Hansen"
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
         ));
 
         assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
@@ -32,51 +35,86 @@ class AuthTests {
 
     @Test
     @DisplayName("Register new user")
-    @Order(2)
     void registerNewUser() {
         var response = this.authController.signup(new SignupRequest(
-                "Knut@solwr.com",
-                "Knut123",
-                "Knut",
-                "Hansen"
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
         ));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
     @Test
     @DisplayName("Try to register a new user that already exists")
-    @Order(3)
     void registerUserThatExists() {
+        // Setup
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+
         var response = this.authController.signup(new SignupRequest(
-                "Knut@solwr.com",
-                "Knut123",
-                "Knut",
-                "Hansen"
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
         ));
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
     @Test
     @DisplayName("Tries to login with invalid credentials")
-    @Order(4)
     void loginWithInvalidCredentials() {
+        // Setup
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+
         var response = this.authController.login(new LoginRequest(
-                "Knut@solwr.com",
+                EMAIL,
                 "ARandomPassword"
         ));
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
     @Test
-    @DisplayName("Login with newly created user")
-    @Order(5)
+    @DisplayName("Test login with valid credentials")
     void loginWithNewUser() {
+        // Setup
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+
         var response = this.authController.login(new LoginRequest(
-                "Knut@solwr.com",
-                "Knut123"
+                EMAIL,
+                PASSWORD
         ));
 
         var body = response.getBody();
@@ -93,16 +131,27 @@ class AuthTests {
         ));
 
         assertEquals(HttpStatus.OK, tokenResponse.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
     @Test
     @DisplayName("Logout endpoint makes the access token invalid")
-    @Order(6)
     void logout() {
-        // Login
+        // Setup
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+
         var loginResponse = this.authController.login(new LoginRequest(
-                "Knut@solwr.com",
-                "Knut123"
+                EMAIL,
+                PASSWORD
         ));
         var loginBody = loginResponse.getBody();
 
@@ -129,6 +178,11 @@ class AuthTests {
         ));
 
         assertEquals(HttpStatus.UNAUTHORIZED, introReponse.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
 //    /**
@@ -144,19 +198,28 @@ class AuthTests {
 //
 //        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 //    }
-
-    /**
-     * Tries to delete a user that you have authorization to
-     */
+    
     @Test
     @DisplayName("Delete your user")
-    @Order(8)
     void deleteYourUser() {
+        // Setup
+        this.authController.signup(new SignupRequest(
+                EMAIL,
+                PASSWORD,
+                FIRST_NAME,
+                LAST_NAME
+        ));
+
         var deleteResponse = this.authController.delete(new DeleteUserRequest(
-                "Knut@solwr.com"
+                EMAIL
         ));
 
         assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
+
+        // Tear down
+        this.authController.delete(new DeleteUserRequest(
+                EMAIL
+        ));
     }
 
 }

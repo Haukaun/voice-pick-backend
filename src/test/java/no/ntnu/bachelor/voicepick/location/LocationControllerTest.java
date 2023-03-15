@@ -26,10 +26,10 @@ class LocationControllerTest {
   private LocationService locationService;
 
   @Test
-  @DisplayName("Add location without control digits")
+  @DisplayName("Add location with negative control digits")
   @Order(1)
   void addLocationWithoutControlDigits() {
-    var response = locationController.addLocation(new AddLocationRequest("H201", ""));
+    var response = locationController.addLocation(new AddLocationRequest("H201", -1));
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
   }
@@ -38,7 +38,7 @@ class LocationControllerTest {
   @DisplayName("Add valid location")
   @Order(2)
   void addLocation() {
-    locationController.addLocation(new AddLocationRequest("H201", "321"));
+    locationController.addLocation(new AddLocationRequest("H201", 321));
 
     assertEquals(1, locationService.getAll().size());
   }
@@ -50,7 +50,7 @@ class LocationControllerTest {
   @DisplayName("Add location that already exists")
   @Order(3)
   void addSameLocationTwice() {
-    var response = locationController.addLocation(new AddLocationRequest("H201", "321"));
+    var response = locationController.addLocation(new AddLocationRequest("H201", 321));
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
   }
