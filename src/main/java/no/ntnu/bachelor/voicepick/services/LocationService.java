@@ -3,6 +3,7 @@ package no.ntnu.bachelor.voicepick.services;
 import java.util.List;
 import java.util.Optional;
 
+import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityExistsException;
@@ -20,6 +21,8 @@ import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
 public class LocationService {
 
   private final LocationRepository repository;
+
+  private final ProductRepository productRepository;
 
   /**
    * Adds a location to the repository
@@ -41,6 +44,15 @@ public class LocationService {
   }
 
   /**
+   * Saves the location
+   *
+   * @param location to be saved
+   */
+  public void save(Location location) {
+    this.repository.save(location);
+  }
+
+  /**
    * Returns a location object based on a location string
    * 
    * @param location the location string
@@ -59,6 +71,26 @@ public class LocationService {
    */
   public List<Location> getAll() {
     return this.repository.findAll();
+  }
+
+  /**
+   * Deletes all the location with the name given
+   *
+   * @param name of the location to delete by
+   */
+  public void deleteAll(String name) {
+    var locationsFound = this.repository.findByName(name);
+
+    locationsFound.forEach(location -> {
+      var product = location.getProduct();
+      if (product != null) {
+        product.setLocation(null);
+        this.productRepository.save(product);
+      }
+      location.setProduct(null);
+    });
+
+    this.repository.deleteAll(locationsFound);
   }
 
 }

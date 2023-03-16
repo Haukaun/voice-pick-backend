@@ -5,13 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,6 +41,11 @@ public class PluckList {
   @JsonManagedReference
   @OneToMany(mappedBy = "pluckList")
   private Set<Pluck> plucks = new HashSet<>();
+
+  @JsonManagedReference
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = CargoCarrier.PRIMARY_KEY)
+  private CargoCarrier cargoCarrier;
 
   public PluckList(String route, String destination) {
     this.route = route;

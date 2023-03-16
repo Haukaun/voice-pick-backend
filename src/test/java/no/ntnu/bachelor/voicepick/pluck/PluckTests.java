@@ -1,11 +1,9 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +14,8 @@ import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.features.pluck.models.Pluck;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class PluckTests {
@@ -40,6 +40,12 @@ class PluckTests {
     assertEquals("1234", pluckList.getRoute());
     assertEquals("Kiwi - Nedre Strandgate", pluckList.getDestination());
     assertEquals(2, pluckList.getPlucks().size());
+    assertNull(pluckList.getCargoCarrier());
+
+    pluckList.setCargoCarrier(new CargoCarrier("Halvpall", 2L));
+
+    assertEquals("Halvpall", pluckList.getCargoCarrier().getName());
+    assertEquals(2L, pluckList.getCargoCarrier().getIdentifier());
 
     var melkResult = pluckList.getPlucks().stream().filter(pluck -> Objects.equals(pluck.getProduct().getName(), "Q-melk"))
         .findFirst();
