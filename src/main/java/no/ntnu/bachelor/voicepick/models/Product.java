@@ -2,14 +2,7 @@ package no.ntnu.bachelor.voicepick.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
@@ -36,7 +29,7 @@ public class Product {
   private String name;
 
   @JsonManagedReference
-  @OneToOne
+  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
   @JoinColumn(name = Location.PRIMARY_KEY)
   private Location location;
 

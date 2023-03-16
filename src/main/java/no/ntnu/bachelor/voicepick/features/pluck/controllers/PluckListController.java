@@ -1,11 +1,11 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
+import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
@@ -25,12 +25,40 @@ public class PluckListController {
    *         goes wrong
    */
   @GetMapping
-  public ResponseEntity<PluckList> getPluckList() {
+  public ResponseEntity<PluckList> getRandomPluckList() {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
       return new ResponseEntity<>(new PluckList(), HttpStatus.NO_CONTENT);
     }
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<PluckList> getPluckListById(@PathVariable Long id) {
+    ResponseEntity<PluckList> response;
+
+    var pluckListOpt = this.pluckListService.findById(id);
+    if (pluckListOpt.isPresent()) {
+      response = new ResponseEntity<>(pluckListOpt.get(), HttpStatus.OK);
+    } else {
+      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return response;
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<String> updateCargoCarrier(@PathVariable Long id, @RequestBody CargoCarrierDto requestBody) {
+    ResponseEntity<String> response;
+
+    try {
+      this.pluckListService.updateCargoCarrier(id, requestBody.getIdentifier());
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return response;
   }
 
 }

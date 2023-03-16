@@ -1,12 +1,11 @@
 package no.ntnu.bachelor.voicepick.features.pluck.services;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
+import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
+import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -27,10 +26,15 @@ public class PluckListService {
   private final ProductService productService;
   private final PluckService pluckService;
   private final PluckListRepository pluckListRepository;
+  private final CargoCarrierRepository cargoCarrierRepository;
   private final Random random = new Random();
   private static final String[] ROUTES = { "1234", "3453", "6859", "3423", "0985", "1352" };
   private static final String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
           "Afrin Dagligvare Ålesund AS", "Olivers & CO Ålesund" };
+
+  public Optional<PluckList> findById(Long id) {
+    return this.pluckListRepository.findById(id);
+  }
 
   /**
    * Generates random pluck list
@@ -104,6 +108,31 @@ public class PluckListService {
     }
 
     return extractedProducts;
+  }
+
+  /**
+   * Updates the cargo carrier for a given pluck list
+   *
+   * @param id of the pluck list to update the cargo carrier for
+   * @param cargoIdentifier of the cargo carrier to add to the pluck list
+   */
+  public void updateCargoCarrier(Long id, Long cargoIdentifier) {
+    Optional<PluckList> pluckListOpt = this.findById(id);
+    Optional<CargoCarrier> cargoCarrierOpt = this.cargoCarrierRepository.findByIdentifier(cargoIdentifier);
+
+    if (pluckListOpt.isEmpty()) {
+      throw new EntityNotFoundException("Could not find a pluck list with id: " + id);
+    }
+    if (cargoCarrierOpt.isEmpty()) {
+      throw new EntityNotFoundException("Could not find a cargo carrier with identifier: " + cargoIdentifier);
+    }
+
+    var pluckList = pluckListOpt.get();
+    var cargoCarrier = cargoCarrierOpt.get();
+
+    cargoCarrier.addPluckList(pluckList);
+
+    this.pluckListRepository.save(pluckList);
   }
 
 }

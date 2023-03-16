@@ -2,13 +2,7 @@ package no.ntnu.bachelor.voicepick.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
@@ -40,7 +34,7 @@ public class Location {
   private int controlDigit;
 
   @JsonBackReference
-  @OneToOne(mappedBy = "location")
+  @OneToOne(mappedBy = "location", cascade = CascadeType.REMOVE, orphanRemoval = true)
   private Product product;
 
   public Location(String name, int controlDigits) {

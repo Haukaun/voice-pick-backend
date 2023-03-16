@@ -1,9 +1,13 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
+import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.features.pluck.controllers.PluckListController;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
+import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.services.LocationService;
@@ -19,10 +23,12 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 class PluckListControllerTest {
+
+  // TODO: Remove 'test method order' and tear down each test properly
 
   @Autowired
   private PluckListController pluckListController;
@@ -31,6 +37,9 @@ class PluckListControllerTest {
   @Autowired
   private ProductService productService;
 
+  @Autowired
+  private CargoCarrierService cargoCarrierService;
+
   /**
    * Tries to fetch a pluck list when there are no products store in the database
    */
@@ -38,7 +47,7 @@ class PluckListControllerTest {
   @DisplayName("Try to get a pluck list when there are no products available")
   @Order(1)
   void getPluckListWithoutProducts() {
-    var plucklist = this.pluckListController.getPluckList();
+    var plucklist = this.pluckListController.getRandomPluckList();
 
     assertEquals(HttpStatus.NO_CONTENT, plucklist.getStatusCode());
   }
@@ -47,7 +56,7 @@ class PluckListControllerTest {
   @DisplayName("Get a pluck list")
   @Order(2)
   void getPluckList() {
-    // Add data to database
+    // Setup
     this.locationService.addLocation(new AddLocationRequest("H201", 321));
     this.productService.addProduct(new AddProductRequest(
             "Q-Melk",
@@ -59,15 +68,43 @@ class PluckListControllerTest {
             Status.READY
     ));
 
-    var response = this.pluckListController.getPluckList();
+    // Execution
+    var response = this.pluckListController.getRandomPluckList();
     var responseBody = response.getBody();
 
-    if (responseBody instanceof PluckList) {
-      assertEquals(HttpStatus.OK, response.getStatusCode());
-      assertEquals(1, ((PluckList) responseBody).getPlucks().size());
-    } else {
-      fail();
-    }
+    // Validation
+    assert responseBody != null;
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(1, ((PluckList) responseBody).getPlucks().size());
   }
 
+  @Test
+  @DisplayName("Update cargo carrier for pluck list")
+  @Order(3)
+  @Transactional
+  void updateCargoCarrier() {
+    // Setup
+    var response = this.pluckListController.getRandomPluckList();
+    var pluckList = response.getBody();
+
+    assert pluckList != null;
+
+    this.cargoCarrierService.add(new CargoCarrier("Helpall", 1L));
+    var cargoCarrierTypes = this.cargoCarrierService.findAll();
+
+    assertEquals(1, cargoCarrierTypes.size());
+
+    // Execution
+    this.pluckListController.updateCargoCarrier(pluckList.getId(), new CargoCarrierDto(
+            cargoCarrierTypes.get(0).getName(),
+            cargoCarrierTypes.get(0).getIdentifier()
+    ));
+
+    var updatedPluckList = this.pluckListController.getPluckListById(pluckList.getId()).getBody();
+
+    assert updatedPluckList != null;
+    assertEquals("Helpall", updatedPluckList.getCargoCarrier().getName());
+    assertEquals(1L, updatedPluckList.getCargoCarrier().getIdentifier());
+
+  }
 }

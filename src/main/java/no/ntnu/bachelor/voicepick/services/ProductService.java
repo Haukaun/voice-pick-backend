@@ -72,4 +72,24 @@ public class ProductService {
     return this.repository.findByName(name);
   }
 
+  /**
+   * Deletes all products with the given name
+   *
+   * @param name of the product to be deleted
+   */
+  public void deleteAll(String name) {
+    var productsFound = this.getProductsByName(name);
+
+    productsFound.forEach(product -> {
+      var location = product.getLocation();
+      if (location != null) {
+        location.setProduct(null);
+        this.locationService.save(location);
+      }
+      product.setLocation(null);
+    });
+
+    this.repository.deleteAll(productsFound);
+  }
+
 }
