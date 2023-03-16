@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
@@ -24,8 +25,16 @@ public class CargoCarrierController {
 
   @PostMapping
   public ResponseEntity<String> addCargoCarrier(@RequestBody CargoCarrierDto body) {
-    this.service.add(new CargoCarrier(body.getName(), body.getIdentifier()));
-    return new ResponseEntity<>(HttpStatus.OK);
+    ResponseEntity<String> response;
+
+    try {
+      this.service.add(new CargoCarrier(body.getName(), body.getIdentifier()));
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityExistsException e) {
+      response = new ResponseEntity<>("Cargo carrier with identifier (" + body.getIdentifier() + ") already exists", HttpStatus.CONFLICT);
+    }
+
+    return response;
   }
 
 }

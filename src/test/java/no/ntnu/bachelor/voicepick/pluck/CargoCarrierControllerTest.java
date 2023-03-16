@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
+import jakarta.persistence.EntityExistsException;
 import no.ntnu.bachelor.voicepick.features.pluck.controllers.CargoCarrierController;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
@@ -9,9 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -58,6 +60,31 @@ class CargoCarrierControllerTest {
 
     // Tear down
     this.cargoCarrierService.delete(storedCargoCarriers.get(0));
+  }
+
+  /*
+   * Should not be allowed to add two cargo carriers with same identifier
+   */
+  @Test
+  @DisplayName("Add two cargo carriers with same identifier")
+  void addTwoCargoeCarriersWithSameIdentifier() {
+    // Execution
+    var firstResponse = this.cargoCarrierController.addCargoCarrier(new CargoCarrierDto(
+            "Helpall",
+            1L
+    ));
+    var secondResponse = this.cargoCarrierController.addCargoCarrier(new CargoCarrierDto(
+            "Halvpall",
+            1L
+    ));
+
+    // Validation
+    assertEquals(HttpStatus.OK, firstResponse.getStatusCode());
+    assertEquals(HttpStatus.CONFLICT, secondResponse.getStatusCode());
+
+    // Tear down
+    var cargoCarriers = this.cargoCarrierService.findAll();
+    this.cargoCarrierService.deleteAll(cargoCarriers);
   }
 
 }
