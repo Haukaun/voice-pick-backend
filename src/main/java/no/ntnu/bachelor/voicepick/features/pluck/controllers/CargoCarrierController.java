@@ -25,10 +25,11 @@ public class CargoCarrierController {
 
   @PostMapping
   public ResponseEntity<String> addCargoCarrier(@RequestBody CargoCarrierDto body) {
+
     ResponseEntity<String> response;
 
     try {
-      this.service.add(new CargoCarrier(body.getName(), body.getIdentifier()));
+      this.service.add(new CargoCarrier(body.getName(), body.getIdentifier(), body.getPhoneticIdentifier()));
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (EntityExistsException e) {
       response = new ResponseEntity<>("Cargo carrier with identifier (" + body.getIdentifier() + ") already exists", HttpStatus.CONFLICT);
@@ -36,5 +37,4 @@ public class CargoCarrierController {
 
     return response;
   }
-
 }

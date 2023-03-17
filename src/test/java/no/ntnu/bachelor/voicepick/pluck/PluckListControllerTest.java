@@ -89,7 +89,7 @@ class PluckListControllerTest {
 
     assert pluckList != null;
 
-    this.cargoCarrierService.add(new CargoCarrier("Helpall", 1L));
+    this.cargoCarrierService.add(new CargoCarrier("Helpall", 1L, "one"));
     var cargoCarrierTypes = this.cargoCarrierService.findAll();
 
     assertEquals(1, cargoCarrierTypes.size());
@@ -97,7 +97,8 @@ class PluckListControllerTest {
     // Execution
     this.pluckListController.updateCargoCarrier(pluckList.getId(), new CargoCarrierDto(
             cargoCarrierTypes.get(0).getName(),
-            cargoCarrierTypes.get(0).getIdentifier()
+            cargoCarrierTypes.get(0).getIdentifier(),
+            cargoCarrierTypes.get(0).getPhoneticIdentifier()
     ));
 
     var updatedPluckList = this.pluckListController.getPluckListById(pluckList.getId()).getBody();

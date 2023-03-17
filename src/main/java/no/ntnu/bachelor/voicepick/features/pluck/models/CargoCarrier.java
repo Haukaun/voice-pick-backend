@@ -39,12 +39,17 @@ public class CargoCarrier {
   @OneToMany(mappedBy = "cargoCarrier")
   private Set<PluckList> pluckLists = new HashSet<>();
 
-  public CargoCarrier(String name, Long identifier) {
+  @Column(name = "phonetic_identifier")
+  private String phoneticIdentifier;
+
+  public CargoCarrier(String name, Long identifier, String phoneticIdentifier) {
     if (name.isBlank()) throw new IllegalArgumentException("Cannot create cargo carrier without a name");
     if (identifier < 0) throw new IllegalArgumentException("Identifier cannot be negative");
+    if (phoneticIdentifier.isBlank()) throw new IllegalArgumentException("Cannot create cargo carrier without a phonetic identifier");
 
     this.name = name;
     this.identifier = identifier;
+    this.phoneticIdentifier = phoneticIdentifier;
   }
 
   /**
