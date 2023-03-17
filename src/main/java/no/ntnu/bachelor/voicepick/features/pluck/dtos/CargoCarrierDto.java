@@ -8,4 +8,5 @@ import lombok.Data;
 public class CargoCarrierDto {
   private String name;
   private Long identifier;
+  private String phoneticIdentifier;
 }

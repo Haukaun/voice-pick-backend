@@ -42,7 +42,7 @@ class PluckTests {
     assertEquals(2, pluckList.getPlucks().size());
     assertNull(pluckList.getCargoCarrier());
 
-    pluckList.setCargoCarrier(new CargoCarrier("Halvpall", 2L));
+    pluckList.setCargoCarrier(new CargoCarrier("Halvpall", 2L, "two"));
 
     assertEquals("Halvpall", pluckList.getCargoCarrier().getName());
     assertEquals(2L, pluckList.getCargoCarrier().getIdentifier());

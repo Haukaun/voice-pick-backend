@@ -29,7 +29,7 @@ class CargoCarrierControllerTest {
   @DisplayName("Test getting cargo carriers")
   void getCargoCarriers() {
     // Setup
-    this.cargoCarrierService.add(new CargoCarrier("Helpall", 1l));
+    this.cargoCarrierService.add(new CargoCarrier("Helpall", 1l, "one"));
 
     // Execution
     var response = this.cargoCarrierController.getCargoCarriers();
@@ -51,7 +51,8 @@ class CargoCarrierControllerTest {
     // Execution
     this.cargoCarrierController.addCargoCarrier(new CargoCarrierDto(
             "Helpall",
-            1L
+            1L,
+            "one"
     ));
 
     // Validation
@@ -71,11 +72,13 @@ class CargoCarrierControllerTest {
     // Execution
     var firstResponse = this.cargoCarrierController.addCargoCarrier(new CargoCarrierDto(
             "Helpall",
-            1L
+            1L,
+            "one"
     ));
     var secondResponse = this.cargoCarrierController.addCargoCarrier(new CargoCarrierDto(
             "Halvpall",
-            1L
+            1L,
+            "one"
     ));
 
     // Validation
