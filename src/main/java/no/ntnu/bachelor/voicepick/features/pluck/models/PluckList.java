@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.pluck.models;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,9 @@ public class PluckList {
 
   @Column(name = "destination")
   private String destination;
+
+  @Column(name = "confirmed_at")
+  private LocalDateTime confirmedAt;
 
   // TODO: Add ref to plucker
 
