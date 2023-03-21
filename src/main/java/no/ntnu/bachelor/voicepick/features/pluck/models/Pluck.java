@@ -51,6 +51,9 @@ public class Pluck {
   @Column(name = "plucked_at")
   private LocalDateTime pluckedAt;
 
+  @Column(name = "has_selected_control_digits")
+  private Boolean hasSelectedControlDigits;
+
   @JsonBackReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = PluckList.PRIMARY_KEY)
@@ -60,5 +63,6 @@ public class Pluck {
     this.product = product;
     this.amount = amount;
     this.createdAt = createdAt;
+    this.hasSelectedControlDigits = false;
   }
 }
