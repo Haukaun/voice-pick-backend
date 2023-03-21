@@ -16,15 +16,15 @@ import lombok.Getter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = Location.TABLE_NAME)
-public class Location {
+@Table(name = ProductLocation.TABLE_NAME)
+public class ProductLocation {
 
-  public static final String TABLE_NAME = "location";
-  public static final String PRIMARY_KEY = "location_id";
+  public static final String TABLE_NAME = "product_location";
+  public static final String PRIMARY_KEY = "product_location_id";
   
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = Location.PRIMARY_KEY)
+  @Column(name = ProductLocation.PRIMARY_KEY)
   private Long id;
 
   @Column(name = "name")
@@ -37,7 +37,7 @@ public class Location {
   @OneToOne(mappedBy = "location", cascade = CascadeType.REMOVE, orphanRemoval = true)
   private Product product;
 
-  public Location(String name, int controlDigits) {
+  public ProductLocation(String name, int controlDigits) {
     if (name.isBlank()) throw new IllegalArgumentException("Location cannot be empty");
     if (controlDigits < 0) throw new IllegalArgumentException("Control digits cannot not be negative");
 

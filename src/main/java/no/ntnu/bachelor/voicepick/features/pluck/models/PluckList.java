@@ -37,6 +37,11 @@ public class PluckList {
   @Column(name = "destination")
   private String destination;
 
+  @JsonManagedReference
+  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @JoinColumn(name = PluckListLocation.PRIMARY_KEY)
+  private PluckListLocation location;
+
   @Column(name = "confirmed_at")
   private LocalDateTime confirmedAt;
 
@@ -51,9 +56,10 @@ public class PluckList {
   @JoinColumn(name = CargoCarrier.PRIMARY_KEY)
   private CargoCarrier cargoCarrier;
 
-  public PluckList(String route, String destination) {
+  public PluckList(String route, String destination, PluckListLocation location) {
     this.route = route;
     this.destination = destination;
+    this.location = location;
   }
 
   /**

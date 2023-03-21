@@ -17,7 +17,7 @@ import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.services.ProductService;
-import no.ntnu.bachelor.voicepick.services.LocationService;
+import no.ntnu.bachelor.voicepick.services.ProductLocationService;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -30,7 +30,7 @@ class ProductControllerTest {
   @Autowired
   private ProductService productService;
   @Autowired
-  private LocationService locationService;
+  private ProductLocationService locationService;
 
    @Test
    @DisplayName("Try to add an invalid product")

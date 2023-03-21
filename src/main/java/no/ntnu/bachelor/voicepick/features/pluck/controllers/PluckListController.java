@@ -25,11 +25,11 @@ public class PluckListController {
    *         goes wrong
    */
   @GetMapping
-  public ResponseEntity<PluckList> getRandomPluckList() {
+  public ResponseEntity<?> getRandomPluckList() {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(new PluckList(), HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
     }
   }
 

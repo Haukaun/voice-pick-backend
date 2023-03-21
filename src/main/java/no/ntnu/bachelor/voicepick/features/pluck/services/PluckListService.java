@@ -25,6 +25,7 @@ public class PluckListService {
 
   private final ProductService productService;
   private final PluckService pluckService;
+  private final PluckListLocationService pluckListLocationService;
   private final PluckListRepository pluckListRepository;
   private final CargoCarrierRepository cargoCarrierRepository;
   private final Random random = new Random();
@@ -36,6 +37,8 @@ public class PluckListService {
     return this.pluckListRepository.findById(id);
   }
 
+
+
   /**
    * Generates random pluck list
    * 
@@ -44,11 +47,19 @@ public class PluckListService {
    */
   public PluckList generateRandomPluckList() throws EmptyListException {
 
+    var locations = pluckListLocationService.getAll();
+    if (locations.size() == 0) {
+      throw new EmptyListException("No available locations");
+    }
+
+    var randomLocation = locations.get(random.nextInt(locations.size()));
+
     // Generate a random pluck list
     var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
-        DESTINATIONS[randomDestinationIndex]);
+        DESTINATIONS[randomDestinationIndex],
+        randomLocation);
 
     this.pluckListRepository.save(pluckList);
 

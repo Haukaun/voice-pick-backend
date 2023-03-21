@@ -10,17 +10,17 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
-import no.ntnu.bachelor.voicepick.models.Location;
-import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
+import no.ntnu.bachelor.voicepick.models.ProductLocation;
+import no.ntnu.bachelor.voicepick.repositories.ProductLocationRepository;
 
 /**
  * A service class for the location model
  */
 @Service
 @RequiredArgsConstructor
-public class LocationService {
+public class ProductLocationService {
 
-  private final LocationRepository repository;
+  private final ProductLocationRepository repository;
 
   private final ProductRepository productRepository;
 
@@ -38,7 +38,7 @@ public class LocationService {
       throw new EntityExistsException("Location with serial: " + location.getName() + " already exists");
     }
 
-    var locationToSave = new Location(location.getName(), location.getControlDigits());
+    var locationToSave = new ProductLocation(location.getName(), location.getControlDigits());
 
     this.repository.save(locationToSave);
   }
@@ -48,7 +48,7 @@ public class LocationService {
    *
    * @param location to be saved
    */
-  public void save(Location location) {
+  public void save(ProductLocation location) {
     this.repository.save(location);
   }
 
@@ -56,11 +56,9 @@ public class LocationService {
    * Returns a location object based on a location string
    * 
    * @param location the location string
-   * @return a location object
-   * @throws EntityNotFoundException when a location with the given location
-   *                                 string is not found
+   * @return a optional of the location
    */
-  public Optional<Location> getLocation(String location) {
+  public Optional<ProductLocation> getLocation(String location) {
     return this.repository.findFirstByName(location);
   }
 
@@ -69,7 +67,7 @@ public class LocationService {
    * 
    * @return a list of all locations
    */
-  public List<Location> getAll() {
+  public List<ProductLocation> getAll() {
     return this.repository.findAll();
   }
 

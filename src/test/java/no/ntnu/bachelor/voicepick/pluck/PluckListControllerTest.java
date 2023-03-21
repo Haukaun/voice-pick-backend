@@ -8,9 +8,11 @@ import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
+import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListLocationService;
+import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
-import no.ntnu.bachelor.voicepick.services.LocationService;
+import no.ntnu.bachelor.voicepick.services.ProductLocationService;
 import no.ntnu.bachelor.voicepick.services.ProductService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +35,12 @@ class PluckListControllerTest {
   @Autowired
   private PluckListController pluckListController;
   @Autowired
-  private LocationService locationService;
+  private ProductLocationService productLocationService;
   @Autowired
   private ProductService productService;
+
+  @Autowired
+  private PluckListLocationService pluckListLocationService;
 
   @Autowired
   private CargoCarrierService cargoCarrierService;
@@ -57,7 +62,8 @@ class PluckListControllerTest {
   @Order(2)
   void getPluckList() {
     // Setup
-    this.locationService.addLocation(new AddLocationRequest("H201", 321));
+    this.productLocationService.addLocation(new AddLocationRequest("H201", 321));
+    this.pluckListLocationService.addLocation(new AddLocationRequest("H344", 555));
     this.productService.addProduct(new AddProductRequest(
             "Q-Melk",
             "H201",
@@ -85,7 +91,14 @@ class PluckListControllerTest {
   void updateCargoCarrier() {
     // Setup
     var response = this.pluckListController.getRandomPluckList();
-    var pluckList = response.getBody();
+    var responseBody = response.getBody();
+
+    PluckList pluckList = null;
+    if (responseBody instanceof String) {
+      fail();
+    } else {
+      pluckList = (PluckList) responseBody;
+    }
 
     assert pluckList != null;
 
