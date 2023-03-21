@@ -10,9 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
-import no.ntnu.bachelor.voicepick.controllers.LocationController;
+import no.ntnu.bachelor.voicepick.controllers.ProductLocationController;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
-import no.ntnu.bachelor.voicepick.services.LocationService;
+import no.ntnu.bachelor.voicepick.features.pluck.controllers.PluckListLocationController;
+import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListLocationService;
+import no.ntnu.bachelor.voicepick.services.ProductLocationService;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -21,26 +23,38 @@ import no.ntnu.bachelor.voicepick.services.LocationService;
 class LocationControllerTest {
   
   @Autowired
-  private LocationController locationController;
+  private ProductLocationController productLocationController;
   @Autowired
-  private LocationService locationService;
+  private ProductLocationService productLocationService;
 
+  @Autowired 
+  private PluckListLocationService pluckListLocationService;
+
+  @Autowired
+  private PluckListLocationController pluckListLocationController;
+
+  /**
+   * Tries to add a location with negative control digits
+   */
   @Test
-  @DisplayName("Add location with negative control digits")
+  @DisplayName("Add productlocation with negative control digits")
   @Order(1)
-  void addLocationWithoutControlDigits() {
-    var response = locationController.addLocation(new AddLocationRequest("H201", -1));
+  void addProductLocationWithoutControlDigits() {
+    var response = productLocationController.addProductLocation(new AddLocationRequest("H201", -1));
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
   }
 
+  /**
+   * Adds a valid location
+   */
   @Test
-  @DisplayName("Add valid location")
+  @DisplayName("Add valid product location")
   @Order(2)
-  void addLocation() {
-    locationController.addLocation(new AddLocationRequest("H201", 321));
+  void addProductLocation() {
+    productLocationController.addProductLocation(new AddLocationRequest("H201", 321));
 
-    assertEquals(1, locationService.getAll().size());
+    assertEquals(1, productLocationService.getAll().size());
   }
 
   /**
@@ -50,9 +64,32 @@ class LocationControllerTest {
   @DisplayName("Add location that already exists")
   @Order(3)
   void addSameLocationTwice() {
-    var response = locationController.addLocation(new AddLocationRequest("H201", 321));
+    var response = productLocationController.addProductLocation(new AddLocationRequest("H201", 321));
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
   }
 
+  /**
+   * Tries to add the location that was added in the test above a second time
+   */
+  @Test
+  @DisplayName("Add pluckListLocation with negative control digits")
+  @Order(4)
+  void addPluckListLocationWithoutControlDigits() {
+    var response = pluckListLocationController.addLocation(new AddLocationRequest("H233", -1));
+
+    assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
+  }
+
+  /**
+   * Adds a valid pluck list location.
+   */
+  @Test
+  @DisplayName("Add valid pluckList location")
+  @Order(5)
+  void addPluckListLocation() {
+    pluckListLocationController.addLocation(new AddLocationRequest("H201", 321));
+
+    assertEquals(1, pluckListLocationService.getAll().size());
+  }
 }

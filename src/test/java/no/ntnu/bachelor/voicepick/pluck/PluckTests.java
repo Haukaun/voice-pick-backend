@@ -8,12 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import no.ntnu.bachelor.voicepick.models.Location;
+import no.ntnu.bachelor.voicepick.models.ProductLocation;
 import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.features.pluck.models.Pluck;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckListLocation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +24,10 @@ class PluckTests {
   @Test
   @DisplayName("Create a valid pluck list")
   void testCreatingPluckList() {
-    var h201 = new Location("H201", 321);
-    var m119 = new Location("M119", 875);
+    var h201 = new ProductLocation("H201", 321);
+    var m119 = new ProductLocation("M119", 875);
+
+    var m200 = new PluckListLocation("M200", 321);
 
     var melk = new Product("Q-melk", h201, 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
     var cola = new Product("6-pack Coca Cola", m119, 9, 9, 100, ProductType.D_PAK, Status.READY);
@@ -32,7 +35,7 @@ class PluckTests {
     var melkPluck = new Pluck(melk, 10, LocalDateTime.now());
     var colaPluck = new Pluck(cola, 10, LocalDateTime.now());
 
-    var pluckList = new PluckList("1234", "Kiwi - Nedre Strandgate");
+    var pluckList = new PluckList("1234", "Kiwi - Nedre Strandgate", m200);
 
     pluckList.addPluck(melkPluck);
     pluckList.addPluck(colaPluck);

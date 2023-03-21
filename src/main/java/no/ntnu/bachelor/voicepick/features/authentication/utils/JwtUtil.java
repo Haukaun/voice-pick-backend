@@ -2,13 +2,11 @@ package no.ntnu.bachelor.voicepick.features.authentication.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
 
 @Component
-@Slf4j
 public class JwtUtil {
 
     public String getUid(String token) throws JsonProcessingException {

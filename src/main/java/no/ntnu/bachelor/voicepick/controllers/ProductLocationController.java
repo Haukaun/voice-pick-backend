@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
-import no.ntnu.bachelor.voicepick.services.LocationService;
+import no.ntnu.bachelor.voicepick.services.ProductLocationService;
 
 @RestController
-@RequestMapping("/locations")
+@RequestMapping("/productlocations")
 @RequiredArgsConstructor
-public class LocationController {
+public class ProductLocationController {
 
-  private final LocationService locationService;
+  private final ProductLocationService locationService;
 
   /**
    * Endpoint for adding a new location
@@ -27,7 +27,7 @@ public class LocationController {
    *         body is incorrect
    */
   @PostMapping
-  public ResponseEntity<String> addLocation(@RequestBody AddLocationRequest location) {
+  public ResponseEntity<String> addProductLocation(@RequestBody AddLocationRequest location) {
     ResponseEntity<String> response;
 
     try {
@@ -39,5 +39,4 @@ public class LocationController {
 
     return response;
   }
-
 }
