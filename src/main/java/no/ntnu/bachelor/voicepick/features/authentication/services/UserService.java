@@ -21,57 +21,64 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    /*
+    /**
      * Creates a new user
+     *
+     * @param user to be added
      */
-    public User createUser(User user) {
+    public void createUser(User user) {
         // Check if the user already exists in the application database
-    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-        throw new IllegalStateException("User already exists");
-    }
-    // Save the user in the application database
-    return userRepository.save(user);
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalStateException("User already exists");
+        }
+        // Save the user in the application database
+        userRepository.save(user);
     }
 
-    /*
+    /**
      * Returns a user with the given email
+     *
+     * @param email of the user to find
+     * @return an optional with the user if found, if not the optional is empty
      */
-    public User getUserByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("User does not exist");
-        }
-        return user.get();
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
-    /*
+    /**
      * Returns a user with the given id
+     *
+     * @param id of the user to find
+     * @return an optional with the user if found, if not the optional is empty
      */
-    public User getUserById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("User does not exist");
-        }
-        return user.get();
+    public Optional<User> getUserById(String id) {
+        return userRepository.findById(id);
     }
 
-    /*
+    /**
      * Returns a list of all users
+     *
+     * @return a list of user
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    
-    /*
+
+    /**
      * Deletes a user with the given id
+     *
+     * @param id of the user to delete
      */
-    public void deleteUser(Long id) {
-        boolean exists = userRepository.existsById(id);
-        if (!exists) {
-            throw new IllegalStateException("User with id " + id + " does not exist");
-        }
+    public void deleteUser(String id) {
         userRepository.deleteById(id);
+    }
+
+    /**
+     * Deletes a user based on email
+     *
+     * @param email of the user to delete
+     */
+    public void deleteUserByEmail(String email) {
+        this.getUserByEmail(email).ifPresent(this.userRepository::delete);
     }
 }

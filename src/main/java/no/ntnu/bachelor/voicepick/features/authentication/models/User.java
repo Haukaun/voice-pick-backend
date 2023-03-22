@@ -12,9 +12,10 @@ import lombok.Setter;
 @Setter
 @Entity(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Column(name = "uid")
+    private String uid;
 
     @Column(name = "first_name")
     private String firstName;
@@ -28,19 +29,14 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email) {
+    public User(String uid, String firstName, String lastName, String email) {
+        if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("firstName cannot be empty");
+        if (lastName == null || lastName.isBlank()) throw new IllegalArgumentException("lastName cannot be empty");
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("Email cannot be empty");
+
+        this.uid = uid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-
-        if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("firstName cannot be empty");
-        }
-        if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("lastName cannot be empty");
-        }
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
     }
 }

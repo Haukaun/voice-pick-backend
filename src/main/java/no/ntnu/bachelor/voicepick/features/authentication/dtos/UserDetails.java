@@ -9,6 +9,9 @@ public class UserDetails {
     private String id;
     private String firstName;
     private String lastName;
-    private boolean emailVerified;
     private String email;
+    private boolean emailVerified;
+    private boolean enabled;
+    private String createdTimestamp;
+
 }
