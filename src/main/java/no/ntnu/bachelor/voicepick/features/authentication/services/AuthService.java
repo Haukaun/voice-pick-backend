@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -25,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
   private final RestTemplate restTemplate;
+
+  private final UserService userService;
 
   private final JwtUtil jwtUtil;
 
@@ -124,7 +127,10 @@ public class AuthService {
     HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);
 
     var signupUrl = baseUrl + "/auth/admin/realms/" + realm + "/users";
-    restTemplate.postForEntity(signupUrl, httpEntity, String.class);
+    var response = restTemplate.postForEntity(signupUrl, httpEntity, String.class);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      userService.createUser(new User(request.getFirstName(), request.getLastName(), request.getEmail()));
+    }
   }
 
   /**

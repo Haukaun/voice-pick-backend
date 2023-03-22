@@ -7,9 +7,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDetails {
     private String id;
-    private String createdTimestamp;
-    private String username;
-    private boolean enabled;
+    private String firstName;
+    private String lastName;
     private boolean emailVerified;
     private String email;
 }

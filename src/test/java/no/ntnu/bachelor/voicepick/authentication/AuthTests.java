@@ -2,10 +2,15 @@ package no.ntnu.bachelor.voicepick.authentication;
 
 import no.ntnu.bachelor.voicepick.features.authentication.controllers.AuthController;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+
+import jakarta.validation.constraints.Email;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,6 +19,9 @@ class AuthTests {
 
     @Autowired
     private AuthController authController;
+
+    @Autowired
+    private UserService userService;
 
     private final static String EMAIL = "bamel39838@kaudat.com";
     private final static String PASSWORD = "spodjkfspdojkfef";
@@ -62,14 +70,27 @@ class AuthTests {
     @Test
     @DisplayName("Register new user")
     void registerNewUser() {
+
+        // Remove any existing user with the same email
+         User existingUser = userService.getUserByEmail(EMAIL);
+        if (existingUser != null) {
+                userService.deleteUser(existingUser.getId());
+        }
+
         var response = this.authController.signup(new SignupRequest(
                 EMAIL,
                 PASSWORD,
                 FIRST_NAME,
                 LAST_NAME
         ));
-
+        
         assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        // Check if the user is registered in the database
+        User registeredUser = userService.getUserByEmail(EMAIL);
+        assertNotNull(registeredUser);
+        assertEquals(FIRST_NAME, registeredUser.getFirstName());
+        assertEquals(LAST_NAME, registeredUser.getLastName());
 
         this.tearDown();
     }
