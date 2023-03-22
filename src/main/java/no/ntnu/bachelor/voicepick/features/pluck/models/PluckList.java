@@ -52,6 +52,11 @@ public class PluckList {
   private Set<Pluck> plucks = new HashSet<>();
 
   @JsonManagedReference
+  @OneToMany(mappedBy = "pluckList")
+  private Set<PluckListLocation> pluckListLocations = new HashSet<>();
+
+
+  @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = CargoCarrier.PRIMARY_KEY)
   private CargoCarrier cargoCarrier;
@@ -71,6 +76,11 @@ public class PluckList {
   public void addPluck(Pluck pluck) {
     this.plucks.add(pluck);
     pluck.setPluckList(this);
+  }
+
+  public void addPluckListLocation(PluckListLocation pluckListLocation) {
+    this.pluckListLocations.add(pluckListLocation);
+    pluckListLocation.setPluckList(this);
   }
 
   /**
