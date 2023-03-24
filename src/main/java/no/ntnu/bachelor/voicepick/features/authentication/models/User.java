@@ -40,6 +40,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<PluckList> plucklists = new HashSet<>();
 
+
+    public User() {
+    }
+
     public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
