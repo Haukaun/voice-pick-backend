@@ -70,13 +70,6 @@ class AuthTests {
     @Test
     @DisplayName("Register new user")
     void registerNewUser() {
-
-        // Remove any existing user with the same email
-         User existingUser = userService.getUserByEmail(EMAIL);
-        if (existingUser != null) {
-                userService.deleteUser(existingUser.getId());
-        }
-
         var response = this.authController.signup(new SignupRequest(
                 EMAIL,
                 PASSWORD,
@@ -87,10 +80,10 @@ class AuthTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         // Check if the user is registered in the database
-        User registeredUser = userService.getUserByEmail(EMAIL);
-        assertNotNull(registeredUser);
-        assertEquals(FIRST_NAME, registeredUser.getFirstName());
-        assertEquals(LAST_NAME, registeredUser.getLastName());
+        var optionalUser = userService.getUserByEmail(EMAIL);
+        assertTrue(optionalUser.isPresent());
+        assertEquals(FIRST_NAME, optionalUser.get().getFirstName());
+        assertEquals(LAST_NAME, optionalUser.get().getLastName());
 
         this.tearDown();
     }
