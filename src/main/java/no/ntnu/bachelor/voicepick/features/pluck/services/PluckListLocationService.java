@@ -77,12 +77,12 @@ public class PluckListLocationService {
     var locationsFound = this.repository.findByName(name);
 
     locationsFound.forEach(location -> {
-      var pluckList = location.getPluckList();
-      if (pluckList != null) {
+      var pluckLists = location.getPluckLists();
+      pluckLists.forEach(pluckList -> {
         pluckList.setLocation(null);
         this.pluckListRepository.save(pluckList);
-      }
-      location.setPluckList(null);
+      });
+      location.setPluckLists(null);
     });
 
     this.repository.deleteAll(locationsFound);

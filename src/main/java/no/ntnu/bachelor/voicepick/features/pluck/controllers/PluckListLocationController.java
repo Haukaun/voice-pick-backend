@@ -22,6 +22,7 @@ public class PluckListLocationController {
 
     @PostMapping
     public ResponseEntity<String> addLocation(@RequestBody AddLocationRequest location) {
+        // TODO: Make sure name and control digits are defined
         ResponseEntity<String> response;
         try {
             this.pluckListLocationService.addLocation(location);

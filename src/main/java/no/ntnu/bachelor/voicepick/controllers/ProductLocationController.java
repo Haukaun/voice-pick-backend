@@ -28,6 +28,8 @@ public class ProductLocationController {
    */
   @PostMapping
   public ResponseEntity<String> addProductLocation(@RequestBody AddLocationRequest location) {
+    // TODO: Make sure name and control digits are defined
+
     ResponseEntity<String> response;
 
     try {
