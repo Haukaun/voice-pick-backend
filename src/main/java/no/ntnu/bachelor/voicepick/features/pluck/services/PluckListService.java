@@ -53,8 +53,6 @@ public class PluckListService {
       throw new EmptyListException("No available locations");
     }
 
-
-
     var randomLocation = locations.get(random.nextInt(locations.size()));
 
     // Generate a random pluck list
