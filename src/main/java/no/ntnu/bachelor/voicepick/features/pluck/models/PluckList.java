@@ -67,10 +67,11 @@ public class PluckList {
   @JoinColumn(name = CargoCarrier.PRIMARY_KEY)
   private CargoCarrier cargoCarrier;
 
-  public PluckList(String route, String destination, PluckListLocation location) {
+  public PluckList(String route, String destination, PluckListLocation location, User user) {
     this.route = route;
     this.destination = destination;
     this.location = location;
+    this.user = user;
   }
 
   /**

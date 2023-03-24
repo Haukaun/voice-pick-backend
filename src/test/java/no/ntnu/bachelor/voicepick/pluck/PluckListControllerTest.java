@@ -9,7 +9,6 @@ import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
 import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListLocationService;
-import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.services.ProductLocationService;
@@ -52,7 +51,7 @@ class PluckListControllerTest {
   @DisplayName("Try to get a pluck list when there are no products available")
   @Order(1)
   void getPluckListWithoutProducts() {
-    var plucklist = this.pluckListController.getRandomPluckList();
+    var plucklist = this.pluckListController.getRandomPluckList(null);
 
     assertEquals(HttpStatus.NO_CONTENT, plucklist.getStatusCode());
   }
@@ -75,7 +74,7 @@ class PluckListControllerTest {
     ));
 
     // Execution
-    var response = this.pluckListController.getRandomPluckList();
+    var response = this.pluckListController.getRandomPluckList(null);
     var responseBody = response.getBody();
 
     // Validation
@@ -90,7 +89,7 @@ class PluckListControllerTest {
   @Transactional
   void updateCargoCarrier() {
     // Setup
-    var response = this.pluckListController.getRandomPluckList();
+    var response = this.pluckListController.getRandomPluckList(null);
     var responseBody = response.getBody();
 
     PluckList pluckList = null;

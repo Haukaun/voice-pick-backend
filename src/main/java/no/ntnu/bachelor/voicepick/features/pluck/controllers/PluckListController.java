@@ -1,6 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,9 @@ public class PluckListController {
    *         goes wrong
    */
   @GetMapping
-  public ResponseEntity<?> getRandomPluckList() {
+  public ResponseEntity<?> getRandomPluckList(@RequestBody User user) {
     try {
-      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
+      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(user), HttpStatus.OK);
     } catch (EmptyListException e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
     }

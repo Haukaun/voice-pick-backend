@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
 import org.springframework.stereotype.Service;
@@ -45,12 +46,14 @@ public class PluckListService {
    * @throws EmptyListException if there are no available products stored in the
    *                            repository
    */
-  public PluckList generateRandomPluckList() throws EmptyListException {
+  public PluckList generateRandomPluckList(User user) throws EmptyListException {
 
     var locations = pluckListLocationService.getAll();
     if (locations.size() == 0) {
       throw new EmptyListException("No available locations");
     }
+
+
 
     var randomLocation = locations.get(random.nextInt(locations.size()));
 
@@ -59,7 +62,8 @@ public class PluckListService {
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
         DESTINATIONS[randomDestinationIndex],
-        randomLocation);
+        randomLocation, 
+        user);
 
     this.pluckListRepository.save(pluckList);
 

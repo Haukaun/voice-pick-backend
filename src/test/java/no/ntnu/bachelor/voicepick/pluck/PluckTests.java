@@ -3,6 +3,7 @@ package no.ntnu.bachelor.voicepick.pluck;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,13 +30,15 @@ class PluckTests {
 
     var m200 = new PluckListLocation("M200", 321);
 
+    var user = new User("Håkon", "Sætre", "haakonfs@hotmail.com");
+
     var melk = new Product("Q-melk", h201, 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
     var cola = new Product("6-pack Coca Cola", m119, 9, 9, 100, ProductType.D_PAK, Status.READY);
 
     var melkPluck = new Pluck(melk, 10, LocalDateTime.now());
     var colaPluck = new Pluck(cola, 10, LocalDateTime.now());
 
-    var pluckList = new PluckList("1234", "Kiwi - Nedre Strandgate", m200);
+    var pluckList = new PluckList("1234", "Kiwi - Nedre Strandgate", m200, user);
 
     pluckList.addPluck(melkPluck);
     pluckList.addPluck(colaPluck);
