@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.pluck.models;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -41,10 +42,8 @@ public class PluckListLocation {
     private int controlDigit;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = PluckList.PRIMARY_KEY)
-    private PluckList pluckList;
-
+    @OneToMany(mappedBy = "location")
+    private Set<PluckList> pluckLists = new HashSet<>();
 
     public PluckListLocation(String name, int controlDigit){
         if (name.isBlank()) throw new IllegalArgumentException("Location cannot be empty");
@@ -52,5 +51,10 @@ public class PluckListLocation {
 
         this.name = name;
         this.controlDigit = controlDigit;
+    }
+
+    public void addPluckList(PluckList pluckList) {
+        this.pluckLists.add(pluckList);
+        pluckList.setLocation(this);
     }
 }

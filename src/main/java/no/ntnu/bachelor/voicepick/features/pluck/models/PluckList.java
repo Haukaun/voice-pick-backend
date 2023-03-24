@@ -37,13 +37,11 @@ public class PluckList {
   @Column(name = "destination")
   private String destination;
 
-  @JsonManagedReference
-  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @JoinColumn(name = PluckListLocation.PRIMARY_KEY)
-  private PluckListLocation location;
-
   @Column(name = "confirmed_at")
   private LocalDateTime confirmedAt;
+
+  @Column(name = "finished_at")
+  private LocalDateTime finishedAt;
 
   // TODO: Add ref to plucker
 
@@ -52,9 +50,9 @@ public class PluckList {
   private Set<Pluck> plucks = new HashSet<>();
 
   @JsonManagedReference
-  @OneToMany(mappedBy = "pluckList")
-  private Set<PluckListLocation> pluckListLocations = new HashSet<>();
-
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = PluckListLocation.PRIMARY_KEY)
+  private PluckListLocation location;
 
   @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)
@@ -76,11 +74,6 @@ public class PluckList {
   public void addPluck(Pluck pluck) {
     this.plucks.add(pluck);
     pluck.setPluckList(this);
-  }
-
-  public void addPluckListLocation(PluckListLocation pluckListLocation) {
-    this.pluckListLocations.add(pluckListLocation);
-    pluckListLocation.setPluckList(this);
   }
 
   /**
