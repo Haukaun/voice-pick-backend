@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 
 /**
  * An entity that represnets a pluck list
@@ -55,6 +57,10 @@ public class PluckList {
   @OneToMany(mappedBy = "pluckList")
   private Set<PluckListLocation> pluckListLocations = new HashSet<>();
 
+  @JsonBackReference
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = User.PRIMARY_KEY)
+  private User user;
 
   @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)

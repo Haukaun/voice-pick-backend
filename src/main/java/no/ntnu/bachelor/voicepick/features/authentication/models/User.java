@@ -1,17 +1,28 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 
 @Getter
 @Setter
-@Entity(name = "users")
+@Entity(name = User.TABLE_NAME)
 public class User {
+
+    public static final String TABLE_NAME = "users";
+    public static final String PRIMARY_KEY = "user_id";
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,8 +36,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    public User() {
-    }
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user")
+    private Set<PluckList> plucklists = new HashSet<>();
 
     public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
