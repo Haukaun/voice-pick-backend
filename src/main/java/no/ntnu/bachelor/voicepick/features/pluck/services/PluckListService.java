@@ -56,6 +56,7 @@ public class PluckListService {
    */
   public PluckList generateRandomPluckList() throws EmptyListException {
 
+
     // Make sure there are location available
     var locations = this.locationService.getAllPluckListLocations();
     if (locations.isEmpty()) {
