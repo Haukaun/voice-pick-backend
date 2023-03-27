@@ -1,7 +1,5 @@
 package no.ntnu.bachelor.voicepick.models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

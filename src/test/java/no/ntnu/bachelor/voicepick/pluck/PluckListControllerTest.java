@@ -1,7 +1,6 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
 import jakarta.transaction.Transactional;
-import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.features.pluck.controllers.PluckListController;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;

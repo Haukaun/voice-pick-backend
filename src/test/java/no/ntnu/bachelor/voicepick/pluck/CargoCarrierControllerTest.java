@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
-import jakarta.persistence.EntityExistsException;
 import no.ntnu.bachelor.voicepick.features.pluck.controllers.CargoCarrierController;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;

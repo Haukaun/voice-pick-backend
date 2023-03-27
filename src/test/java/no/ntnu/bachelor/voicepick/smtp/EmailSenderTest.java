@@ -1,6 +1,6 @@
 package no.ntnu.bachelor.voicepick.smtp;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.test.context.SpringBootTest;
 

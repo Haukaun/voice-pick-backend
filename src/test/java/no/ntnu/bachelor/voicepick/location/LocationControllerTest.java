@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.location;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import no.ntnu.bachelor.voicepick.features.authentication.controllers.AuthController;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
@@ -79,7 +78,7 @@ class LocationControllerTest {
   /**
    * Deletes the user created to run the tests
    */
-  void tearDown() {
+  void cleanup() {
     var body = this.authController.login(new LoginRequest(EMAIL, PASSWORD)).getBody();
     assert body != null;
     var token = body.getAccess_token();
@@ -112,7 +111,7 @@ class LocationControllerTest {
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
 
-    this.tearDown();
+    this.cleanup();
   }
 
   /**
@@ -129,7 +128,7 @@ class LocationControllerTest {
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
 
-    this.tearDown();
+    this.cleanup();
   }
 
   /**
@@ -147,6 +146,6 @@ class LocationControllerTest {
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, response.getStatusCode());
     assertEquals(1, this.locationService.getAll().size());
 
-    this.tearDown();
+    this.cleanup();
   }
 }
