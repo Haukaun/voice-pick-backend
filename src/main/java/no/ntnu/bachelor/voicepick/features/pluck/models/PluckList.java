@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import no.ntnu.bachelor.voicepick.models.LocationEntity;
 
 /**
  * An entity that represnets a pluck list
@@ -21,7 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = PluckList.TABLE_NAME)
-public class PluckList {
+public class PluckList extends LocationEntity {
 
   public static final String TABLE_NAME = "pluck_list";
   public static final String PRIMARY_KEY = "pluck_list_id";
@@ -50,26 +51,20 @@ public class PluckList {
   private Set<Pluck> plucks = new HashSet<>();
 
   @JsonManagedReference
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = PluckListLocation.PRIMARY_KEY)
-  private PluckListLocation location;
 
-  @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = CargoCarrier.PRIMARY_KEY)
   private CargoCarrier cargoCarrier;
 
-  public PluckList(String route, String destination, PluckListLocation location) {
+  public PluckList(String route, String destination) {
     this.route = route;
     this.destination = destination;
-    this.location = location;
   }
 
   /**
-   * Adds a pluck to the pluck list. Also adds the pluck list that was called upon
-   * and adds that pluck list to the pluck
-   * 
-   * @param pluck the pluck to add to the pluck list
+   * Adds a pluck to the pluck list
+   *
+   * @param pluck to be added
    */
   public void addPluck(Pluck pluck) {
     this.plucks.add(pluck);
@@ -77,12 +72,13 @@ public class PluckList {
   }
 
   /**
-   * Returns all plucks for the pluck list
+   * Removes a pluck from the pluck list
    *
-   * @return a set of all plucks
+   * @param pluck to be removed
    */
-  public Set<Pluck> getPlucks() {
-    return this.plucks;
+  public void removePluck(Pluck pluck) {
+    this.plucks.remove(pluck);
+    pluck.setPluckList(null);
   }
 
 }

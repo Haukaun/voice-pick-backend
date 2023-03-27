@@ -15,7 +15,7 @@ import lombok.Getter;
 @NoArgsConstructor
 @Entity
 @Table(name = Product.TABLE_NAME)
-public class Product {
+public class Product extends LocationEntity {
 
   public static final String TABLE_NAME = "product";
   public static final String PRIMARY_KEY = "product_id";
@@ -23,15 +23,10 @@ public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = Product.PRIMARY_KEY)
-  public Long id;
+  private Long id;
 
   @Column(name = "product_name")
   private String name;
-
-  @JsonManagedReference
-  @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-  @JoinColumn(name = ProductLocation.PRIMARY_KEY)
-  private ProductLocation location;
 
   @Column(name = "weight")
   private double weight;
@@ -48,7 +43,7 @@ public class Product {
   @Column(name = "status")
   private Status status;
 
-  public Product(String name, ProductLocation location, double weight, double volume, int quantity, ProductType type,
+  public Product(String name, double weight, double volume, int quantity, ProductType type,
                  Status status) {
 
     if (name.isBlank()) throw new IllegalArgumentException("Name cannot be empty");
@@ -57,12 +52,15 @@ public class Product {
     if (quantity < 0) throw new IllegalArgumentException("Quantity cannot be negative");
 
     this.name = name;
-    this.location = location;
     this.weight = weight;
     this.volume = volume;
     this.quantity = quantity;
     this.type = type;
     this.status = status;
+  }
+
+  public void removeLocation() {
+    this.getLocation().removeEntity(this);
   }
 
 }

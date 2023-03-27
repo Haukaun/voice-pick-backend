@@ -3,6 +3,7 @@ package no.ntnu.bachelor.voicepick.product;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import no.ntnu.bachelor.voicepick.services.LocationService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -17,7 +18,6 @@ import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.services.ProductService;
-import no.ntnu.bachelor.voicepick.services.ProductLocationService;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -30,7 +30,7 @@ class ProductControllerTest {
   @Autowired
   private ProductService productService;
   @Autowired
-  private ProductLocationService locationService;
+  private LocationService locationService;
 
    @Test
    @DisplayName("Try to add an invalid product")
@@ -65,7 +65,7 @@ class ProductControllerTest {
     ));
 
     assertEquals(1, productService.getAllProducts().size());
-    assertEquals(0, locationService.getAll().size());
+    assertEquals(0, locationService.getAllProductLocations().size());
   }
 
    @Test
