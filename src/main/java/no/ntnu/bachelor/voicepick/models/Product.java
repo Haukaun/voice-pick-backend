@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.models;
 
-
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

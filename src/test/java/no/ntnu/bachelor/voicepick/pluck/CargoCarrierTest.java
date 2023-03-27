@@ -1,7 +1,11 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
+<<<<<<< HEAD
 import org.junit.Test;
+=======
+import org.junit.jupiter.api.Test;
+>>>>>>> origin
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.test.context.SpringBootTest;
 
