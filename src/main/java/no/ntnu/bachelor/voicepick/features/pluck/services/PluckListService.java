@@ -5,9 +5,14 @@ import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
@@ -26,6 +31,7 @@ public class PluckListService {
 
   private final ProductService productService;
   private final PluckService pluckService;
+  private final UserService userService;
   private final PluckListLocationService pluckListLocationService;
   private final PluckListRepository pluckListRepository;
   private final CargoCarrierRepository cargoCarrierRepository;
@@ -34,9 +40,12 @@ public class PluckListService {
   private static final String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
           "Afrin Dagligvare Ålesund AS", "Olivers & CO Ålesund" };
 
+  
+
   public Optional<PluckList> findById(Long id) {
     return this.pluckListRepository.findById(id);
   }
+
 
 
 
@@ -46,10 +55,18 @@ public class PluckListService {
    * @throws EmptyListException if there are no available products stored in the
    *                            repository
    */
-  public PluckList generateRandomPluckList(User user) throws EmptyListException {
+  public PluckList generateRandomPluckList(String token) throws EmptyListException {
+    
+    Long userId = Long.parseLong(token);
+      
+    var optionalUser = this.userService.getUserById(userId);
+
+    if (optionalUser.isEmpty()) {
+      throw new EntityNotFoundException("User not found; " + userId);
+    }
 
     var locations = pluckListLocationService.getAll();
-    if (locations.size() == 0) {
+    if (locations.isEmpty()) {
       throw new EmptyListException("No available locations");
     }
 
@@ -60,8 +77,9 @@ public class PluckListService {
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
         DESTINATIONS[randomDestinationIndex],
-        randomLocation, 
-        user);
+        randomLocation,
+        optionalUser.get()
+        );
 
     this.pluckListRepository.save(pluckList);
 

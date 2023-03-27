@@ -2,10 +2,16 @@ package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
@@ -26,13 +32,15 @@ public class PluckListController {
    *         goes wrong
    */
   @GetMapping
-  public ResponseEntity<?> getRandomPluckList(@RequestBody User user) {
+  public ResponseEntity<?> getRandomPluckList(@RequestHeader("Authorization") String token) {
     try {
-      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(user), HttpStatus.OK);
+      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(token), HttpStatus.OK);
     } catch (EmptyListException e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+    } catch (EntityNotFoundException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
-  }
+  } 
 
   @GetMapping("/{id}")
   public ResponseEntity<PluckList> getPluckListById(@PathVariable Long id) {

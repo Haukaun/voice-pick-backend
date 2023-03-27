@@ -33,6 +33,7 @@ public class SecurityConfig {
             .requestMatchers("/admin").hasRole("ADMIN")
             .requestMatchers("/auth/signout").authenticated()
             .requestMatchers("/auth/users").authenticated()
+            .requestMatchers("/plucks").authenticated()
             .anyRequest().permitAll())
         .oauth2ResourceServer()
         .jwt()

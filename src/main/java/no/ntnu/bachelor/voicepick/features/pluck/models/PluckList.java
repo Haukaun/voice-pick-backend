@@ -57,7 +57,7 @@ public class PluckList {
   @OneToMany(mappedBy = "pluckList")
   private Set<PluckListLocation> pluckListLocations = new HashSet<>();
 
-  @JsonBackReference
+  @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = User.PRIMARY_KEY)
   private User user;

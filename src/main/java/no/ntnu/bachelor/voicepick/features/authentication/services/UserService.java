@@ -48,13 +48,8 @@ public class UserService {
     /*
      * Returns a user with the given id
      */
-    public User getUserById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("User does not exist");
-        }
-        return user.get();
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
     /*

@@ -3,6 +3,7 @@ package no.ntnu.bachelor.voicepick.features.authentication.models;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
@@ -36,7 +37,7 @@ public class User {
     @Column(name = "email")
     private String email;
 
-    @JsonManagedReference
+    @JsonBackReference
     @OneToMany(mappedBy = "user")
     private Set<PluckList> plucklists = new HashSet<>();
 
