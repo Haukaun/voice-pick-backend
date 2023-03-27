@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
-import no.ntnu.bachelor.voicepick.models.ProductLocation;
 import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 
@@ -18,7 +17,8 @@ import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 public class ProductService {
 
   private final ProductRepository repository;
-  private final ProductLocationService locationService;
+
+  private final LocationService locationService;
 
   /**
    * Adds a product to the repository
@@ -26,19 +26,16 @@ public class ProductService {
    * @param product to add
    */
   public void addProduct(AddProductRequest product) {
-    ProductLocation location;
-
-    var result = this.locationService.getLocation(product.getLocation());
-    location = result.orElse(null);
-
     Product productToSave = new Product(
         product.getName(),
-        location,
         product.getWeight(),
         product.getVolume(),
         product.getQuantity(),
         product.getType(),
         product.getStatus());
+
+    var optionalLocation = this.locationService.getLocationByCode(product.getLocation());
+    optionalLocation.ifPresent(location -> location.addEntity(productToSave));
 
     this.repository.save(productToSave);
   }
@@ -63,7 +60,7 @@ public class ProductService {
   }
 
   /**
-   * Returns all of products with the same name as the one given
+   * Returns all products with the same name as the one given
    * 
    * @param name name of the product to filter by
    * @return a list of products with the name given
@@ -80,14 +77,7 @@ public class ProductService {
   public void deleteAll(String name) {
     var productsFound = this.getProductsByName(name);
 
-    productsFound.forEach(product -> {
-      var location = product.getLocation();
-      if (location != null) {
-        location.setProduct(null);
-        this.locationService.save(location);
-      }
-      product.setLocation(null);
-    });
+    productsFound.forEach(Product::removeLocation);
 
     this.repository.deleteAll(productsFound);
   }

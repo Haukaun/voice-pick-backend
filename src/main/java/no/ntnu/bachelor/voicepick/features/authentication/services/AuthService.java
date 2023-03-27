@@ -128,8 +128,10 @@ public class AuthService {
 
     var signupUrl = baseUrl + "/auth/admin/realms/" + realm + "/users";
     var response = restTemplate.postForEntity(signupUrl, httpEntity, String.class);
+
     if (response.getStatusCode().is2xxSuccessful()) {
-      userService.createUser(new User(request.getFirstName(), request.getLastName(), request.getEmail()));
+      var uid = this.getUserId(request.getEmail());
+      userService.createUser(new User(uid, request.getFirstName(), request.getLastName(), request.getEmail()));
     }
   }
 
@@ -189,15 +191,18 @@ public class AuthService {
    * @throws EntityNotFoundException if a user could not be found with the given email
    */
   public void delete(String token) throws JsonProcessingException {
+    
     var uid = this.jwtUtil.getUid(token);
 
     var headers = this.getAdminHeaders();
 
     var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uid;
-    restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+    var response = restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
 
+    if (response.getStatusCode().is2xxSuccessful()) {
+      this.userService.deleteUser(uid);
+    }
   }
-
   /**
    * Returns the id for a given user
    *

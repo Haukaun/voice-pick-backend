@@ -4,18 +4,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
-import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import no.ntnu.bachelor.voicepick.services.LocationService;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
@@ -35,23 +33,27 @@ public class PluckListService {
   private final ProductService productService;
   private final PluckService pluckService;
   private final UserService userService;
-  private final PluckListLocationService pluckListLocationService;
   private final PluckListRepository pluckListRepository;
   private final CargoCarrierRepository cargoCarrierRepository;
   private final JwtUtil jwt;
+  private final LocationService locationService;
+
   private final Random random = new Random();
+
   private static final String[] ROUTES = { "1234", "3453", "6859", "3423", "0985", "1352" };
   private static final String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
           "Afrin Dagligvare Ålesund AS", "Olivers & CO Ålesund" };
 
-  
-
+  /**
+   * Returns a pluck list based on id
+   *
+   * @param id of the pluck list to find
+   * @return optional containing the pluck list if it was found. If not,
+   * an empty optional is returned
+   */
   public Optional<PluckList> findById(Long id) {
     return this.pluckListRepository.findById(id);
   }
-
-
-
 
   /**
    * Generates random pluck list
@@ -70,27 +72,29 @@ public class PluckListService {
       throw new EntityNotFoundException("User not found; " + userId);
     }
 
-    var locations = pluckListLocationService.getAll();
-    if (locations.size() == 0) {
+
+    // Make sure there are location available
+    var locations = this.locationService.getAllPluckListLocations();
+    if (locations.isEmpty()) {
       throw new EmptyListException("No available locations");
     }
-
-    var randomLocation = locations.get(random.nextInt(locations.size()));
 
     // Generate a random pluck list
     var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
         DESTINATIONS[randomDestinationIndex],
-        randomLocation,
         optionalUser.get()
         );
+
+    // Add pluck list to random location
+    var randomLocation = locations.get(random.nextInt(locations.size()));
+    randomLocation.addEntity(pluckList);
 
     this.pluckListRepository.save(pluckList);
 
     // Retrieve all available products
     var availableProducts = this.productService.getAvailableProducts();
-
     if (availableProducts.isEmpty()) {
       throw new EmptyListException("No available products");
     }

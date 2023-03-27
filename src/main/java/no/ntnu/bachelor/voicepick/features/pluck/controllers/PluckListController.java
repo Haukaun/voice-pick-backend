@@ -1,17 +1,11 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
-import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,19 +24,18 @@ public class PluckListController {
   /**
    * Returns a randomly generated pluck list
    * 
-   * @return {@code 200 OK} if ok, {@code 500 INTERNAL_SERVER_ERROR} if somethings
-   *         goes wrong
+   * @return {@code 200 OK} if ok, {@code 500 INTERNAL_SERVER_ERROR} if something goes wrong
    */
   @GetMapping
-  public ResponseEntity<?> getRandomPluckList(@RequestHeader("Authorization") String token) {
+  public ResponseEntity<PluckList> getRandomPluckList(@RequestHeader("Authorization") String token) {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(token), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     } catch (EntityNotFoundException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     } catch (JsonProcessingException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -51,11 +44,7 @@ public class PluckListController {
     ResponseEntity<PluckList> response;
 
     var pluckListOpt = this.pluckListService.findById(id);
-    if (pluckListOpt.isPresent()) {
-      response = new ResponseEntity<>(pluckListOpt.get(), HttpStatus.OK);
-    } else {
-      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+    response = pluckListOpt.map(pluckList -> new ResponseEntity<>(pluckList, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
     return response;
   }

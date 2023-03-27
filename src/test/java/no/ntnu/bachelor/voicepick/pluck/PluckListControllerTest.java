@@ -1,20 +1,18 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
 import jakarta.transaction.Transactional;
-import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
-import no.ntnu.bachelor.voicepick.features.pluck.controllers.PluckListController;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
+import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
-import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListLocationService;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
+import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
-import no.ntnu.bachelor.voicepick.services.ProductLocationService;
+import no.ntnu.bachelor.voicepick.services.LocationService;
 import no.ntnu.bachelor.voicepick.services.ProductService;
 
 import org.junit.jupiter.api.*;
@@ -38,26 +36,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import javax.tools.DocumentationTool.Location;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 class PluckListControllerTest {
 
-  // TODO: Remove 'test method order' and tear down each test properly
 
-  @Autowired
-  private PluckListController pluckListController;
-  @Autowired
-  private ProductLocationService productLocationService;
   @Autowired
   private ProductService productService;
-
-  @Autowired
-  private PluckListLocationService pluckListLocationService;
-
   @Autowired
   private CargoCarrierService cargoCarrierService;
+  @Autowired
+  private LocationService locationService;
 
   @Autowired
   private AuthService authService;
@@ -95,13 +87,21 @@ class PluckListControllerTest {
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
 
+    // lag plukk liste lokasjon
+    if (!this.locationService.getLocationByCode("H201").isPresent()) {
+      this.locationService.addLocation("H201", 321);
+    } 
+
     ResponseEntity<String> response = template.exchange("/plucks", HttpMethod.GET, new HttpEntity<>(headers),
         String.class);
 
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
     try {
+
       authService.delete(loginResponse.getAccess_token());
+      this.locationService.deleteLocation("H201");
+
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
@@ -112,11 +112,10 @@ class PluckListControllerTest {
   @DisplayName("Get a pluck list")
   void getPluckList() {
 
+    // Setup
     // Create test user
-    var tmpEmail = "lidav87442@orgria.com";
+    var tmpEmail = "lidav87442@orgria.no";
     var tmpPassword = "hF+U*)w,*H4A<Ujg";
-
-    // Create user
     try {
       authService.signup(new SignupRequest(
           tmpEmail,
@@ -132,9 +131,9 @@ class PluckListControllerTest {
         tmpEmail,
         tmpPassword));
 
-    // Setup
-    this.productLocationService.addLocation(new AddLocationRequest("H201", 321));
-    this.pluckListLocationService.addLocation(new AddLocationRequest("H344", 555));
+    // Create dummy data
+    this.locationService.addLocation("H201", 321);
+    this.locationService.addLocation("H344", 555);
     this.productService.addProduct(new AddProductRequest(
         "Q-Melk",
         "H201",
@@ -144,7 +143,7 @@ class PluckListControllerTest {
         ProductType.D_PAK,
         Status.READY));
 
-    // Send request with token
+    // Get pluck list
     var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
@@ -189,6 +188,9 @@ class PluckListControllerTest {
     var headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
+
+    // Create dummy data
+    this.locationService.addLocation("H201", 321);
 
     // Setup
     ResponseEntity<String> response = template.exchange("/plucks", HttpMethod.GET, new HttpEntity<>(headers),

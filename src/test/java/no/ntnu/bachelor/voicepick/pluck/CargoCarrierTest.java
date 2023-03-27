@@ -1,10 +1,8 @@
 package no.ntnu.bachelor.voicepick.pluck;
 
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
-import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,21 +15,21 @@ public class CargoCarrierTest {
   @DisplayName("Test creating an invalid cargo carrier")
   public void createInvalidCargoCarrier() {
     try {
-      var cargoCarrier = new CargoCarrier("   ", 23L, "twentythree");
+      new CargoCarrier("   ", 23L, "twentythree");
       fail();
     } catch (IllegalArgumentException e) {
       assertTrue(true);
     }
 
     try {
-      var cargoCarrier = new CargoCarrier("Halvpall", -2L, "minus two");
+      new CargoCarrier("Halvpall", -2L, "minus two");
       fail();
     } catch (IllegalArgumentException e) {
       assertTrue(true);
     }
 
     try {
-      var cargoCarrier = new CargoCarrier("Halvpall", 2l, "");
+      new CargoCarrier("Halvpall", 2l, "");
       fail();
     } catch (IllegalArgumentException e) {
       assertTrue(true);

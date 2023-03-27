@@ -2,6 +2,8 @@ package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
+import no.ntnu.bachelor.voicepick.features.smtp.dtos.Email;
+import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,12 +12,15 @@ import org.springframework.web.client.HttpClientErrorException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 
+import java.util.concurrent.Future;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
   private final AuthService authService;
+  private final EmailSender emailSender;
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -81,8 +86,28 @@ public class AuthController {
     } catch (Exception e) {
       response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-
     return response;
+  }
+
+  @PostMapping("/reset-password")
+  public String sendPasswordMail(@RequestBody String recipient) {
+    Email email = new Email(recipient, Email.Subject.RESET_PASSWORD);
+    Future<String> futureResult = emailSender.sendMail(email);
+    return emailSender.getResultFromFuture(futureResult);
+  }
+
+  @PostMapping("/invite-code")
+  public String sendInviteMail(@RequestBody String recipient) {
+    Email email = new Email(recipient, Email.Subject.INVITE_CODE);
+    Future<String> futureResult = emailSender.sendMail(email);
+    return emailSender.getResultFromFuture(futureResult);
+  }
+
+  @PostMapping("/verify-email")
+  public String sendRegistrationMail(@RequestBody String recipient) {
+    Email email = new Email(recipient, Email.Subject.COMPLETE_REGISTRATION);
+    Future<String> futureResult = emailSender.sendMail(email);
+    return emailSender.getResultFromFuture(futureResult);
   }
 
 }

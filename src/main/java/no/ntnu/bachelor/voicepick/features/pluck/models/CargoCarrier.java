@@ -61,5 +61,5 @@ public class CargoCarrier {
     this.pluckLists.add(pluckList);
     pluckList.setCargoCarrier(this);
   }
-
+  
 }
