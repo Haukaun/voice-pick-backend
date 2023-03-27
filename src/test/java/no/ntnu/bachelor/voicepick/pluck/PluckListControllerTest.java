@@ -48,7 +48,7 @@ class PluckListControllerTest {
   void getPluckListWithoutProducts() {
     var plucklist = this.pluckListController.getRandomPluckList();
 
-    assertEquals(HttpStatus.BAD_REQUEST, plucklist.getStatusCode());
+    assertEquals(HttpStatus.NO_CONTENT, plucklist.getStatusCode());
   }
 
   @Test
@@ -88,13 +88,12 @@ class PluckListControllerTest {
     var responseBody = response.getBody();
 
     PluckList pluckList = null;
-    if (responseBody instanceof String) {
+    assert responseBody != null;
+    if (responseBody.getPlucks().isEmpty()) {
       fail();
     } else {
       pluckList = (PluckList) responseBody;
     }
-
-    assert pluckList != null;
 
     this.cargoCarrierService.add(new CargoCarrier("Helpall", 1L, "one"));
     var cargoCarrierTypes = this.cargoCarrierService.findAll();

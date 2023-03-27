@@ -21,15 +21,14 @@ public class PluckListController {
   /**
    * Returns a randomly generated pluck list
    * 
-   * @return {@code 200 OK} if ok, {@code 500 INTERNAL_SERVER_ERROR} if somethings
-   *         goes wrong
+   * @return {@code 200 OK} if ok, {@code 500 INTERNAL_SERVER_ERROR} if something goes wrong
    */
   @GetMapping
-  public ResponseEntity<?> getRandomPluckList() {
+  public ResponseEntity<PluckList> getRandomPluckList() {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(new PluckList(), HttpStatus.NO_CONTENT);
     }
   }
 
@@ -38,11 +37,7 @@ public class PluckListController {
     ResponseEntity<PluckList> response;
 
     var pluckListOpt = this.pluckListService.findById(id);
-    if (pluckListOpt.isPresent()) {
-      response = new ResponseEntity<>(pluckListOpt.get(), HttpStatus.OK);
-    } else {
-      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+    response = pluckListOpt.map(pluckList -> new ResponseEntity<>(pluckList, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
     return response;
   }
