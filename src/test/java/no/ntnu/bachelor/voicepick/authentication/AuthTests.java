@@ -2,15 +2,12 @@ package no.ntnu.bachelor.voicepick.authentication;
 
 import no.ntnu.bachelor.voicepick.features.authentication.controllers.AuthController;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
-import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-
-import jakarta.validation.constraints.Email;
 
 import static org.junit.jupiter.api.Assertions.*;
 

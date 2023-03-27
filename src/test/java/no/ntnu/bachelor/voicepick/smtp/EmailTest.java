@@ -1,17 +1,18 @@
 package no.ntnu.bachelor.voicepick.smtp;
+
 import no.ntnu.bachelor.voicepick.features.smtp.dtos.Email;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class EmailTest {
+class EmailTest {
 
     @Test
     @DisplayName("Test creating invalid emails")
-    public void createInvalidEmail(){
+    void createInvalidEmail(){
         try {
             Email email1 = new Email("", Email.Subject.COMPLETE_REGISTRATION);
             fail();
@@ -29,7 +30,7 @@ public class EmailTest {
 
     @Test
     @DisplayName("Test creating valid emails")
-    public void createValidEmail(){
+    void createValidEmail(){
         Email email1 = new Email("john@gmail.com", Email.Subject.COMPLETE_REGISTRATION);
         assertEquals("john@gmail.com", email1.getRecipient());
         assertEquals("Complete registration - Voice Pick", email1.getEmailSubject().getText());
