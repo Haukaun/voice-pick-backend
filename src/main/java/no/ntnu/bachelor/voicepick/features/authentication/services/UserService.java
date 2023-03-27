@@ -48,7 +48,7 @@ public class UserService {
     /*
      * Returns a user with the given id
      */
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
@@ -62,7 +62,7 @@ public class UserService {
     /*
      * Deletes a user with the given id
      */
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         boolean exists = userRepository.existsById(id);
         if (!exists) {
             throw new IllegalStateException("User with id " + id + " does not exist");

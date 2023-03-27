@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
 import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
@@ -39,8 +41,10 @@ public class PluckListController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
     } catch (EntityNotFoundException e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (JsonProcessingException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  } 
+  }
 
   @GetMapping("/{id}")
   public ResponseEntity<PluckList> getPluckListById(@PathVariable Long id) {

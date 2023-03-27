@@ -6,11 +6,14 @@ import java.util.*;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -35,6 +38,7 @@ public class PluckListService {
   private final PluckListLocationService pluckListLocationService;
   private final PluckListRepository pluckListRepository;
   private final CargoCarrierRepository cargoCarrierRepository;
+  private final JwtUtil jwt;
   private final Random random = new Random();
   private static final String[] ROUTES = { "1234", "3453", "6859", "3423", "0985", "1352" };
   private static final String[] DESTINATIONS = { "Bunnpris Torghallen", "Kiwi Sundgata", "Kiwi Nedre Strandgate", "Rema 1000 Strandgata",
@@ -54,10 +58,11 @@ public class PluckListService {
    * 
    * @throws EmptyListException if there are no available products stored in the
    *                            repository
+   * @throws JsonProcessingException
    */
-  public PluckList generateRandomPluckList(String token) throws EmptyListException {
+  public PluckList generateRandomPluckList(String token) throws EmptyListException, JsonProcessingException {
     
-    Long userId = Long.parseLong(token);
+    String userId = jwt.getUid(token);
       
     var optionalUser = this.userService.getUserById(userId);
 
@@ -66,7 +71,7 @@ public class PluckListService {
     }
 
     var locations = pluckListLocationService.getAll();
-    if (locations.isEmpty()) {
+    if (locations.size() == 0) {
       throw new EmptyListException("No available locations");
     }
 
