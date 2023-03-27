@@ -8,11 +8,9 @@ import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.services.CargoCarrierService;
-import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListLocationService;
-import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
-import no.ntnu.bachelor.voicepick.services.ProductLocationService;
+import no.ntnu.bachelor.voicepick.services.LocationService;
 import no.ntnu.bachelor.voicepick.services.ProductService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,15 +33,11 @@ class PluckListControllerTest {
   @Autowired
   private PluckListController pluckListController;
   @Autowired
-  private ProductLocationService productLocationService;
-  @Autowired
   private ProductService productService;
-
-  @Autowired
-  private PluckListLocationService pluckListLocationService;
-
   @Autowired
   private CargoCarrierService cargoCarrierService;
+  @Autowired
+  private LocationService locationService;
 
   /**
    * Tries to fetch a pluck list when there are no products store in the database
@@ -54,7 +48,7 @@ class PluckListControllerTest {
   void getPluckListWithoutProducts() {
     var plucklist = this.pluckListController.getRandomPluckList();
 
-    assertEquals(HttpStatus.NO_CONTENT, plucklist.getStatusCode());
+    assertEquals(HttpStatus.BAD_REQUEST, plucklist.getStatusCode());
   }
 
   @Test
@@ -62,8 +56,8 @@ class PluckListControllerTest {
   @Order(2)
   void getPluckList() {
     // Setup
-    this.productLocationService.addLocation(new AddLocationRequest("H201", 321));
-    this.pluckListLocationService.addLocation(new AddLocationRequest("H344", 555));
+    this.locationService.addLocation("H201", 321);
+    this.locationService.addLocation("H344", 555);
     this.productService.addProduct(new AddProductRequest(
             "Q-Melk",
             "H201",

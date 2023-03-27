@@ -29,7 +29,7 @@ public class PluckListController {
     try {
       return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 
