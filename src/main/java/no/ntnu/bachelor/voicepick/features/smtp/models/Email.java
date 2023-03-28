@@ -1,4 +1,4 @@
-package no.ntnu.bachelor.voicepick.features.smtp.dtos;
+package no.ntnu.bachelor.voicepick.features.smtp.models;
 
 import lombok.Getter;
 import java.util.regex.Pattern;
