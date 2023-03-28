@@ -89,8 +89,9 @@ prod deploy:
     - trunk
   tags:
     - ntnu
-  dependencies:
-    - mvn test
+  needs:
+    - job: mvn test
+      artifacts: false
   when: manual
 
 dev deploy:
