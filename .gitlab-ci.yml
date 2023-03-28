@@ -1,41 +1,38 @@
 image: maven:3-openjdk-17
 
 stages:
-  - build
-  - test
-  - deploy
+  - Build
+  - Test
+  - Deploy
 
-mvn compile:
-  stage: build
+pre-script:
+  stage: Build
   script:
     - export DB_HOST=$DB_HOST
     - export DB_PORT=$DB_PORT
-    - export DB_NAME=$DB_NAME
     - export DB_USER=$DB_USER
     - export DB_PASSWORD=$DB_PASSWORD
     - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD
-    - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_PROD
-    - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_PROD
-    - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_PROD
-    - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_PROD
     - export SMTP_USER=$SMTP_USER
     - export SMTP_PASSWORD=$SMTP_PASSWORD
-    - mvn compile
+    - mvn clean
+  tags:
+    - ntnu
+
 mvn test:
-  stage: test
+  stage: Test
   script:
-    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
     - export KEYCLOAK_REALM=$KEYCLOAK_REALM_TEST
     - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_TEST
     - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_TEST
     - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_TEST
     - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_TEST
-    - export SMTP_USER=$SMTP_USER
-    - export SMTP_PASSWORD=$SMTP_PASSWORD
     - mvn test
+  tags:
+    - ntnu
 
 sonarqube-check:
+  stage: Test
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -44,42 +41,90 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script:
-    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
     - export KEYCLOAK_REALM=$KEYCLOAK_REALM_TEST
     - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_TEST
     - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_TEST
     - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_TEST
     - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_TEST
-    - export SMTP_USER=$SMTP_USER
-    - export SMTP_PASSWORD=$SMTP_PASSWORD
     - mvn verify sonar:sonar -Dsonar.projectKey=IDATA-2900-Group-1_voice-pick-backend_AYbLKMhd0vjnirPHhSYJ
   allow_failure: true
   only:
     - trunk
+  tags:
+    - ntnu
 
-docker run:
-  stage: deploy
+prod deploy:
+  stage: Deploy
   script:
-    - export DB_HOST=$DB_HOST
-    - export DB_PORT=$DB_PORT
     - export DB_NAME=$DB_NAME
-    - export DB_USER=$DB_USER
-    - export DB_PASSWORD=$DB_PASSWORD
-    - export KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
     - export KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD
     - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_PROD
     - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_PROD
     - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_PROD
     - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_PROD
-    - export SMTP_USER=$SMTP_USER
-    - export SMTP_PASSWORD=$SMTP_PASSWORD
-    - mvn package
+    - mvn package -Dmaven.test.skip=true
     - cp target/voice-pick*.jar ~
     - cp Dockerfile ~
     - cd ~
     - docker build -t bachelor-b .
     - docker rm -f bachelor-backend
-    - docker run -e DB_HOST=$DB_HOST -e DB_PORT=$DB_PORT -e DB_NAME=$DB_NAME -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL -e KEYCLOAK_REALM=$KEYCLOAK_REALM_PROD -e KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_PROD -e KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_PROD -e KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_PROD -e KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_PROD -e SMTP_USER=$SMTP_USER -e SMTP_PASSWORD=$SMTP_PASSWORD -p 8080:8080 --restart unless-stopped -d --name bachelor-backend bachelor-b
+    - docker run
+      -e DB_HOST=$DB_HOST
+      -e DB_PORT=$DB_PORT
+      -e DB_NAME=$DB_NAME
+      -e DB_USER=$DB_USER
+      -e DB_PASSWORD=$DB_PASSWORD
+      -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+      -e KEYCLOAK_REALM=$KEYCLOAK_REALM
+      -e KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
+      -e KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+      -e KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME
+      -e KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD
+      -e SMTP_USER=$SMTP_USER
+      -e SMTP_PASSWORD=$SMTP_PASSWORD
+      -p 8080:8080
+      --restart unless-stopped -d
+      --name bachelor-backend bachelor-b
+  tags:
+    - ntnu
   dependencies:
     - mvn test
   when: manual
+
+dev deploy:
+    stage: Deploy
+    script:
+      - export DB_NAME=$DB_NAME_DEV
+      - export KEYCLOAK_REALM=$KEYCLOAK_REALM_DEV
+      - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_DEV
+      - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_DEV
+      - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_DEV
+      - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_DEV
+      - mvn package -Dmaven.test.skip=true
+      - mkdir -p ~/dev/
+      - cp target/voice-pick*.jar ~/dev/
+      - cp Dockerfile ~/dev/
+      - cd ~/dev/
+      - docker build -t dev-bachelor-b .
+      - docker rm -f dev-bachelor-backend
+      - docker run
+        -e DB_HOST=$DB_HOST
+        -e DB_PORT=$DB_PORT
+        -e DB_NAME=$DB_NAME
+        -e DB_USER=$DB_USER
+        -e DB_PASSWORD=$DB_PASSWORD
+        -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+        -e KEYCLOAK_REALM=$KEYCLOAK_REALM
+        -e KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
+        -e KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+        -e KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME
+        -e KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD
+        -e SMTP_USER=$SMTP_USER
+        -e SMTP_PASSWORD=$SMTP_PASSWORD
+        -p 8082:8080
+        --restart unless-stopped -d
+        --name dev-bachelor-backend dev-bachelor-b
+    tags:
+      - ntnu
+    dependencies:
+      - mvn test
