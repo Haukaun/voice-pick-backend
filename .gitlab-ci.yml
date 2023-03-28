@@ -85,6 +85,8 @@ prod deploy:
       -p 8080:8080
       --restart unless-stopped -d
       --name bachelor-backend bachelor-b
+  only:
+    - trunk
   tags:
     - ntnu
   dependencies:
@@ -92,39 +94,42 @@ prod deploy:
   when: manual
 
 dev deploy:
-    stage: Deploy
-    script:
-      - export DB_NAME=$DB_NAME_DEV
-      - export KEYCLOAK_REALM=$KEYCLOAK_REALM_DEV
-      - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_DEV
-      - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_DEV
-      - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_DEV
-      - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_DEV
-      - mvn package -Dmaven.test.skip=true
-      - mkdir -p ~/dev/
-      - cp target/voice-pick*.jar ~/dev/
-      - cp Dockerfile ~/dev/
-      - cd ~/dev/
-      - docker build -t dev-bachelor-b .
-      - docker rm -f dev-bachelor-backend
-      - docker run
-        -e DB_HOST=$DB_HOST
-        -e DB_PORT=$DB_PORT
-        -e DB_NAME=$DB_NAME
-        -e DB_USER=$DB_USER
-        -e DB_PASSWORD=$DB_PASSWORD
-        -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
-        -e KEYCLOAK_REALM=$KEYCLOAK_REALM
-        -e KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
-        -e KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
-        -e KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME
-        -e KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD
-        -e SMTP_USER=$SMTP_USER
-        -e SMTP_PASSWORD=$SMTP_PASSWORD
-        -p 8082:8080
-        --restart unless-stopped -d
-        --name dev-bachelor-backend dev-bachelor-b
-    tags:
-      - ntnu
-    dependencies:
-      - mvn test
+  stage: Deploy
+  script:
+    - export DB_NAME=$DB_NAME_DEV
+    - export KEYCLOAK_REALM=$KEYCLOAK_REALM_DEV
+    - export KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID_DEV
+    - export KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET_DEV
+    - export KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME_DEV
+    - export KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD_DEV
+    - mvn package -Dmaven.test.skip=true
+    - mkdir -p ~/dev/
+    - cp target/voice-pick*.jar ~/dev/
+    - cp Dockerfile ~/dev/
+    - cd ~/dev/
+    - docker build -t dev-bachelor-b .
+    - docker rm -f dev-bachelor-backend
+    - docker run
+      -e DB_HOST=$DB_HOST
+      -e DB_PORT=$DB_PORT
+      -e DB_NAME=$DB_NAME
+      -e DB_USER=$DB_USER
+      -e DB_PASSWORD=$DB_PASSWORD
+      -e KEYCLOAK_BASE_URL=$KEYCLOAK_BASE_URL
+      -e KEYCLOAK_REALM=$KEYCLOAK_REALM
+      -e KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
+      -e KEYCLOAK_CLIENT_SECRET=$KEYCLOAK_CLIENT_SECRET
+      -e KEYCLOAK_MANAGER_USERNAME=$KEYCLOAK_MANAGER_USERNAME
+      -e KEYCLOAK_MANAGER_PASSWORD=$KEYCLOAK_MANAGER_PASSWORD
+      -e SMTP_USER=$SMTP_USER
+      -e SMTP_PASSWORD=$SMTP_PASSWORD
+      -p 8082:8080
+      --restart unless-stopped -d
+      --name dev-bachelor-backend dev-bachelor-b
+  only:
+    - trunk
+  tags:
+    - ntnu
+  needs:
+    - job: mvn test
+      artifacts: false
