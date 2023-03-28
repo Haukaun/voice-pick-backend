@@ -1,7 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.smtp.services;
 
 import jakarta.mail.internet.MimeMessage;
-import no.ntnu.bachelor.voicepick.features.smtp.dtos.Email;
+import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;

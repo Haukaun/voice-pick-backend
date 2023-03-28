@@ -2,7 +2,7 @@ package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
-import no.ntnu.bachelor.voicepick.features.smtp.dtos.Email;
+import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
