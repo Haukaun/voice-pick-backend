@@ -1,8 +1,13 @@
 package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.mappers.PluckListMapper;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,19 +21,27 @@ import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 @RequiredArgsConstructor
 public class PluckListController {
 
+  private final JwtUtil jwt;
   private final PluckListService pluckListService;
+  private final PluckListMapper pluckListMapper = Mappers.getMapper(PluckListMapper.class);
 
   /**
    * Returns a randomly generated pluck list
    * 
-   * @return {@code 200 OK} if ok, {@code 500 INTERNAL_SERVER_ERROR} if something goes wrong
+   * @return {@code 200 OK} if ok,
+   * {@code 500 INTERNAL_SERVER_ERROR} if something goes wrong,
+   * {@code 204} if there are no products available to make a pluck list
    */
   @GetMapping
-  public ResponseEntity<PluckList> getRandomPluckList() {
+  public ResponseEntity<PluckListDto> getRandomPluckList(@RequestHeader(name = "Authorization") String token) {
     try {
-      return new ResponseEntity<>(this.pluckListService.generateRandomPluckList(), HttpStatus.OK);
+      String uid = jwt.getUid(token.substring(7)); // Remove 'Bearer '
+
+      return new ResponseEntity<>(pluckListMapper.toPluckListDto(this.pluckListService.generateRandomPluckList(uid)), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(new PluckList(), HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    } catch (JsonProcessingException e) {
+      return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 

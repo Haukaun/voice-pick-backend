@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
 import no.ntnu.bachelor.voicepick.services.LocationService;
@@ -28,6 +29,8 @@ public class PluckListService {
   private final PluckService pluckService;
   private final LocationService locationService;
 
+  private final UserService userService;
+
   private final PluckListRepository pluckListRepository;
   private final CargoCarrierRepository cargoCarrierRepository;
 
@@ -49,37 +52,44 @@ public class PluckListService {
   }
 
   /**
-   * Generates random pluck list
-   * 
+   * Generates random pluck list for a user
+   *
+   * @param uid of the user to assign the pluck list to
    * @throws EmptyListException if there are no available products stored in the
    *                            repository
    */
-  public PluckList generateRandomPluckList() throws EmptyListException {
+  public PluckList generateRandomPluckList(String uid) throws EmptyListException {
 
+    var currentUser = userService.getUserByUid(uid);
+    if (currentUser.isEmpty()) {
+      throw new EntityNotFoundException("Could not fint user with id: " + uid);
+    }
 
     // Make sure there are location available
-    var locations = this.locationService.getAllPluckListLocations();
+    var locations = this.locationService.getAvailablePluckListLocation();
     if (locations.isEmpty()) {
       throw new EmptyListException("No available locations");
     }
-
-    // Generate a random pluck list
-    var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
-    var pluckList = new PluckList(
-        ROUTES[randomDestinationIndex],
-        DESTINATIONS[randomDestinationIndex]);
-
-    // Add pluck list to random location
-    var randomLocation = locations.get(random.nextInt(locations.size()));
-    randomLocation.addEntity(pluckList);
-
-    this.pluckListRepository.save(pluckList);
 
     // Retrieve all available products
     var availableProducts = this.productService.getAvailableProducts();
     if (availableProducts.isEmpty()) {
       throw new EmptyListException("No available products");
     }
+
+    // Generate a random pluck list
+    var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
+    var pluckList = new PluckList(
+        ROUTES[randomDestinationIndex],
+        DESTINATIONS[randomDestinationIndex],
+        currentUser.get()
+    );
+
+    // Add pluck list to random location
+    var randomLocation = locations.get(random.nextInt(locations.size()));
+    randomLocation.addEntity(pluckList);
+
+    this.pluckListRepository.save(pluckList);
 
     final int MAX_PLUCK_AMOUNT = 10;
     var productsToPluck = this.extractRandomProduct(availableProducts, MAX_PLUCK_AMOUNT);
@@ -92,22 +102,18 @@ public class PluckListService {
           random.nextInt((PLUCK_AMOUNT_UPPER_BOUND - 1)) + 1,
           LocalDateTime.now());
 
-      pluckList.addPluck(pluck);
-      this.pluckService.savePluck(pluck);
+      pluckList.addPluck(this.pluckService.savePluck(pluck));
     }
-
     return pluckList;
-
   }
 
   /**
    * Extracts n random number of products from a list of products
    * 
    * @param products a list of products that should be extracted from
-   * @param max      the maximum numbers of product to be extracted. Not
+   * @param max      the maximum numbers of product to be extracted. Note
    *                 that since it extracts a random number of products this can
-   *                 be
-   *                 less then the maximum value.
+   *                 be less then the maximum value.
    * @return a set of products
    */
   private Set<Product> extractRandomProduct(List<Product> products, int max) {
@@ -138,7 +144,7 @@ public class PluckListService {
    * @param id of the pluck list to update the cargo carrier for
    * @param cargoIdentifier of the cargo carrier to add to the pluck list
    */
-  public void updateCargoCarrier(Long id, Long cargoIdentifier) {
+  public void updateCargoCarrier(Long id, int cargoIdentifier) {
     Optional<PluckList> pluckListOpt = this.findById(id);
     Optional<CargoCarrier> cargoCarrierOpt = this.cargoCarrierRepository.findByIdentifier(cargoIdentifier);
 
@@ -152,9 +158,34 @@ public class PluckListService {
     var pluckList = pluckListOpt.get();
     var cargoCarrier = cargoCarrierOpt.get();
 
-    cargoCarrier.addPluckList(pluckList);
-
+    cargoCarrier.addToPluckList(pluckList);
+    this.cargoCarrierRepository.save(cargoCarrier);
     this.pluckListRepository.save(pluckList);
+  }
+
+  /**
+   * Delete a pluck list
+   *
+   * @param id of the pluck list to delete
+   */
+  public void deletePluckList(Long id) {
+    var result = this.pluckListRepository.findById(id);
+    if (result.isEmpty()) {
+      throw new EntityNotFoundException("Could not find pluck list with id: " + id);
+    }
+
+    var pluckList = result.get();
+    pluckList.clear();
+
+    this.pluckListRepository.delete(pluckList);
+  }
+
+  /**
+   * Delete all pluck lists
+   */
+  public void deleteAll() {
+    var pluckLists = this.pluckListRepository.findAll();
+    pluckLists.forEach(pluckList -> this.deletePluckList(pluckList.getId()));
   }
 
 }

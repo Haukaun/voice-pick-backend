@@ -1,22 +1,12 @@
 package no.ntnu.bachelor.voicepick.dtos;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import no.ntnu.bachelor.voicepick.models.ProductType;
 import no.ntnu.bachelor.voicepick.models.Status;
 
-/**
- * A class containing information about a product
- * 
- * @author Joakim
- */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class AddProductRequest {
+public class ProductDto {
+  private Long id;
   private String name;
-  private String location;
   private double weight;
   private double volume;
   private int quantity;

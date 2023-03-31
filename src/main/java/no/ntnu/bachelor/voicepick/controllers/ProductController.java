@@ -2,6 +2,7 @@ package no.ntnu.bachelor.voicepick.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class ProductController {
    * @return {@code 200 OK} if added, {@code 404 METHOD_NOT_ALLOWED} if request
    *         body is incorrect
    */
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @PostMapping
   public ResponseEntity<String> addProduct(@RequestBody AddProductRequest product) {
     ResponseEntity<String> response;

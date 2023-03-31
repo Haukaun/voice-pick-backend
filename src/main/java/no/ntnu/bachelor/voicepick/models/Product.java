@@ -56,9 +56,4 @@ public class Product extends LocationEntity {
     this.type = type;
     this.status = status;
   }
-
-  public void removeLocation() {
-    this.getLocation().removeEntity(this);
-  }
-
 }

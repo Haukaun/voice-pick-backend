@@ -34,7 +34,7 @@ public class Location {
     private int controlDigits;
 
     @JsonBackReference
-    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER, orphanRemoval = false)
     private Set<LocationEntity> entities = new HashSet<>();
 
     public Location(String code, int controlDigits) {
@@ -54,15 +54,4 @@ public class Location {
         this.entities.add(entity);
         entity.setLocation(this);
     }
-
-    /**
-     * Removes a location entity from a location
-     *
-     * @param entity to be removed
-     */
-    public void removeEntity(LocationEntity entity) {
-        this.entities.remove(entity);
-        entity.setLocation(null);
-    }
-
 }

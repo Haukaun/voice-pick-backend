@@ -16,9 +16,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
             "SELECT DISTINCT l FROM Location l JOIN l.entities e WHERE TYPE(e) = PluckList")
     List<Location> findByPluckList();
 
-    @Query("SELECT DISTINCT l FROM Location l LEFT JOIN l.entities e WHERE e.id IS NULL " +
-            "UNION " +
-            "SELECT DISTINCT l FROM Location l JOIN l.entities e WHERE TYPE(e) = Product")
+    @Query("SELECT DISTINCT l FROM Location l JOIN l.entities e WHERE TYPE(e) = Product")
     List<Location> findByProduct();
 
 }

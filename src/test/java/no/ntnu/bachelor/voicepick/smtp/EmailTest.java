@@ -14,14 +14,14 @@ class EmailTest {
     @DisplayName("Test creating invalid emails")
     void createInvalidEmail(){
         try {
-            Email email1 = new Email("", Email.Subject.COMPLETE_REGISTRATION);
+            new Email("", Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
         }
 
         try {
-            Email email2 = new Email("wrong-email", Email.Subject.COMPLETE_REGISTRATION);
+            new Email("wrong-email", Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);

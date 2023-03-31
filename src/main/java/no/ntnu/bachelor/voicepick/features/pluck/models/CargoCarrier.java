@@ -1,6 +1,5 @@
 package no.ntnu.bachelor.voicepick.features.pluck.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,16 +32,19 @@ public class CargoCarrier {
   private String name;
 
   @Column(name = "identifier")
-  private Long identifier;
+  private int identifier;
 
-  @JsonBackReference
-  @OneToMany(mappedBy = "cargoCarrier")
+
+  @OneToMany(mappedBy = "cargoCarrier", fetch = FetchType.EAGER)
   private Set<PluckList> pluckLists = new HashSet<>();
 
   @Column(name = "phonetic_identifier")
   private String phoneticIdentifier;
 
-  public CargoCarrier(String name, Long identifier, String phoneticIdentifier) {
+  @Column(name = "is_active")
+  private boolean isActive;
+
+  public CargoCarrier(String name, int identifier, String phoneticIdentifier) {
     if (name.isBlank()) throw new IllegalArgumentException("Cannot create cargo carrier without a name");
     if (identifier < 0) throw new IllegalArgumentException("Identifier cannot be negative");
     if (phoneticIdentifier.isBlank()) throw new IllegalArgumentException("Cannot create cargo carrier without a phonetic identifier");
@@ -50,6 +52,7 @@ public class CargoCarrier {
     this.name = name;
     this.identifier = identifier;
     this.phoneticIdentifier = phoneticIdentifier;
+    this.isActive = true;
   }
 
   /**
@@ -57,9 +60,14 @@ public class CargoCarrier {
    *
    * @param pluckList to be added
    */
-  public void addPluckList(PluckList pluckList) {
+  public void addToPluckList(PluckList pluckList) {
     this.pluckLists.add(pluckList);
     pluckList.setCargoCarrier(this);
+  }
+
+  public void removePluckList(PluckList pluckList) {
+    this.pluckLists.remove(pluckList);
+    pluckList.setCargoCarrier(null);
   }
 
 }

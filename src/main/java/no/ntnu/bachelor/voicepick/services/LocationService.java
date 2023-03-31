@@ -3,9 +3,14 @@ package no.ntnu.bachelor.voicepick.services;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import no.ntnu.bachelor.voicepick.exceptions.IllegalEntityException;
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
 import no.ntnu.bachelor.voicepick.models.Location;
 import no.ntnu.bachelor.voicepick.models.LocationEntity;
+import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
+import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +22,8 @@ import java.util.Set;
 public class LocationService {
 
     private final LocationRepository locationRepository;
+    private final ProductRepository productRepository;
+    private final PluckListRepository pluckListRepository;
 
     public List<Location> getAll() {
         return this.locationRepository.findAll();
@@ -43,11 +50,12 @@ public class LocationService {
     }
 
     /**
-     * Returns a list of all locations associated with a pluck list
+     * Returns all locations that is associated with a pluck list
+     * plus all locations that has no association (aka locations that are empty)
      *
      * @return a list of all locations associated with a pluck list
      */
-    public List<Location> getAllPluckListLocations() {
+    public List<Location> getAvailablePluckListLocation() {
         return this.locationRepository.findByPluckList();
     }
 
@@ -75,10 +83,52 @@ public class LocationService {
     public void addLocation(String code, int controlDigits) {
         var optionalLocation = this.locationRepository.findByCode(code);
         if (optionalLocation.isPresent()) {
-            throw new EntityExistsException("Location with code " + code + "already exists");
+            throw new EntityExistsException("Location with code (" + code + ") already exists");
+        }
+        this.locationRepository.save(new Location(code, controlDigits));
+    }
+
+    /**
+     * Deletes all locations with the code given from the repository
+     *
+     * @param code of the locations to delete
+     */
+    public void deleteLocation(String code) {
+        Optional<Location> optionalLocation = locationRepository.findByCode(code);
+        if (optionalLocation.isEmpty()) {
+            throw new EntityNotFoundException("Location with code: " + code + " was not found.");
         }
 
-        this.locationRepository.save(new Location(code, controlDigits));
+        var location = optionalLocation.get();
+        this.clearLocationEntities(location);
+
+        this.locationRepository.delete(location);
+    }
+
+    /**
+     * Clears all relation to a location
+     *
+     * @param location to clear for relations
+     */
+    private void clearLocationEntities(Location location) {
+        var entities = location.getEntities();
+        for (var entity : entities) {
+            entity.setLocation(null);
+            if (entity instanceof Product product) {
+                productRepository.save(product);
+            } else if (entity instanceof PluckList pluckList) {
+                pluckListRepository.save(pluckList);
+            } else {
+                throw new IllegalEntityException("Could not clear location as it is mapped to an entity of type: " + entity.getClass());
+            }
+        }
+    }
+
+    /**
+     * Deletes all location stored in the repository
+     */
+    public void deleteAll() {
+        this.getAll().forEach(location -> this.deleteLocation(location.getCode()));
     }
 
 }

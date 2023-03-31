@@ -20,7 +20,7 @@ public class CargoCarrierController {
 
   @GetMapping
   public ResponseEntity<List<CargoCarrier>> getCargoCarriers() {
-    return new ResponseEntity<>(this.service.findAll(), HttpStatus.OK);
+    return new ResponseEntity<>(this.service.findAllActive(), HttpStatus.OK);
   }
 
   @PostMapping

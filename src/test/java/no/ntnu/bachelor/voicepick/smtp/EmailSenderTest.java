@@ -10,12 +10,12 @@ import java.util.concurrent.Future;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class EmailSenderTest {
+class EmailSenderTest {
     EmailSender emailSender = new EmailSender();
 
     @Test
     @DisplayName("Test trying to get results from a invalid future object")
-    public void getResultFromInvalidFuture(){
+    void getResultFromInvalidFuture(){
         Future<String> exceptionFuture = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("An error occurred during execution");
         });
@@ -25,7 +25,7 @@ public class EmailSenderTest {
 
     @Test
     @DisplayName("Test interrupting the future")
-    public void getResultFromInterruptedFuture() throws InterruptedException {
+    void getResultFromInterruptedFuture() throws InterruptedException {
         Future<String> interruptedFuture = new CompletableFuture<>();
         Thread testThread = new Thread(() -> {
             interruptedFuture.cancel(true);
@@ -39,7 +39,7 @@ public class EmailSenderTest {
 
     @Test
     @DisplayName("Test trying to get results from a valid future object")
-    public void getResultFromValidFuture(){
+    void getResultFromValidFuture(){
         Future<String> successfulFuture = CompletableFuture.completedFuture("Mail Sent Successfully...");
         String result = emailSender.getResultFromFuture(successfulFuture);
         assertEquals("Mail Sent Successfully...", result);

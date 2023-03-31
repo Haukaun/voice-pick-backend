@@ -2,7 +2,7 @@ package no.ntnu.bachelor.voicepick.services;
 
 import java.util.List;
 
-import jakarta.transaction.Transactional;
+import no.ntnu.bachelor.voicepick.models.Status;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,17 @@ public class ProductService {
    * @return a list of products
    */
   public List<Product> getAvailableProducts() {
-    return this.repository.findByLocationIsNotNull();
+    return this.repository.findProductsWithLocation(Status.INACTIVE);
+  }
+
+  /**
+   * Returns a list of all products that does not have a location
+   *
+   * @param name of the products to search for
+   * @return a list of all products without a location
+   */
+  public List<Product> getProductsWithoutLocation(String name) {
+    return this.repository.findProductsWithoutLocation(name);
   }
 
   /**
@@ -71,6 +81,16 @@ public class ProductService {
   }
 
   /**
+   * Returns a list of all available products filtered by name
+   *
+   * @param name of the products to search for
+   * @return a list of products
+   */
+  public List<Product> getAvailableProductsByName(String name) {
+    return this.repository.findProductsWithLocationByName(name, Status.INACTIVE);
+  }
+
+  /**
    * Deletes all products with the given name
    *
    * @param name of the product to be deleted
@@ -78,9 +98,10 @@ public class ProductService {
   public void deleteAll(String name) {
     var productsFound = this.getProductsByName(name);
 
-    productsFound.forEach(Product::removeLocation);
-
-    this.repository.deleteAll(productsFound);
+    for (Product product : productsFound) {
+      product.setStatus(Status.INACTIVE);
+      this.repository.save(product);
+    }
   }
 
 }

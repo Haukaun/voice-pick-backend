@@ -50,7 +50,6 @@ public class AuthController {
     } catch (Exception e) {
       response = new ResponseEntity<>("Something went wrong! Please try again.", HttpStatus.BAD_REQUEST);
     }
-
     return response;
   }
 
@@ -73,11 +72,11 @@ public class AuthController {
   }
 
   @DeleteMapping("/users")
-  public ResponseEntity<String> delete(@RequestBody TokenRequest request) {
+  public ResponseEntity<String> delete() {
     ResponseEntity<String> response;
 
     try {
-      this.authService.delete(request.getToken());
+      this.authService.delete();
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
