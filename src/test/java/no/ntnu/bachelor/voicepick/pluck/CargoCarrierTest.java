@@ -80,8 +80,9 @@ class CargoCarrierTest {
   @Test
   @DisplayName("Add cargo that already exists")
   void addCargoTwice() {
+    this.cargoCarrierService.add(new CargoCarrier("carrier1", 1, "one"));
+
     try {
-      this.cargoCarrierService.add(new CargoCarrier("carrier1", 1, "one"));
       this.cargoCarrierService.add(new CargoCarrier("carrier1", 1, "one"));
       fail("EntityExistsException should have been thrown, but wasn't");
     } catch (Exception e) {
