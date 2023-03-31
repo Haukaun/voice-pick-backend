@@ -42,12 +42,22 @@ public class CargoCarrierService {
   }
 
   /**
+   * Returns all active cargo carriers
+   *
+   * @return a list of cargo carriers
+   */
+  public List<CargoCarrier> findAllActive() {
+    return this.repository.findByIsActiveTrue();
+  }
+
+  /**
    * Deletes a cargo carrier from the repository
    *
    * @param cargoCarrier to be deleted
    */
   public void delete(CargoCarrier cargoCarrier) {
-    this.repository.delete(cargoCarrier);
+    cargoCarrier.setActive(false);
+    this.repository.save(cargoCarrier);
   }
 
   /**
@@ -56,6 +66,6 @@ public class CargoCarrierService {
    * @param cargoCarriers a list of all cargo carriers to be deleted
    */
   public void deleteAll(List<CargoCarrier> cargoCarriers) {
-    this.repository.deleteAll(cargoCarriers);
+    cargoCarriers.forEach(this::delete);
   }
 }

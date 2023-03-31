@@ -1,84 +1,105 @@
 package no.ntnu.bachelor.voicepick.features.authentication.services;
-
-
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
-
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    
-    private final UserRepository userRepository;
 
-    /*
-     * Constructor
-     */
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final PluckListRepository pluckListRepository;
 
     /**
-     * Creates a new user
+     * Saves a user to the repository
      *
-     * @param user to be added
+     * @param user to save
+     * @throws EntityExistsException if user already exists
      */
     public void createUser(User user) {
-        // Check if the user already exists in the application database
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalStateException("User already exists");
+            throw new EntityExistsException("User with uid (" + user.getId() + ") already exists.");
         }
-        // Save the user in the application database
         userRepository.save(user);
     }
 
     /**
-     * Returns a user with the given email
+     * Returns the current user authenticated
      *
-     * @param email of the user to find
-     * @return an optional with the user if found, if not the optional is empty
+     * @return current user from security context
      */
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            return userRepository.findById(auth.getName()).orElseThrow(EntityNotFoundException::new);
+        } else {
+            throw new NullPointerException("Auth is null.");
+        }
     }
 
     /**
-     * Returns a user with the given id
+     * Returns a used based on id
      *
      * @param id of the user to find
-     * @return an optional with the user if found, if not the optional is empty
+     * @return an empty optional if no user is found, or the user if found
      */
-    public Optional<User> getUserById(String id) {
+    public Optional<User> getUserByUid(String id) {
         return userRepository.findById(id);
     }
 
     /**
-     * Returns a list of all users
+     * Returns all users in the repository
      *
-     * @return a list of user
+     * @return list of all users
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     /**
-     * Deletes a user with the given id
+     * Deletes a user based on id
      *
      * @param id of the user to delete
      */
     public void deleteUser(String id) {
+        Optional<User> optionalUser = getUserByUid(id);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException("User with id (" + id + ") can't be deleted because it does not exist.");
+        }
+        List<PluckList> pluckLists = pluckListRepository.findByUser(optionalUser.get());
+        for (PluckList pluckList : pluckLists) {
+            pluckList.setUser(null);
+            pluckListRepository.save(pluckList);
+        }
         userRepository.deleteById(id);
     }
 
     /**
-     * Deletes a user based on email
-     *
-     * @param email of the user to delete
+     * Deletes all user stored in the repository
      */
-    public void deleteUserByEmail(String email) {
-        this.getUserByEmail(email).ifPresent(this.userRepository::delete);
+    public void deleteAll() {
+        var users = this.userRepository.findAll();
+        users.forEach(user -> this.deleteUser(user.getId()));
+    }
+
+    /**
+     * Returns a user based on mail
+     *
+     * @param email of the user to search for
+     * @return empty optional if no user is found, or a user if found
+     */
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
+

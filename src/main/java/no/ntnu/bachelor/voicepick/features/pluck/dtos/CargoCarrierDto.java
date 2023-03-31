@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class CargoCarrierDto {
   private String name;
-  private Long identifier;
+  private int identifier;
   private String phoneticIdentifier;
 }

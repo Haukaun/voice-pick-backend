@@ -6,19 +6,29 @@ import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 @Slf4j
 class RoleTests {
 
@@ -27,6 +37,10 @@ class RoleTests {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private MockMvc mockMvc;
+
 
     @Test
     @DisplayName("Test that accessing public endpoint works")
@@ -46,140 +60,32 @@ class RoleTests {
 
     @Test
     @DisplayName("Access user endpoint with user token")
-    void accessUserEndpointWithToken() {
-        var tmpEmail = "lidav87442@orgria.com";
-        var tmpPassword = "hF+U*)w,*H4A<Ujg";
-
-        // Create user
-        try {
-            authService.signup(new SignupRequest(
-                    tmpEmail,
-                    tmpPassword,
-                    "test",
-                    "user"
-            ));
-        } catch (Exception e) {
-            log.info("User already created. Skipping this step...");
-        }
-        // Login with user
-        var loginResponse = authService.login(new LoginRequest(
-                tmpEmail,
-                tmpPassword
-        ));
-
-        // Send request with token
-        var headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
-
-        ResponseEntity<String> response = template.exchange("/user", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-
-        // Validate response
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // Tear down
-        // TODO: Delete user
+    @WithMockUser(username = "user", password = "pwd", roles = "USER")
+    void accessUserEndpointWithToken() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/user")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is2xxSuccessful());
     }
 
     @Test
     @DisplayName("Access leader endpoint with token")
-    void accessLeaderEndpointWithToken() {
-        var tmpEmail = "lidav87442@orgria.com";
-        var tmpPassword = "hF+U*)w,*H4A<Ujg";
-
-        // Create user
-        try {
-            authService.signup(new SignupRequest(
-                    tmpEmail,
-                    tmpPassword,
-                    "test",
-                    "user"
-            ));
-        } catch (Exception e) {
-            log.info("User already created... Skipping this step!");
-        }
-        // Get id of user created
-        String userId = "";
-        try {
-            userId = authService.getUserId(tmpEmail);
-        } catch (JsonProcessingException e) {
-            fail("Failed to get user id");
-        }
-
-        // Add leader role to user
-        try {
-            authService.addRole(userId, Role.LEADER);
-        } catch (Exception e) {
-            fail("Failed to add role to user");
-        }
-
-        // Login as user
-        var loginResponse = authService.login(new LoginRequest(
-                tmpEmail,
-                tmpPassword
-        ));
-
-        // Send request to leader endpoint
-        var headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
-
-        ResponseEntity<String> response = template.exchange("/leader", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // TODO: Delete user
+    @WithMockUser(username = "leader", password = "pwd", roles = "LEADER")
+    void accessLeaderEndpointWithToken() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/leader")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is2xxSuccessful());
     }
 
     @Test
     @DisplayName("Access admin endpoint with token")
-    void accessAdminEndpointWithToken() {
-        var tmpEmail = "lidav87442@orgria.com";
-        var tmpPassword = "hF+U*)w,*H4A<Ujg";
-
-        // Create user
-        try {
-            authService.signup(new SignupRequest(
-                    tmpEmail,
-                    tmpPassword,
-                    "Admin",
-                    "User"
-            ));
-        } catch (Exception e) {
-            log.info("User already created... Skipping this step!");
-        }
-
-        // Get id of user created
-        String userId = "";
-        try {
-            userId = authService.getUserId(tmpEmail);
-        } catch (JsonProcessingException e) {
-            fail("Failed to get user id");
-        }
-
-        // Add leader role to user
-        try {
-            authService.addRole(userId, Role.ADMIN);
-        } catch (Exception e) {
-            fail("Failed to add role to user");
-        }
-
-        // Login as user
-        var loginResponse = authService.login(new LoginRequest(
-                tmpEmail,
-                tmpPassword
-        ));
-
-        // Send request to admin endpoint
-        var headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + loginResponse.getAccess_token());
-
-        ResponseEntity<String> response = template.exchange("/admin", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // TODO: Delete user
+    @WithMockUser(username = "admin", password = "pwd", roles = "ADMIN")
+    void accessAdminEndpointWithToken() throws Exception {
+       mockMvc.perform(MockMvcRequestBuilders
+               .get("/admin")
+               .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().is2xxSuccessful());
     }
 
 }

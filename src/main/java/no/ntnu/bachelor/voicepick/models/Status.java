@@ -8,7 +8,8 @@ package no.ntnu.bachelor.voicepick.models;
 public enum Status {
 
   READY("READY"),
-  EMPTY("EMPTY");
+  EMPTY("EMPTY"),
+  INACTIVE("INACTIVE");
 
   public final String label;
 

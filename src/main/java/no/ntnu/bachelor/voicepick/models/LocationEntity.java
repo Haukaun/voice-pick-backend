@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public abstract class LocationEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn
     private Location location;

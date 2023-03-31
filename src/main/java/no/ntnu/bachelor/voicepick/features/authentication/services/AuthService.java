@@ -187,11 +187,10 @@ public class AuthService {
   /**
    * Deletes a user
    *
-   * @param token, a valid token for the user to delete
    * @throws EntityNotFoundException if a user could not be found with the given email
    */
-  public void delete(String token) throws JsonProcessingException {
-    var uid = this.jwtUtil.getUid(token);
+  public void delete() {
+    String uid = userService.getCurrentUser().getId();
 
     var headers = this.getAdminHeaders();
 
@@ -243,7 +242,7 @@ public class AuthService {
 
     // Get role
     var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
-    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), RoleResponse.class);
+    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), RoleRequest.class);
 
     var body = new ObjectMapper().writeValueAsString(Collections.singletonList(response.getBody()));
 

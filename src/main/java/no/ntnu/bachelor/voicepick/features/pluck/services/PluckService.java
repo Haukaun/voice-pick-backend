@@ -20,8 +20,8 @@ public class PluckService {
    * 
    * @param pluck the pluck to save
    */
-  public void savePluck(Pluck pluck) {
-    this.repository.save(pluck);
+  public Pluck savePluck(Pluck pluck) {
+    return this.repository.save(pluck);
   }
 
 }

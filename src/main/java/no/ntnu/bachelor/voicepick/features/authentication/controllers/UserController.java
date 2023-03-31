@@ -38,7 +38,6 @@ public class UserController {
         return response;
     }
 
-
     /**
      * Returns a user based on email
      *
