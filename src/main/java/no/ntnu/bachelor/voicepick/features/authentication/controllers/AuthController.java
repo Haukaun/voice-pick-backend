@@ -9,8 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
+import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 
 import java.util.concurrent.Future;
 
@@ -21,6 +24,7 @@ public class AuthController {
 
   private final AuthService authService;
   private final EmailSender emailSender;
+  private final JwtUtil jwtUtil;
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -90,24 +94,57 @@ public class AuthController {
   }
 
   @PostMapping("/reset-password")
-  public String sendPasswordMail(@RequestBody String recipient) {
+  public String sendPasswordMail(@RequestBody EmailDto recipient) {
     Email email = new Email(recipient, Email.Subject.RESET_PASSWORD);
     Future<String> futureResult = emailSender.sendMail(email);
     return emailSender.getResultFromFuture(futureResult);
   }
 
   @PostMapping("/invite-code")
-  public String sendInviteMail(@RequestBody String recipient) {
+  public String sendInviteMail(@RequestBody EmailDto recipient) {
     Email email = new Email(recipient, Email.Subject.INVITE_CODE);
     Future<String> futureResult = emailSender.sendMail(email);
     return emailSender.getResultFromFuture(futureResult);
   }
 
   @PostMapping("/verify-email")
-  public String sendRegistrationMail(@RequestBody String recipient) {
+  public String sendRegistrationMail(@RequestBody EmailDto recipient) {
     Email email = new Email(recipient, Email.Subject.COMPLETE_REGISTRATION);
     Future<String> futureResult = emailSender.sendMail(email);
     return emailSender.getResultFromFuture(futureResult);
+  }
+
+
+  @PostMapping("/check-verification-code")
+  public ResponseEntity<Boolean> checkVerificationCode(@RequestBody VerificationCodeInfo verificationCode) {
+    ResponseEntity<Boolean> response;
+
+    if (Email.containsVerificationCode(verificationCode.getVerificationCode())) {
+      response = new ResponseEntity<>(true, HttpStatus.OK);
+      // Update the emailVerified attribute in Keycloak
+      try{
+        String userId = authService.getUserId(verificationCode.getEmail());
+        authService.setEmailVerified(userId, true);
+      } catch (JsonProcessingException e) {
+        response = new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+      } 
+    } else {
+      response = new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    }
+    return response;
+  }
+
+  @PostMapping("/email-verified")
+  public ResponseEntity<String> getEmailVerified(@RequestBody TokenRequest token) {
+    ResponseEntity<String> response;
+
+    try {
+      String emailVerified = jwtUtil.getEmailVerified(token.getToken());
+      response = new ResponseEntity<>(emailVerified, HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+    }
+    return response;
   }
 
 }

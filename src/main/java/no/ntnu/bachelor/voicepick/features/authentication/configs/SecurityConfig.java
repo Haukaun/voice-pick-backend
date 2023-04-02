@@ -35,7 +35,6 @@ public class SecurityConfig {
             .requestMatchers("/auth/signout").authenticated()
             .requestMatchers("/auth/users/**").authenticated()
             .requestMatchers("/auth/reset-password").authenticated()
-            .requestMatchers("/auth/verify-email").authenticated()
             .anyRequest().permitAll())
         .oauth2ResourceServer()
         .jwt()

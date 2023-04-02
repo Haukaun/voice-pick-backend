@@ -1,14 +1,15 @@
 package no.ntnu.bachelor.voicepick.features.authentication.services;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,6 @@ public class AuthService {
   private final RestTemplate restTemplate;
 
   private final UserService userService;
-
-  private final JwtUtil jwtUtil;
 
   @Value("${keycloak.base-url}")
   private String baseUrl;
@@ -115,7 +114,7 @@ public class AuthService {
         request.getLastName(),
         request.getEmail(),
         true,
-        true,
+        false,
         List.of(new KeycloakCredentials(
             "password",
             request.getPassword(),
@@ -131,7 +130,8 @@ public class AuthService {
 
     if (response.getStatusCode().is2xxSuccessful()) {
       var uid = this.getUserId(request.getEmail());
-      userService.createUser(new User(uid, request.getFirstName(), request.getLastName(), request.getEmail()));
+      User user = new User(uid, request.getFirstName(), request.getLastName(), request.getEmail());
+      userService.createUser(user);
     }
   }
 
@@ -278,5 +278,22 @@ public class AuthService {
     headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(response.getAccess_token()));
 
     return headers;
+  }
+
+  public void setEmailVerified(String userId, boolean emailVerified) throws JsonProcessingException {
+    HttpHeaders headers = this.getAdminHeaders();
+
+    Map<String, Object> updateRequest = new HashMap<>();
+    updateRequest.put("emailVerified", emailVerified);
+
+    ObjectMapper mapper = new ObjectMapper();
+    String jsonBody;
+    
+    jsonBody = mapper.writeValueAsString(updateRequest);
+
+    HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);
+
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId;
+    restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
   }
 }

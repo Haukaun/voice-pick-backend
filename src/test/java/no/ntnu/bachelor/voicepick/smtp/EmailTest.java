@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.smtp;
 
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -14,14 +15,16 @@ class EmailTest {
     @DisplayName("Test creating invalid emails")
     void createInvalidEmail(){
         try {
-            new Email("", Email.Subject.COMPLETE_REGISTRATION);
+            EmailDto invalidEmailDto1 = new EmailDto("");
+            new Email(invalidEmailDto1, Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
         }
 
         try {
-            new Email("wrong-email", Email.Subject.COMPLETE_REGISTRATION);
+            EmailDto invalidEmailDto2 = new EmailDto("wrong-email");
+            new Email(invalidEmailDto2, Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
@@ -31,16 +34,20 @@ class EmailTest {
     @Test
     @DisplayName("Test creating valid emails")
     void createValidEmail(){
-        Email email1 = new Email("john@gmail.com", Email.Subject.COMPLETE_REGISTRATION);
+        EmailDto validEmailDto1 = new EmailDto("john@gmail.com");
+        Email email1 = new Email(validEmailDto1, Email.Subject.COMPLETE_REGISTRATION);
         assertEquals("john@gmail.com", email1.getRecipient());
         assertEquals("Complete registration - Voice Pick", email1.getEmailSubject().getText());
 
-        Email email2 = new Email("kyle@gmail.com", Email.Subject.INVITE_CODE);
+        EmailDto validEmailDto2 = new EmailDto("kyle@gmail.com");
+        Email email2 = new Email(validEmailDto2, Email.Subject.INVITE_CODE);
         assertEquals("kyle@gmail.com", email2.getRecipient());
         assertEquals("Invite code - Voice Pick", email2.getEmailSubject().getText());
 
-        Email email3 = new Email("adam@gmail.com", Email.Subject.RESET_PASSWORD);
+        EmailDto validEmailDto3 = new EmailDto("adam@gmail.com");
+        Email email3 = new Email(validEmailDto3, Email.Subject.RESET_PASSWORD);
         assertEquals("adam@gmail.com", email3.getRecipient());
         assertEquals("Reset password - Voice Pick", email3.getEmailSubject().getText());
     }
 }
+

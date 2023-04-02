@@ -48,8 +48,8 @@ public class LocationController {
    * @return {@code 200 OK} if added, {@code 405 METHOD_NOT_ALLOWED} if request
    *         body is incorrect
    */
-  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @PostMapping
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<String> addLocation(@RequestBody AddLocationRequest request) {
     ResponseEntity<String> response;
 

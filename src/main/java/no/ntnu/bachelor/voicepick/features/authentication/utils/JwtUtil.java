@@ -8,6 +8,10 @@ import java.util.Base64;
 
 @Component
 public class JwtUtil {
+    
+    public String getEmailVerified(String token) throws JsonProcessingException {
+        return this.extractClaim(this.parseToken(token), "email_verified");
+    }
 
     public String getUid(String token) throws JsonProcessingException {
         return this.extractClaim(this.parseToken(token), "sub");

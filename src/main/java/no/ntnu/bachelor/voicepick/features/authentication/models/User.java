@@ -1,10 +1,12 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 
@@ -13,11 +15,15 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity(name = "users")
+@Entity(name = User.TABLE_NAME)
+@NoArgsConstructor
 public class User {
+    
+    public static final String TABLE_NAME = "users";
+    public static final String PRIMARY_KEY = "user_id";
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = User.PRIMARY_KEY)
     private String id;
 
     @Column(name = "first_name")
@@ -31,9 +37,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<PluckList> pluckLists = new ArrayList<>();
-    
-    public User() {
-    }
 
     public User(String id, String firstName, String lastName, String email) {
         if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("firstName cannot be empty");
