@@ -1,12 +1,7 @@
 package no.ntnu.bachelor.voicepick.authentication;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.LoginRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.SignupRequest;
-import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
-import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,14 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Objects;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

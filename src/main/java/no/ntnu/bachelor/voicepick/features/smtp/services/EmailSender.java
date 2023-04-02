@@ -1,6 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.smtp.services;
 
 import jakarta.mail.internet.MimeMessage;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,6 +20,9 @@ public class EmailSender {
     @Autowired
     private JavaMailSender javaMailSender;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * Sends an email asynchronously from the voicepick sender
      *
@@ -28,7 +32,14 @@ public class EmailSender {
      */
     @Async
     public Future<String> sendMail(Email email) {
+
+        if (userService.getUserByEmail(email.getRecipient()) == null) {
+            CompletableFuture<String> future = new CompletableFuture<>();
+            future.completeExceptionally(new RuntimeException("User does not exist with email: " + email.getRecipient()));
+            return future;
+        }
         try {
+
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
