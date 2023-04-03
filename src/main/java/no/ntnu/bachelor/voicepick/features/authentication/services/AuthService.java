@@ -1,9 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.authentication.services;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
@@ -130,7 +127,7 @@ public class AuthService {
 
     if (response.getStatusCode().is2xxSuccessful()) {
       var uid = this.getUserId(request.getEmail());
-      User user = new User(uid, request.getFirstName(), request.getLastName(), request.getEmail());
+      User user = new User(uid, request.getFirstName(), request.getLastName(), request.getEmail().toLowerCase());
       userService.createUser(user);
     }
   }
@@ -182,6 +179,38 @@ public class AuthService {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Find the user by email, then changes its password with a random one.
+   * This method is run when /reset-password endpoint is used.
+   *
+   * @param recipient email of the recipient that will have its password changed
+   * @param randomPassword the password that will be set for the recipient
+   * @return true/false depending on if the password change was successful
+   * @throws JsonProcessingException if json-body is invalid
+   */
+  public boolean resetUserPassword(EmailDto recipient, String randomPassword) throws JsonProcessingException {
+    Optional<User> user = userService.getUserByEmail(recipient.getEmail());
+
+    if (user.isEmpty()) {
+      throw new EntityNotFoundException("User with email (" + recipient.getEmail() + ") does not exist.");
+    }
+    var headers = this.getAdminHeaders();
+
+    KeycloakCredentials body = new KeycloakCredentials(
+            "password",
+            randomPassword,
+            false);
+
+    ObjectMapper mapper = new ObjectMapper();
+    String jsonBody = mapper.writeValueAsString(body);
+
+    String uid = user.get().getId();
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uid + "/reset-password";
+    var response = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(jsonBody, headers), String.class);
+
+    return response.getStatusCode().is2xxSuccessful();
   }
 
   /**

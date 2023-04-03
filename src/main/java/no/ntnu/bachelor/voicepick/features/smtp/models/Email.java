@@ -17,6 +17,7 @@ public class Email {
     private final String recipient;
     private final Subject emailSubject;
     private final String emailBody;
+    private String randomPassword;
 
     private static final List<VerificationCodeInfo> verificationCodes = new ArrayList<>();
     private static final SecureRandom random = new SecureRandom();
@@ -42,10 +43,10 @@ public class Email {
     /**
      * Checks if the array contains the given code.
      * 
-     * @param verificatonCode the code to check for
+     * @param verificationCode the code to check for
      */
-    public static boolean containsVerificationCode(String verificatonCode){
-        return verificationCodes.stream().anyMatch(verificationCodeInfo -> verificationCodeInfo.getVerificationCode().equals(verificatonCode));
+    public static boolean containsVerificationCode(String verificationCode) {
+        return verificationCodes.stream().anyMatch(verificationCodeInfo -> verificationCodeInfo.getVerificationCode().equals(verificationCode));
     }
 
     /**
@@ -75,8 +76,7 @@ public class Email {
      *
      * @param recipient   email address of the recipient
      * @param emailSubject an enum of predefined values
-     * @throws IllegalArgumentException if email does not match regex or when
-     *                                  subject is invalid
+     * @throws IllegalArgumentException if email does not match regex or when subject is invalid
      */
     public Email(EmailDto recipient, Subject emailSubject) {
         if (!isValidEmailAddress(recipient.getEmail())) {
@@ -88,8 +88,8 @@ public class Email {
 
         switch (emailSubject) {
             case RESET_PASSWORD -> {
-                emailBody = "<center><h1 style='color:#FED400; font-size:4rem;'>TRACE</h1><h2 style='margin-top:-3rem; margin-bottom:3rem;'>Voice Pick</h2><h2>Reset Password</h2><p style='margin-top:-1rem; margin-bottom:3rem;'>Your temporary password:</p><button onclick='navigator.clipboard.writeText('IBE4v!ck98@f0')' style='width:95%; height:5rem; background-color:unset; border-color:#FED400; border-style:dotted; border-width:0.2rem;  border-radius:1rem; padding:0.5rem; color:unset; font-size:1.5rem;'>IBE4v!ck98@f0</button><p style='color:#D3D3D3; margin-bottom:2rem; margin-top:-0.05rem;'>click to copy the password</p><img src='https://i.postimg.cc/Hs4LH202/Trace-favicon-2x.png' /></center>";
-                break;
+                randomPassword = generateRandomToken();
+                emailBody = "<center><h1 style='color:#FED400; font-size:4rem;'>TRACE</h1><h2 style='margin-top:-3rem; margin-bottom:3rem;'>Voice Pick</h2><h2>Reset Password</h2><p style='margin-top:-1rem; margin-bottom:3rem;'>Your temporary password:</p><button onclick='navigator.clipboard.writeText('" + randomPassword + "')' style='width:95%; height:5rem; background-color:unset; border-color:#FED400; border-style:dotted; border-width:0.2rem;  border-radius:1rem; padding:0.5rem; color:unset; font-size:1.5rem;'>" + randomPassword + "</button><p style='color:#D3D3D3; margin-bottom:2rem; margin-top:-0.05rem;'>click to copy the password</p><img src='https://i.postimg.cc/Hs4LH202/Trace-favicon-2x.png' /></center>";
             }
             case COMPLETE_REGISTRATION -> {
 
@@ -100,11 +100,9 @@ public class Email {
                 verificationCodes.add(new VerificationCodeInfo(verificationCode, recipient.getEmail(), expirationTime));
 
                 emailBody = "<center><h1 style='color:#FED400; font-size:4rem;'>TRACE</h1><h2 style='margin-top:-3rem; margin-bottom:3rem;'>Voice Pick</h2><h2>Confirm Email</h2><p style='margin-top:-1rem; margin-bottom:3rem;'>To finish registration enter this token in the app:</p><button onclick='navigator.clipboard.writeText('" + verificationCode + "')' style='width:95%; height:5rem; background-color:unset; border-color:#FED400; border-style:dotted; border-width:0.2rem;  border-radius:1rem; padding:0.5rem; color:unset; font-size:1.5rem;'>" + verificationCode + "</button><p style='color:#D3D3D3; margin-bottom:2rem; margin-top:-0.05rem;'>click to copy the token</p><img src='https://i.postimg.cc/Hs4LH202/Trace-favicon-2x.png' /></center>";
-                break;
             }
             case INVITE_CODE -> {
                 emailBody = "<center><h1 style='color:#FED400; font-size:4rem;'>TRACE</h1><h2 style='margin-top:-3rem; margin-bottom:3rem;'>Voice Pick</h2><h2>Invite code</h2><p style='margin-top:-1rem; margin-bottom:3rem;'>You have been invited to join x warehouse.</p><button onclick='navigator.clipboard.writeText('w_F8S1AC')' style='width:95%; height:5rem; background-color:unset; border-color:#FED400; border-style:dotted; border-width:0.2rem;  border-radius:1rem; padding:0.5rem; color:unset; font-size:1.5rem;'>w_F8S1AC</button><p style='color:#D3D3D3; margin-bottom:2rem; margin-top:-0.05rem;'>click to copy the invite code</p><img src='https://i.postimg.cc/Hs4LH202/Trace-favicon-2x.png' /></center>";
-                break;
             }
             default -> throw new IllegalArgumentException("Invalid email subject: " + emailSubject.getText());
         }

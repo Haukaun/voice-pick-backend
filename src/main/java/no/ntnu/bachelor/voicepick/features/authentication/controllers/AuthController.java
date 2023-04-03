@@ -8,9 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
@@ -94,10 +92,21 @@ public class AuthController {
   }
 
   @PostMapping("/reset-password")
-  public String sendPasswordMail(@RequestBody EmailDto recipient) {
-    Email email = new Email(recipient, Email.Subject.RESET_PASSWORD);
+  public ResponseEntity<String> sendPasswordMail(@RequestBody EmailDto recipient) {
+    Email email = new Email(recipient,Email.Subject.RESET_PASSWORD);
     Future<String> futureResult = emailSender.sendMail(email);
-    return emailSender.getResultFromFuture(futureResult);
+    ResponseEntity<String> response;
+
+    try {
+      if (authService.resetUserPassword(recipient,email.getRandomPassword())){
+        response = new ResponseEntity<>(emailSender.getResultFromFuture(futureResult), HttpStatus.OK);
+      } else {
+        response = new ResponseEntity<>(emailSender.getResultFromFuture(futureResult), HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    return response;
   }
 
   @PostMapping("/invite-code")
