@@ -1,7 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.smtp.models;
 
 import lombok.Getter;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 
 import java.security.SecureRandom;

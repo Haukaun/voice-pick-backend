@@ -62,7 +62,7 @@ public class PluckListService {
 
     var currentUser = userService.getUserByUid(uid);
     if (currentUser.isEmpty()) {
-      throw new EntityNotFoundException("Could not fint user with id: " + uid);
+      throw new EntityNotFoundException("Could not find user with id: " + uid);
     }
 
     // Make sure there are location available

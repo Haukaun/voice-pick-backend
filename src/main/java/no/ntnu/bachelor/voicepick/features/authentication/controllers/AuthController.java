@@ -1,7 +1,9 @@
 package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import org.springframework.http.HttpStatus;
@@ -152,6 +154,18 @@ public class AuthController {
       response = new ResponseEntity<>(emailVerified, HttpStatus.OK);
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+    }
+    return response;
+  }
+
+  @PostMapping("/users/{id}")
+  public ResponseEntity<String> addRoleToUser(@PathVariable("id") String id, @RequestBody Role role) {
+    ResponseEntity<String> response;
+    try {
+      authService.addRole(id, role);
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+       response = new ResponseEntity<>("Failed to add role", HttpStatus.BAD_REQUEST);
     }
     return response;
   }

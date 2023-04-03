@@ -13,7 +13,7 @@ public class IntrospectResponse {
   private boolean active;
 
   /**
-   * Returns the state of the a token
+   * Returns the state of a token
    * 
    * @return {@code true} if token is active, {@code false} otherwise
    */

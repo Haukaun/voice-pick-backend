@@ -1,6 +1,6 @@
 package no.ntnu.bachelor.voicepick.mappers;
 
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.UserDto;
+import no.ntnu.bachelor.voicepick.dtos.UserDto;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

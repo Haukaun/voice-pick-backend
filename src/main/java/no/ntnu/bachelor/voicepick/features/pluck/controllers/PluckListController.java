@@ -6,7 +6,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
-import no.ntnu.bachelor.voicepick.mappers.PluckListMapper;
+import no.ntnu.bachelor.voicepick.features.pluck.mappers.PluckListMapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
