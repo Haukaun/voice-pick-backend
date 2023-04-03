@@ -33,7 +33,7 @@ public class EmailSender {
     @Async
     public Future<String> sendMail(Email email) {
 
-        if (userService.getUserByEmail(email.getRecipient()) == null) {
+        if (userService.getUserByEmail(email.getRecipient()).isEmpty()) {
             CompletableFuture<String> future = new CompletableFuture<>();
             future.completeExceptionally(new RuntimeException("User does not exist with email: " + email.getRecipient()));
             return future;
