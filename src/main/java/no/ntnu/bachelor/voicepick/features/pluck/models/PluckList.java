@@ -14,7 +14,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.models.LocationEntity;
 
 /**
- * An entity that represnets a pluck list
+ * An entity that represents a pluck list
  * 
  * @author Joakim
  */
@@ -46,7 +46,7 @@ public class PluckList extends LocationEntity {
   private LocalDateTime finishedAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "uid")
+  @JoinColumn(name = "user_id")
   private User user;
 
   @JsonManagedReference

@@ -1,4 +1,4 @@
-package no.ntnu.bachelor.voicepick.features.authentication.dtos;
+package no.ntnu.bachelor.voicepick.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

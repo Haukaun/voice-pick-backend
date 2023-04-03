@@ -34,7 +34,7 @@ public class Location {
     private int controlDigits;
 
     @JsonBackReference
-    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER, orphanRemoval = false)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
     private Set<LocationEntity> entities = new HashSet<>();
 
     public Location(String code, int controlDigits) {

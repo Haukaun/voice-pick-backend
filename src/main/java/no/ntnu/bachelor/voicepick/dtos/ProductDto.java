@@ -12,4 +12,6 @@ public class ProductDto {
   private int quantity;
   private ProductType type;
   private Status status;
+
+  private LocationDto location;
 }

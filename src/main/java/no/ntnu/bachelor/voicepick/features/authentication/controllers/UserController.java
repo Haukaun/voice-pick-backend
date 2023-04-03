@@ -2,13 +2,10 @@ package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import java.util.List;
 
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
@@ -50,8 +47,8 @@ public class UserController {
 
         var optionalUser = userService.getUserByEmail(request.getEmail());
         response = optionalUser
-                .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+            .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
+            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
         return response;
     }

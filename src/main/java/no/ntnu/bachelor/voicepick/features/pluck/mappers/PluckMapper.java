@@ -1,8 +1,9 @@
-package no.ntnu.bachelor.voicepick.mappers;
+package no.ntnu.bachelor.voicepick.features.pluck.mappers;
 
 import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckDto;
 import no.ntnu.bachelor.voicepick.features.pluck.models.Pluck;
+import no.ntnu.bachelor.voicepick.mappers.ProductMapper;
 import no.ntnu.bachelor.voicepick.models.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
