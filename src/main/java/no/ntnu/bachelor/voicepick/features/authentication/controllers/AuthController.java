@@ -146,14 +146,14 @@ public class AuthController {
   }
 
   @PostMapping("/email-verified")
-  public ResponseEntity<String> getEmailVerified(@RequestBody TokenRequest token) {
-    ResponseEntity<String> response;
+  public ResponseEntity<Boolean> getEmailVerified(@RequestBody TokenRequest token) {
+    ResponseEntity<Boolean> response;
 
     try {
-      String emailVerified = jwtUtil.getEmailVerified(token.getToken());
+      var emailVerified = jwtUtil.getEmailVerified(token.getToken());
       response = new ResponseEntity<>(emailVerified, HttpStatus.OK);
     } catch (JsonProcessingException e) {
-      response = new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     return response;
   }

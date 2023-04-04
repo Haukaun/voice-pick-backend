@@ -2,9 +2,13 @@ package no.ntnu.bachelor.voicepick.authentication;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 
+import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthTests {
   @Autowired
   private UserService userService;
+  @Autowired
+  private PluckListService pluckListService;
 
   private final static String UID = "123123";
   private final static String EMAIL = "bamel39838@kaudat.com";
@@ -58,8 +64,8 @@ class AuthTests {
   @DisplayName("Try to register a new user that already exists")
   void registerUserThatExists() {
     User user = new User(UID, FIRST_NAME, LAST_NAME, EMAIL);
+    userService.createUser(user);
     try {
-      userService.createUser(user);
       userService.createUser(user);
     } catch (EntityExistsException e) {
       assertEquals("User with uid (" + user.getId() + ") already exists.", e.getMessage());
@@ -67,9 +73,18 @@ class AuthTests {
   }
   @Test
   @DisplayName("Delete your user")
+  @Transactional
   void successfullyDeleteYourUser() {
+    userService.createUser(new User(UID, FIRST_NAME, LAST_NAME, EMAIL));
+    var optionalUser = userService.getUserByUid(UID);
+    if (optionalUser.isEmpty()) {
+      fail("Did not find user that was just created");
+    }
+
+    var user = optionalUser.get();
+    user.addPluckList(new PluckList());
+
     try {
-      userService.createUser(new User(UID, FIRST_NAME, LAST_NAME, EMAIL));
       userService.deleteUser(UID);
     } catch (Exception e) {
       fail();
