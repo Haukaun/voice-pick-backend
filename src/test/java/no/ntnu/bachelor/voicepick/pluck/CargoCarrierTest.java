@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -153,6 +155,25 @@ class CargoCarrierTest {
     this.pluckListRepository.save(pluck);
 
     this.cargoCarrierService.delete(cargoCarrier);
+
+    assertEquals(0, this.cargoCarrierService.findAllActive().size());
+  }
+
+  @Test
+  @DisplayName("Delete all cargo carriers")
+  void deleteAllCargoCarriers() {
+    var carrier1 = new CargoCarrier("carrier1", 1, "one");
+    var carrier2 = new CargoCarrier("carrier2", 2, "two");
+    var carrier3 = new CargoCarrier("carrier3", 3, "three");
+
+    var list = new ArrayList<CargoCarrier>();
+    list.add(carrier1);
+    list.add(carrier2);
+    list.add(carrier3);
+
+    list.forEach(item -> this.cargoCarrierService.add(item));
+
+    this.cargoCarrierService.deleteAll(list);
 
     assertEquals(0, this.cargoCarrierService.findAllActive().size());
   }

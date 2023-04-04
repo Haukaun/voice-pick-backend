@@ -14,16 +14,16 @@ class EmailTest {
     @Test
     @DisplayName("Test creating invalid emails")
     void createInvalidEmail(){
+        EmailDto invalidEmailDto1 = new EmailDto("");
         try {
-            EmailDto invalidEmailDto1 = new EmailDto("");
             new Email(invalidEmailDto1, Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
         }
 
+        EmailDto invalidEmailDto2 = new EmailDto("wrong-email");
         try {
-            EmailDto invalidEmailDto2 = new EmailDto("wrong-email");
             new Email(invalidEmailDto2, Email.Subject.COMPLETE_REGISTRATION);
             fail();
         } catch (IllegalArgumentException e) {

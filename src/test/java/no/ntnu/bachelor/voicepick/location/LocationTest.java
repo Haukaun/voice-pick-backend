@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.location;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
@@ -88,6 +89,18 @@ class LocationTest {
   }
 
   @Test
+  @DisplayName("Add location that already exist")
+  void addExistingLocation() {
+    this.locationService.addLocation("H209", 123);
+    try {
+      this.locationService.addLocation("H209", 123);
+      fail("Exception was not thrown");
+    } catch (EntityExistsException e) {
+      assertTrue(true);
+    }
+  }
+
+  @Test
   @DisplayName("Get all location when there are none")
   void getAllWithoutAny() {
     assertEquals(0, this.locationService.getAll().size());
@@ -152,6 +165,17 @@ class LocationTest {
     }
 
     assertEquals(2, this.locationService.getAvailablePluckListLocation().size());
+  }
+
+  @Test
+  @DisplayName("Get location entities for a location that does not exists")
+  void getEntitiesForInvalidLocation() {
+    try {
+      this.locationService.getLocationEntities(2L);
+      fail("Exception was not thrown when it should have been");
+    } catch (EntityNotFoundException e) {
+      assertTrue(true);
+    }
   }
 
   @Test

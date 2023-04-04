@@ -203,6 +203,49 @@ class PluckListTest {
     }
 
     @Test
+    @DisplayName("Update cargo carrier for a pluck list that does not exist")
+    void updateCargoCarrierForInvalidPluckList() {
+        try {
+            this.pluckListService.updateCargoCarrier(1L, 1);
+            fail("Exception was not thrown");
+        } catch (EntityNotFoundException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    @DisplayName("Update cargo carrier with a none existing cargo carrier")
+    @Transactional
+    void updateWithNoneExistingCargoCarrier() {
+        var uid = "-2j3go4g5ha45qh";
+        this.userRepository.save(new User(uid, "hans", "val", "hans@val.com"));
+
+        var product = new Product("product1", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY);
+        var productLocation = new Location("H209", 123);
+        productLocation.addEntity(product);
+        this.locationRepository.save(productLocation);
+        this.productRepository.save(product);
+        var pluckListLocation = new Location("B842", 956);
+        this.locationRepository.save(pluckListLocation);
+
+        try {
+            this.pluckListService.generateRandomPluckList(uid);
+        } catch (Exception e) {
+            fail("Exception thrown when pluck list should have been created");
+        }
+
+        var pluckLists = this.pluckListRepository.findAll();
+        var pluckListId = pluckLists.get(0).getId();
+
+        try {
+            this.pluckListService.updateCargoCarrier(pluckListId, 1);
+            fail("Exception was not thrown");
+        } catch (EntityNotFoundException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
     @DisplayName("Update cargo carrier")
     @Transactional
     void updateCargoCarrier() {
@@ -233,6 +276,17 @@ class PluckListTest {
         var newPluckLists = this.pluckListRepository.findAll();
 
         assertNotNull(newPluckLists.get(0).getCargoCarrier());
+    }
+
+    @Test
+    @DisplayName("Try to delete a pluck list that does not exist")
+    void deleteInvalidPluckList() {
+        try {
+            this.pluckListService.deletePluckList(1L);
+            fail("Exception was not thrown");
+        } catch (EntityNotFoundException e) {
+            assertTrue(true);
+        }
     }
 
 }
