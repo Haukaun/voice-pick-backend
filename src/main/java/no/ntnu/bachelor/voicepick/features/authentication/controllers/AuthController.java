@@ -107,6 +107,8 @@ public class AuthController {
       }
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
     return response;
   }
