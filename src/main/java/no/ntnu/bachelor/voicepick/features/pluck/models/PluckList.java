@@ -25,7 +25,7 @@ import no.ntnu.bachelor.voicepick.models.LocationEntity;
 @Table(name = PluckList.TABLE_NAME)
 public class PluckList extends LocationEntity {
 
-  public static final String TABLE_NAME = "pluck_list";
+  public static final String TABLE_NAME = "pluck_lists";
   public static final String PRIMARY_KEY = "pluck_list_id";
 
   @Id

@@ -19,7 +19,7 @@ import java.util.Set;
 @Table(name = Location.TABLE_NAME)
 public class Location {
 
-    public static final String TABLE_NAME = "location";
+    public static final String TABLE_NAME = "locations";
     public static final String PRIMARY_KEY = "location_id";
 
     @Id

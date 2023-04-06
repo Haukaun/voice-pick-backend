@@ -15,7 +15,7 @@ import lombok.Getter;
 @Table(name = Product.TABLE_NAME)
 public class Product extends LocationEntity {
 
-  public static final String TABLE_NAME = "product";
+  public static final String TABLE_NAME = "products";
   public static final String PRIMARY_KEY = "product_id";
 
   @Id

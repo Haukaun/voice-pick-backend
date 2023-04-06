@@ -41,7 +41,7 @@ public class UserService {
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
-            return userRepository.findById(auth.getName()).orElseThrow(EntityNotFoundException::new);
+            return userRepository.findByUuid(auth.getName()).orElseThrow(EntityNotFoundException::new);
         } else {
             throw new NullPointerException("Auth is null.");
         }
@@ -53,8 +53,8 @@ public class UserService {
      * @param id of the user to find
      * @return an empty optional if no user is found, or the user if found
      */
-    public Optional<User> getUserByUid(String id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserByUuid(String id) {
+        return userRepository.findByUuid(id);
     }
 
     /**
@@ -72,7 +72,7 @@ public class UserService {
      * @param id of the user to delete
      */
     public void deleteUser(String id) {
-        Optional<User> optionalUser = getUserByUid(id);
+        Optional<User> optionalUser = getUserByUuid(id);
         if (optionalUser.isEmpty()) {
             throw new EntityNotFoundException("User with id (" + id + ") can't be deleted because it does not exist.");
         }
@@ -81,7 +81,7 @@ public class UserService {
             pluckList.setUser(null);
             pluckListRepository.save(pluckList);
         }
-        userRepository.deleteById(id);
+        userRepository.deleteByUuid(id);
     }
 
     /**
@@ -89,7 +89,7 @@ public class UserService {
      */
     public void deleteAll() {
         var users = this.userRepository.findAll();
-        users.forEach(user -> this.deleteUser(user.getId()));
+        users.forEach(user -> this.deleteUser(user.getUuid()));
     }
 
     /**

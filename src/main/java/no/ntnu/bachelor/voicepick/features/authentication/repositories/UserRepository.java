@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
-    Optional<User> findById(String uid);
+    Optional<User> findByUuid(String uuid);
+
+    void deleteByUuid(String uuid);
 }
