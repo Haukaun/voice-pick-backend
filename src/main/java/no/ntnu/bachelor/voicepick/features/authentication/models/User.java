@@ -1,10 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,8 +20,12 @@ public class User {
     public static final String PRIMARY_KEY = "user_id";
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = User.PRIMARY_KEY)
-    private String id;
+    private Long id;
+
+    @Column(name = "uuid")
+    private String uuid;
 
     @Column(name = "first_name")
     private String firstName;
@@ -38,12 +39,13 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PluckList> pluckLists = new ArrayList<>();
 
-    public User(String id, String firstName, String lastName, String email) {
+    public User(String uuid, String firstName, String lastName, String email) {
+        if (uuid == null || uuid.isBlank()) throw new IllegalArgumentException("uuid cannot be empty");
         if (firstName == null || firstName.isBlank()) throw new IllegalArgumentException("firstName cannot be empty");
         if (lastName == null || lastName.isBlank()) throw new IllegalArgumentException("lastName cannot be empty");
         if (email == null || email.isBlank()) throw new IllegalArgumentException("Email cannot be empty");
 
-        this.id = id;
+        this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

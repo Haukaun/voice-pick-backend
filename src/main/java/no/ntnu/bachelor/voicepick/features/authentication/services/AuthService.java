@@ -207,7 +207,7 @@ public class AuthService {
     ObjectMapper mapper = new ObjectMapper();
     String jsonBody = mapper.writeValueAsString(body);
 
-    String uid = user.get().getId();
+    String uid = user.get().getUuid();
     var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uid + "/reset-password";
     var response = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(jsonBody, headers), String.class);
 
@@ -220,7 +220,7 @@ public class AuthService {
    * @throws EntityNotFoundException if a user could not be found with the given email
    */
   public void delete() {
-    String uid = userService.getCurrentUser().getId();
+    String uid = userService.getCurrentUser().getUuid();
 
     var headers = this.getAdminHeaders();
 

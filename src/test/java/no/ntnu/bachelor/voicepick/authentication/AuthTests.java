@@ -47,6 +47,7 @@ class AuthTests {
 
   @Test
   @DisplayName("Register new user")
+  @Transactional
   void registerNewUser() {
     User user = null;
     try {
@@ -55,13 +56,14 @@ class AuthTests {
     } catch (Exception e) {
       fail();
     }
-    assertEquals(UID, userService.getUserByUid(UID).get().getId());
+    assertEquals(UID, userService.getUserByUuid(UID).get().getUuid());
     assertEquals(1, userService.getAllUsers().size());
-    assertTrue(userService.getUserByUid(user.getId()).isPresent());
+    assertTrue(userService.getUserByUuid(user.getUuid()).isPresent());
   }
 
   @Test
   @DisplayName("Try to register a new user that already exists")
+  @Transactional
   void registerUserThatExists() {
     User user = new User(UID, FIRST_NAME, LAST_NAME, EMAIL);
     userService.createUser(user);
@@ -76,7 +78,7 @@ class AuthTests {
   @Transactional
   void successfullyDeleteYourUser() {
     userService.createUser(new User(UID, FIRST_NAME, LAST_NAME, EMAIL));
-    var optionalUser = userService.getUserByUid(UID);
+    var optionalUser = userService.getUserByUuid(UID);
     if (optionalUser.isEmpty()) {
       fail("Did not find user that was just created");
     }
@@ -89,7 +91,7 @@ class AuthTests {
     } catch (Exception e) {
       fail();
     }
-    assertTrue(userService.getUserByUid(UID).isEmpty());
+    assertTrue(userService.getUserByUuid(UID).isEmpty());
     assertEquals(0, userService.getAllUsers().size());
   }
 

@@ -20,7 +20,7 @@ import java.util.Set;
 @Table(name = CargoCarrier.TABLE_NAME)
 public class CargoCarrier {
 
-  public static final String TABLE_NAME = "cargo_carrier";
+  public static final String TABLE_NAME = "cargo_carriers";
   public static final String PRIMARY_KEY = "cargo_carrier_id";
 
   @Id

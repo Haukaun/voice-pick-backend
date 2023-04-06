@@ -30,7 +30,7 @@ import no.ntnu.bachelor.voicepick.models.Product;
 @Table(name = Pluck.TABLE_NAME)
 public class Pluck {
 
-  public static final String TABLE_NAME = "pluck";
+  public static final String TABLE_NAME = "plucks";
   public static final String PRIMARY_KEY = "pluck_id";
 
   @Id
