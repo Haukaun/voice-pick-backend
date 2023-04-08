@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
 import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/plucks")
 @RequiredArgsConstructor
@@ -33,9 +35,13 @@ public class PluckListController {
    * {@code 204} if there are no products available to make a pluck list
    */
   @GetMapping
-  public ResponseEntity<PluckListDto> getRandomPluckList(@RequestHeader(name = "Authorization") String token) {
+  public ResponseEntity<PluckListDto> getRandomPluckList(@RequestHeader(name = "Authorization") Optional<String> token) {
+    if (token.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
     try {
-      String uid = jwt.getUid(token.substring(7)); // Remove 'Bearer '
+      String uid = jwt.getUid(token.get().substring(7)); // Remove 'Bearer '
 
       return new ResponseEntity<>(pluckListMapper.toPluckListDto(this.pluckListService.generateRandomPluckList(uid)), HttpStatus.OK);
     } catch (EmptyListException e) {
