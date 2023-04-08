@@ -45,6 +45,9 @@ public class Pluck {
   @Column(name = "amount")
   private int amount;
 
+  @Column(name = "amountPlucked")
+  private int amountPlucked;
+
   @Column(name = "created_at")
   private LocalDateTime createdAt;
 
@@ -62,6 +65,7 @@ public class Pluck {
   public Pluck(Product product, int amount, LocalDateTime createdAt) {
     this.product = product;
     this.amount = amount;
+    this.amountPlucked = 0;
     this.createdAt = createdAt;
   }
 }
