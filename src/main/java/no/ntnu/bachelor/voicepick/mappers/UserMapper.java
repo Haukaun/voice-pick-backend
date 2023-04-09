@@ -10,7 +10,7 @@ import java.util.Collection;
 @Mapper(componentModel = "spring")
 public abstract class UserMapper {
 
-  @Mapping(target="id", source="id")
+  @Mapping(target="uuid", source="uuid")
   public abstract UserDto toUserDto(User user);
 
   public abstract Collection<UserDto> toUserDto(Collection<User> user);

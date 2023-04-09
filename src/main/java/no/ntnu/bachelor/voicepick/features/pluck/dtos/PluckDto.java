@@ -10,6 +10,7 @@ public class PluckDto {
   private Long id;
   private ProductDto product;
   private int amount;
+  private int amountPlucked;
   private LocalDateTime createdAt;
   private LocalDateTime confirmedAt;
   private LocalDateTime pluckedAt;
