@@ -3,16 +3,15 @@ package no.ntnu.bachelor.voicepick.features.pluck.models;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.models.LocationEntity;
-import org.springframework.context.annotation.DependsOn;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 
 /**
  * An entity that represents a pluck list
@@ -50,6 +49,11 @@ public class PluckList extends LocationEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = User.PRIMARY_KEY)
   private User user;
+
+  @JsonBackReference
+  @ManyToOne
+  @JoinColumn(name = Warehouse.PRIMARY_KEY)
+  private Warehouse warehouse;
 
   @JsonManagedReference
   @OneToMany(mappedBy = "pluckList")

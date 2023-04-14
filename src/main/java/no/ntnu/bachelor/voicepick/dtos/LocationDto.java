@@ -1,12 +1,12 @@
 package no.ntnu.bachelor.voicepick.dtos;
 
 import lombok.Data;
+import no.ntnu.bachelor.voicepick.models.LocationType;
 
 @Data
 public class LocationDto {
-
-  private Long id;
   private String code;
   private int controlDigits;
+  private LocationType locationType;
 
 }

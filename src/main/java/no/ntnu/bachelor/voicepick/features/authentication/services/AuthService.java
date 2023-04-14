@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
@@ -230,7 +231,6 @@ public class AuthService {
     if (response.getStatusCode().is2xxSuccessful()) {
       this.userService.deleteUser(uid);
     }
-
   }
 
   /**

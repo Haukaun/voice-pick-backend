@@ -1,5 +1,5 @@
 package no.ntnu.bachelor.voicepick.controllers;
-
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,20 +19,21 @@ public class ProductController {
 
   private final ProductService service;
 
+  private final UserService userService;
+
   /**
    * Endpoint for adding a new product
    * 
-   * @param product a request body containing information about the product
+   * @param request a request body containing information about the product and warehouse
    * @return {@code 200 OK} if added, {@code 404 METHOD_NOT_ALLOWED} if request
    *         body is incorrect
    */
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @PostMapping
-  public ResponseEntity<String> addProduct(@RequestBody AddProductRequest product) {
+  public ResponseEntity<String> addProduct(@RequestBody AddProductRequest request) {
     ResponseEntity<String> response;
-
     try {
-      this.service.addProduct(product);
+      this.service.addProduct(request, userService.getCurrentUser().getWarehouse());
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (Exception e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);

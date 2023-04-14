@@ -95,15 +95,15 @@ public class AuthController {
 
   @PostMapping("/reset-password")
   public ResponseEntity<String> sendPasswordMail(@RequestBody EmailDto recipient) {
-    Email email = new Email(recipient,Email.Subject.RESET_PASSWORD);
+    Email email = new Email(recipient, Email.Subject.RESET_PASSWORD);
     Future<String> futureResult = emailSender.sendMail(email);
     ResponseEntity<String> response;
 
     try {
-      if (authService.resetUserPassword(recipient,email.getRandomPassword())){
-        response = new ResponseEntity<>(emailSender.getResultFromFuture(futureResult), HttpStatus.OK);
+      if (authService.resetUserPassword(recipient, email.getRandomPassword())) {
+        response = emailSender.getResultFromFuture(futureResult);
       } else {
-        response = new ResponseEntity<>(emailSender.getResultFromFuture(futureResult), HttpStatus.INTERNAL_SERVER_ERROR);
+        response = emailSender.getResultFromFuture(futureResult);
       }
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -113,15 +113,8 @@ public class AuthController {
     return response;
   }
 
-  @PostMapping("/invite-code")
-  public String sendInviteMail(@RequestBody EmailDto recipient) {
-    Email email = new Email(recipient, Email.Subject.INVITE_CODE);
-    Future<String> futureResult = emailSender.sendMail(email);
-    return emailSender.getResultFromFuture(futureResult);
-  }
-
   @PostMapping("/verify-email")
-  public String sendRegistrationMail(@RequestBody EmailDto recipient) {
+  public ResponseEntity<String> sendRegistrationMail(@RequestBody EmailDto recipient) {
     Email email = new Email(recipient, Email.Subject.COMPLETE_REGISTRATION);
     Future<String> futureResult = emailSender.sendMail(email);
     return emailSender.getResultFromFuture(futureResult);
@@ -160,11 +153,11 @@ public class AuthController {
     return response;
   }
 
-  @PostMapping("/users/{id}")
-  public ResponseEntity<String> addRoleToUser(@PathVariable("id") String id, @RequestBody Role role) {
+  @PostMapping("/users/{id}/roles/leader")
+  public ResponseEntity<String> addLeaderRole(@PathVariable("id") String id) {
     ResponseEntity<String> response;
     try {
-      authService.addRole(id, role);
+      authService.addRole(id, Role.LEADER);
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (JsonProcessingException e) {
        response = new ResponseEntity<>("Failed to add role", HttpStatus.BAD_REQUEST);

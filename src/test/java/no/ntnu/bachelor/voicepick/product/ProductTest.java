@@ -1,9 +1,15 @@
 package no.ntnu.bachelor.voicepick.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
-import no.ntnu.bachelor.voicepick.models.Location;
+import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.models.*;
 import no.ntnu.bachelor.voicepick.services.LocationService;
 import no.ntnu.bachelor.voicepick.services.ProductService;
+import no.ntnu.bachelor.voicepick.services.WarehouseService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,12 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import no.ntnu.bachelor.voicepick.models.Product;
-import no.ntnu.bachelor.voicepick.models.ProductType;
-import no.ntnu.bachelor.voicepick.models.Status;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+@Transactional
 @SpringBootTest
 class ProductTest {
 
@@ -25,9 +28,23 @@ class ProductTest {
   @Autowired
   private LocationService locationService;
 
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private WarehouseService warehouseService;
+
+  private static final String WAREHOUSE_NAME = "test";
+
+  private Warehouse warehouse;
+
   @BeforeEach
   void setup() {
-    this.locationService.addLocation("H209", 123);
+    var user = new User("123123123", "Test", "Testern", "test@test.test");
+    userService.createUser(user);
+    warehouseService.createWarehouse(user, new AddWarehouseDto(WAREHOUSE_NAME, "testgata"));
+    warehouseService.findByName(WAREHOUSE_NAME).ifPresent(value -> warehouse = value);
+    this.locationService.addLocation(new Location("H201", 123, LocationType.PRODUCT), warehouse);
   }
 
   @AfterEach
@@ -36,15 +53,17 @@ class ProductTest {
       this.productService.deleteAll(product.getName());
     }
     for (Location location : this.locationService.getAll()) {
-      this.locationService.deleteLocation(location.getCode());
+      this.locationService.deleteLocation(location.getId());
     }
+    userService.deleteAll();
+    warehouseService.deleteAll();
   }
 
   @Test
   @DisplayName("Create a valid product")
   void createValidProduct() {
     var milk = new Product("Q-milk", 1.75, 1.75, 50, ProductType.D_PAK, Status.READY);
-    var h201 = new Location("H201", 321);
+    var h201 = new Location("H201", 321, LocationType.PRODUCT);
     h201.addEntity(milk);
 
     assertEquals("Q-milk", milk.getName());
@@ -94,7 +113,7 @@ class ProductTest {
   @DisplayName("Try to add an invalid product")
   void addInvalidProduct() {
     try {
-      this.productService.addProduct(new AddProductRequest("", "", -1, -1, -1, null));
+      this.productService.addProduct(new AddProductRequest("", "", -1, -1, -1, null), warehouse);
       fail("Product should not be created");
     } catch (Exception e) {
       assertEquals(0, this.productService.getAvailableProducts().size());
@@ -106,7 +125,7 @@ class ProductTest {
   @DisplayName("Add a product without any location")
   void addProductWithoutLocation() {
     var product = new AddProductRequest("Coca Cola", "", 1, 1, 10, ProductType.F_PAK);
-    this.productService.addProduct(product);
+    this.productService.addProduct(product, warehouse);
 
     var result = this.productService.getProductsWithoutLocation("Coca Cola");
     if (result.isEmpty()) {
@@ -127,7 +146,7 @@ class ProductTest {
   @DisplayName("Add a valid product")
   void addProduct() {
     var locations = this.locationService.getAll();
-    this.productService.addProduct(new AddProductRequest("Pepsi", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK));
+    this.productService.addProduct(new AddProductRequest("Pepsi", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK), warehouse);
 
     var result = this.productService.getAvailableProductsByName("Pepsi");
     if (result.isEmpty()) {
@@ -151,7 +170,7 @@ class ProductTest {
   @DisplayName("Delete product")
   void deleteProduct() {
     var locations = this.locationService.getAll();
-    this.productService.addProduct(new AddProductRequest("Fanta", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK));
+    this.productService.addProduct(new AddProductRequest("Fanta", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK), warehouse);
     this.productService.deleteAll("Fanta");
 
     assertEquals(0, this.productService.getAvailableProducts().size());

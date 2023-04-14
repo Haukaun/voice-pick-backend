@@ -1,8 +1,13 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.dtos.LocationDto;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.mappers.LocationMapper;
 import no.ntnu.bachelor.voicepick.models.LocationEntity;
 import no.ntnu.bachelor.voicepick.services.LocationService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
-import no.ntnu.bachelor.voicepick.dtos.AddLocationRequest;
 
 import java.util.Set;
 
@@ -20,6 +24,10 @@ import java.util.Set;
 public class LocationController {
 
   private final LocationService locationService;
+
+  private final UserService userService;
+
+  private final LocationMapper locationMapper = Mappers.getMapper(LocationMapper.class);
 
   /**
    * Endpoint for getting entities stored at a location
@@ -44,17 +52,16 @@ public class LocationController {
   /**
    * Endpoint for adding a new location
    * 
-   * @param request a request body containing information about the location
+   * @param location a request body containing information about the location
    * @return {@code 200 OK} if added, {@code 405 METHOD_NOT_ALLOWED} if request
    *         body is incorrect
    */
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
-  public ResponseEntity<String> addLocation(@RequestBody AddLocationRequest request) {
+  public ResponseEntity<String> addLocation(@RequestBody LocationDto location) {
     ResponseEntity<String> response;
-
     try {
-      this.locationService.addLocation(request.getCode(), request.getControlDigits());
+      this.locationService.addLocation(locationMapper.toLocation(location), userService.getCurrentUser().getWarehouse());
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (IllegalArgumentException | EntityExistsException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);

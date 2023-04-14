@@ -1,12 +1,12 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -40,6 +40,11 @@ public class User {
     @JsonBackReference
     @OneToMany(mappedBy = "user")
     private Set<PluckList> pluckLists = new LinkedHashSet<>();
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = Warehouse.PRIMARY_KEY)
+    private Warehouse warehouse;
 
     public User(String uuid, String firstName, String lastName, String email) {
         if (uuid == null || uuid.isBlank()) throw new IllegalArgumentException("uuid cannot be empty");
