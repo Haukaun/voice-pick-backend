@@ -24,7 +24,7 @@ public class CargoCarrier {
   public static final String PRIMARY_KEY = "cargo_carrier_id";
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = CargoCarrier.PRIMARY_KEY)
   private Long id;
 

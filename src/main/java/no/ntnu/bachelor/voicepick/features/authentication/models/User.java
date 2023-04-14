@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,15 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+@Entity
+@Table(name = User.TABLE_NAME)
+@NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = User.TABLE_NAME)
-@NoArgsConstructor
 public class User {
-    
     public static final String TABLE_NAME = "users";
     public static final String PRIMARY_KEY = "user_id";
 
@@ -36,8 +37,9 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "user")
-    private List<PluckList> pluckLists = new ArrayList<>();
+    private Set<PluckList> pluckLists = new LinkedHashSet<>();
 
     public User(String uuid, String firstName, String lastName, String email) {
         if (uuid == null || uuid.isBlank()) throw new IllegalArgumentException("uuid cannot be empty");

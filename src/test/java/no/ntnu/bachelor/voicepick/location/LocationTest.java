@@ -111,7 +111,7 @@ class LocationTest {
   void getAll() {
     this.locationService.addLocation("H209", 123);
     this.locationService.addLocation("H215", 321);
-    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK));
 
     assertEquals(2, this.locationService.getAll().size());
   }
@@ -133,7 +133,7 @@ class LocationTest {
     this.locationService.addLocation("H215", 123);
     this.locationService.addLocation("H219", 123);
 
-    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK));
 
     var uid = "pjpiaerpg";
     this.userService.createUser(new User(uid, "Hans", "Val", "hans@val.com"));
@@ -154,7 +154,7 @@ class LocationTest {
     this.locationService.addLocation("H215", 123);
     this.locationService.addLocation("H219", 123);
 
-    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("product1", "H209", 1.0, 1.0, 1, ProductType.D_PAK));
 
     var uid = "pjpiaerpg";
     this.userService.createUser(new User(uid, "Hans", "Val", "hans@val.com"));
@@ -186,7 +186,7 @@ class LocationTest {
     this.userService.createUser(new User(uid, "Hand", "Val", "hans@val.com"));
     this.locationService.addLocation("H209", 123);
     this.locationService.addLocation("H215", 123);
-    this.productService.addProduct(new AddProductRequest("product1", "H215", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("product1", "H215", 1.0, 1.0, 1, ProductType.D_PAK));
     try {
       this.pluckListService.generateRandomPluckList(uid);
       this.pluckListService.generateRandomPluckList(uid);

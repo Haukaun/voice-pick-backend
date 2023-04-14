@@ -27,16 +27,29 @@ public class ProductService {
    * @param product to add
    */
   public void addProduct(AddProductRequest product) {
-    Product productToSave = new Product(
-        product.getName(),
-        product.getWeight(),
-        product.getVolume(),
-        product.getQuantity(),
-        product.getType(),
-        product.getStatus());
-
     var optionalLocation = this.locationService.getLocationByCode(product.getLocation());
-    optionalLocation.ifPresent(location -> location.addEntity(productToSave));
+
+    Product productToSave;
+    if (optionalLocation.isPresent()) {
+      productToSave = new Product(
+              product.getName(),
+              product.getWeight(),
+              product.getVolume(),
+              product.getQuantity(),
+              product.getType(),
+              Status.READY);
+
+      var location = optionalLocation.get();
+      location.addEntity(productToSave);
+    } else {
+      productToSave = new Product(
+              product.getName(),
+              product.getWeight(),
+              product.getVolume(),
+              product.getQuantity(),
+              product.getType(),
+              Status.WITHOUT_LOCATION);
+    }
 
     this.repository.save(productToSave);
   }

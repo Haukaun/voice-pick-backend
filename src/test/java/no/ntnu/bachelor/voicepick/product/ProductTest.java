@@ -94,7 +94,7 @@ class ProductTest {
   @DisplayName("Try to add an invalid product")
   void addInvalidProduct() {
     try {
-      this.productService.addProduct(new AddProductRequest("", "", -1, -1, -1, null, null));
+      this.productService.addProduct(new AddProductRequest("", "", -1, -1, -1, null));
       fail("Product should not be created");
     } catch (Exception e) {
       assertEquals(0, this.productService.getAvailableProducts().size());
@@ -105,7 +105,7 @@ class ProductTest {
   @Test
   @DisplayName("Add a product without any location")
   void addProductWithoutLocation() {
-    var product = new AddProductRequest("Coca Cola", "", 1, 1, 10, ProductType.F_PAK, Status.READY);
+    var product = new AddProductRequest("Coca Cola", "", 1, 1, 10, ProductType.F_PAK);
     this.productService.addProduct(product);
 
     var result = this.productService.getProductsWithoutLocation("Coca Cola");
@@ -119,7 +119,7 @@ class ProductTest {
     assertEquals(1, productFound.getVolume());
     assertEquals(10, productFound.getQuantity());
     assertEquals(ProductType.F_PAK, productFound.getType());
-    assertEquals(Status.READY, productFound.getStatus());
+    assertEquals(Status.WITHOUT_LOCATION, productFound.getStatus());
   }
 
 
@@ -127,7 +127,7 @@ class ProductTest {
   @DisplayName("Add a valid product")
   void addProduct() {
     var locations = this.locationService.getAll();
-    this.productService.addProduct(new AddProductRequest("Pepsi", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("Pepsi", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK));
 
     var result = this.productService.getAvailableProductsByName("Pepsi");
     if (result.isEmpty()) {
@@ -151,7 +151,7 @@ class ProductTest {
   @DisplayName("Delete product")
   void deleteProduct() {
     var locations = this.locationService.getAll();
-    this.productService.addProduct(new AddProductRequest("Fanta", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK, Status.READY));
+    this.productService.addProduct(new AddProductRequest("Fanta", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK));
     this.productService.deleteAll("Fanta");
 
     assertEquals(0, this.productService.getAvailableProducts().size());
