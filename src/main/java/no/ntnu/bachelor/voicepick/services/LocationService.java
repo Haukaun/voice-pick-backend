@@ -3,12 +3,13 @@ package no.ntnu.bachelor.voicepick.services;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import no.ntnu.bachelor.voicepick.dtos.LocationDto;
 import no.ntnu.bachelor.voicepick.exceptions.IllegalEntityException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
-import no.ntnu.bachelor.voicepick.models.Location;
-import no.ntnu.bachelor.voicepick.models.LocationEntity;
-import no.ntnu.bachelor.voicepick.models.Product;
+import no.ntnu.bachelor.voicepick.models.*;
 import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,12 @@ public class LocationService {
      * @return an optional with the location found. If no location was found,
      * an empty optional is returned
      */
-    public Optional<Location> getLocationByCode(String code) {
-        return this.locationRepository.findByCode(code);
+    public Optional<Location> getLocationByCodeAndWarehouse(String code, Warehouse warehouse) {
+        return this.locationRepository.findByCodeAndWarehouse(code, warehouse);
+    }
+
+    public Optional<Location> getLocationByCodeAndWarehouseAndLocationType(String code, Warehouse warehouse, LocationType locationType) {
+        return this.locationRepository.findByCodeAndWarehouseAndLocationType(code, warehouse, locationType);
     }
 
     /**
@@ -46,17 +51,15 @@ public class LocationService {
      * @return a list of all locations associated with a product
      */
     public List<Location> getAllProductLocations() {
-        return this.locationRepository.findByProduct();
+        return this.locationRepository.findLocationsByLocationType(LocationType.PRODUCT);
     }
 
-    /**
-     * Returns all locations that is associated with a pluck list
-     * plus all locations that has no association (aka locations that are empty)
-     *
-     * @return a list of all locations associated with a pluck list
-     */
-    public List<Location> getAvailablePluckListLocation() {
-        return this.locationRepository.findByPluckList();
+    public List<Location> getAvailableProductLocationsInWarehouse(Warehouse warehouse) {
+        return this.locationRepository.findLocationsByWarehouseAndLocationTypeAndEntitiesEmpty(warehouse, LocationType.PRODUCT);
+    }
+
+    public List<Location> getAvailablePluckListLocationsInWarehouse(Warehouse warehouse) {
+        return this.locationRepository.findByWarehouseAndLocationType(warehouse, LocationType.PLUCK_LIST);
     }
 
     /**
@@ -77,29 +80,37 @@ public class LocationService {
     /**
      * Adds a location to the repository
      *
-     * @param code of the location
-     * @param controlDigits of the location
+     * @param location to add
+     * @param warehouse the location should be added to
      */
-    public void addLocation(String code, int controlDigits) {
-        var optionalLocation = this.locationRepository.findByCode(code);
-        if (optionalLocation.isPresent()) {
-            throw new EntityExistsException("Location with code (" + code + ") already exists");
+    public void addLocation(Location location, Warehouse warehouse) {
+        if (warehouse == null) {
+            throw new EntityNotFoundException("Could not create location because user does not belong to a warehouse");
         }
-        this.locationRepository.save(new Location(code, controlDigits));
+
+        var optionalLocation = this.locationRepository.findByCodeAndWarehouse(location.getCode(), warehouse);
+        if (optionalLocation.isPresent()) {
+            throw new EntityExistsException("Location with code (" + location.getCode() + ") already exists");
+        }
+        Location locationToSave = new Location(location.getCode(), location.getControlDigits(), location.getLocationType());
+        warehouse.addLocation(locationToSave);
+        this.locationRepository.save(locationToSave);
     }
 
     /**
      * Deletes all locations with the code given from the repository
      *
-     * @param code of the locations to delete
+     * @param id of the locations to delete
      */
-    public void deleteLocation(String code) {
-        Optional<Location> optionalLocation = locationRepository.findByCode(code);
+    public void deleteLocation(Long id) {
+        Optional<Location> optionalLocation = locationRepository.findById(id);
         if (optionalLocation.isEmpty()) {
-            throw new EntityNotFoundException("Location with code: " + code + " was not found.");
+            throw new EntityNotFoundException("Location with code: " + id + " was not found.");
         }
 
         var location = optionalLocation.get();
+
+        location.removeWarehouse();
         this.clearLocationEntities(location);
 
         this.locationRepository.delete(location);
@@ -128,7 +139,7 @@ public class LocationService {
      * Deletes all location stored in the repository
      */
     public void deleteAll() {
-        this.getAll().forEach(location -> this.deleteLocation(location.getCode()));
+        this.getAll().forEach(location -> this.deleteLocation(location.getId()));
     }
 
 }

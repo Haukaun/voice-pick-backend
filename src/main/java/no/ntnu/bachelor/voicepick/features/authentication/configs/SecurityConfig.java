@@ -34,6 +34,7 @@ public class SecurityConfig {
             .requestMatchers("/auth/invite-code").hasAnyRole("LEADER","ADMIN")
             .requestMatchers("/auth/signout").authenticated()
             .requestMatchers("/auth/users/**").authenticated()
+            .requestMatchers("/warehouse").authenticated()
             .anyRequest().permitAll())
         .oauth2ResourceServer()
         .jwt()

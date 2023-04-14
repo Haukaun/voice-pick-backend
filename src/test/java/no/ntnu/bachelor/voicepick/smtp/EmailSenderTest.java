@@ -19,7 +19,7 @@ class EmailSenderTest {
         Future<String> exceptionFuture = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("An error occurred during execution");
         });
-        String result = emailSender.getResultFromFuture(exceptionFuture);
+        String result = emailSender.getResultFromFuture(exceptionFuture).getBody();
         assertEquals("Error: An error occurred during execution", result);
     }
 
@@ -32,7 +32,7 @@ class EmailSenderTest {
         });
         testThread.start();
         testThread.join();
-        String result = emailSender.getResultFromFuture(interruptedFuture);
+        String result = emailSender.getResultFromFuture(interruptedFuture).getBody();
         assertTrue(result.startsWith("Error: The email sending operation was cancelled"));
     }
 
@@ -41,7 +41,7 @@ class EmailSenderTest {
     @DisplayName("Test trying to get results from a valid future object")
     void getResultFromValidFuture(){
         Future<String> successfulFuture = CompletableFuture.completedFuture("Mail Sent Successfully...");
-        String result = emailSender.getResultFromFuture(successfulFuture);
+        String result = emailSender.getResultFromFuture(successfulFuture).getBody();
         assertEquals("Mail Sent Successfully...", result);
     }
 }

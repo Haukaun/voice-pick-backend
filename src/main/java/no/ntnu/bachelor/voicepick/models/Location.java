@@ -33,14 +33,24 @@ public class Location {
     @Column(name = "control_digits")
     private int controlDigits;
 
+    @Column(name = "location_type")
+    private LocationType locationType;
+
     @JsonBackReference
     @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
     private Set<LocationEntity> entities = new HashSet<>();
 
-    public Location(String code, int controlDigits) {
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = Warehouse.PRIMARY_KEY)
+    private Warehouse warehouse;
+
+    public Location(String code, int controlDigits, LocationType locationType) {
         if (code == null || code.isBlank()) throw new IllegalArgumentException("Location code cannot be blank");
         if (controlDigits < 0) throw new IllegalArgumentException("Control digits cannot be negative");
+        if (locationType == null) throw new IllegalArgumentException("LocationType cannot be null");
 
+        this.locationType = locationType;
         this.code = code;
         this.controlDigits = controlDigits;
     }
@@ -53,5 +63,10 @@ public class Location {
     public void addEntity(LocationEntity entity) {
         this.entities.add(entity);
         entity.setLocation(this);
+    }
+
+    public void removeWarehouse() {
+        this.warehouse.removeLocation(this);
+        this.setWarehouse(null);
     }
 }

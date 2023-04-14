@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,6 +41,11 @@ public class Product extends LocationEntity {
 
   @Column(name = "status")
   private Status status;
+
+  @JsonBackReference
+  @ManyToOne
+  @JoinColumn(name = Warehouse.PRIMARY_KEY)
+  private Warehouse warehouse;
 
   public Product(String name, double weight, double volume, int quantity, ProductType type,
                  Status status) {

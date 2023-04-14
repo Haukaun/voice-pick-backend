@@ -2,7 +2,12 @@ package no.ntnu.bachelor.voicepick.services;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.models.LocationType;
 import no.ntnu.bachelor.voicepick.models.Status;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -18,39 +23,38 @@ import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 public class ProductService {
 
   private final ProductRepository repository;
-
   private final LocationService locationService;
+  private final WarehouseService warehouseService;
 
   /**
    * Adds a product to the repository
    * 
    * @param product to add
    */
-  public void addProduct(AddProductRequest product) {
-    var optionalLocation = this.locationService.getLocationByCode(product.getLocation());
+  public void addProduct(AddProductRequest request, Warehouse warehouse) {
+    var optionalLocation = this.locationService.getLocationByCodeAndWarehouseAndLocationType(request.getLocation(), warehouse, LocationType.PRODUCT);
 
     Product productToSave;
     if (optionalLocation.isPresent()) {
       productToSave = new Product(
-              product.getName(),
-              product.getWeight(),
-              product.getVolume(),
-              product.getQuantity(),
-              product.getType(),
-              Status.READY);
-
+          request.getName(),
+          request.getWeight(),
+          request.getVolume(),
+          request.getQuantity(),
+          request.getType(),
+          Status.READY);
       var location = optionalLocation.get();
       location.addEntity(productToSave);
     } else {
       productToSave = new Product(
-              product.getName(),
-              product.getWeight(),
-              product.getVolume(),
-              product.getQuantity(),
-              product.getType(),
-              Status.WITHOUT_LOCATION);
+          request.getName(),
+          request.getWeight(),
+          request.getVolume(),
+          request.getQuantity(),
+          request.getType(),
+          Status.WITHOUT_LOCATION);
     }
-
+    warehouse.addProduct(productToSave);
     this.repository.save(productToSave);
   }
 

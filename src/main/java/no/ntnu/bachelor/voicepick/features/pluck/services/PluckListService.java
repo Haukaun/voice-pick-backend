@@ -65,8 +65,13 @@ public class PluckListService {
       throw new EntityNotFoundException("Could not find user with id: " + uid);
     }
 
+    var warehouse = currentUser.get().getWarehouse();
+    if (warehouse == null) {
+      throw new EntityNotFoundException("User does not belong to a warehouse");
+    }
+
     // Make sure there are location available
-    var locations = this.locationService.getAvailablePluckListLocation();
+    var locations = this.locationService.getAvailablePluckListLocationsInWarehouse(warehouse);
     if (locations.isEmpty()) {
       throw new EmptyListException("No available locations");
     }
@@ -81,14 +86,15 @@ public class PluckListService {
     var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
     var pluckList = new PluckList(
         ROUTES[randomDestinationIndex],
-        DESTINATIONS[randomDestinationIndex],
-        currentUser.get()
+        DESTINATIONS[randomDestinationIndex]
     );
 
     // Add pluck list to random location
     var randomLocation = locations.get(random.nextInt(locations.size()));
     randomLocation.addEntity(pluckList);
 
+    currentUser.get().addPluckList(pluckList);
+    warehouse.addPluckList(pluckList);
     this.pluckListRepository.save(pluckList);
 
     final int MAX_PLUCK_AMOUNT = 10;
@@ -104,6 +110,8 @@ public class PluckListService {
 
       pluckList.addPluck(this.pluckService.savePluck(pluck));
     }
+
+    this.pluckListRepository.save(pluckList);
     return pluckList;
   }
 

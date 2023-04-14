@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.models.Product;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 
 /**
  * An entity that represnets a pluck

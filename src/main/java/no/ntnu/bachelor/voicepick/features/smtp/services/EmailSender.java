@@ -4,6 +4,8 @@ import jakarta.mail.internet.MimeMessage;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -63,21 +65,23 @@ public class EmailSender {
      * @param futureResult future string from sendmail method
      * @return String from the future object
      */
-    public String getResultFromFuture(Future<String> futureResult) {
+    public ResponseEntity<String> getResultFromFuture(Future<String> futureResult) {
+        String errorMessage;
         try {
-            return futureResult.get();
+            return ResponseEntity.ok(futureResult.get());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return "Error: The email sending operation was interrupted: " + e.getMessage();
+            errorMessage = "Error: The email sending operation was interrupted: " + e.getMessage();
         } catch (CancellationException e) {
-            return "Error: The email sending operation was cancelled: " + e.getMessage();
+            errorMessage = "Error: The email sending operation was cancelled: " + e.getMessage();
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof RuntimeException) {
-                return "Error: " + cause.getMessage();
+                errorMessage = "Error: " + cause.getMessage();
             } else {
-                return "Error: An unknown error occurred while sending the email: " + e.getMessage();
+                errorMessage = "Error: An unknown error occurred while sending the email: " + e.getMessage();
             }
         }
+        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
