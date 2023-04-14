@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.models.LocationEntity;
+import org.springframework.context.annotation.DependsOn;
 
 /**
  * An entity that represents a pluck list
@@ -29,7 +30,7 @@ public class PluckList extends LocationEntity {
   public static final String PRIMARY_KEY = "pluck_list_id";
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = PluckList.PRIMARY_KEY)
   private Long id;
 
@@ -45,8 +46,9 @@ public class PluckList extends LocationEntity {
   @Column(name = "finished_at")
   private LocalDateTime finishedAt;
 
+  @JsonManagedReference
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = User.PRIMARY_KEY)
   private User user;
 
   @JsonManagedReference

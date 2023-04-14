@@ -34,7 +34,7 @@ public class Pluck {
   public static final String PRIMARY_KEY = "pluck_id";
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = Pluck.PRIMARY_KEY)
   private Long id;
 

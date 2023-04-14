@@ -9,6 +9,7 @@ public enum Status {
 
   READY("READY"),
   EMPTY("EMPTY"),
+  WITHOUT_LOCATION("WITHOUT_LOCATION"),
   INACTIVE("INACTIVE");
 
   public final String label;

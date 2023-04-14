@@ -19,7 +19,7 @@ public class Product extends LocationEntity {
   public static final String PRIMARY_KEY = "product_id";
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = Product.PRIMARY_KEY)
   private Long id;
 

@@ -21,5 +21,4 @@ public class AddProductRequest {
   private double volume;
   private int quantity;
   private ProductType type;
-  private Status status;
 }
