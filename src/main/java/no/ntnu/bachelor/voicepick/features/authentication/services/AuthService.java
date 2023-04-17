@@ -9,6 +9,10 @@ import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
+import no.ntnu.bachelor.voicepick.mappers.UserMapper;
+
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +33,8 @@ public class AuthService {
   private final RestTemplate restTemplate;
 
   private final UserService userService;
+
+  private final JwtUtil jwtUtil;
 
   @Value("${keycloak.base-url}")
   private String baseUrl;
@@ -42,7 +49,6 @@ public class AuthService {
   private String managerUsername;
   @Value("${keycloak.manager.password}")
   private String managerPassword;
-
 
   private static final String CLIENT_ID_KEY = "client_id";
   private static final String CLIENT_SECRET_KEY = "client_secret";
@@ -60,7 +66,9 @@ public class AuthService {
 
     private final String label;
 
-    GrantType(String label) { this.label = label; }
+    GrantType(String label) {
+      this.label = label;
+    }
 
     public String value() {
       return this.label;
@@ -73,7 +81,7 @@ public class AuthService {
    * @param request login request containing user credentials
    * @return a login response containing token information
    */
-  public LoginResponse login(LoginRequest request) {
+  public LoginResponse login(LoginRequest request) throws JsonMappingException, JsonProcessingException {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -87,9 +95,29 @@ public class AuthService {
     HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
 
     var loginUrl = baseUrl + "/auth/realms/" + realm + "/protocol/openid-connect/token";
-    ResponseEntity<LoginResponse> response = restTemplate.postForEntity(loginUrl, httpEntity, LoginResponse.class);
+    ResponseEntity<KeycloakLoginResponse> response = restTemplate.postForEntity(loginUrl, httpEntity,
+        KeycloakLoginResponse.class);
 
-    return response.getBody();
+    KeycloakLoginResponse keycloakResponseBody = response.getBody();
+    LoginResponse loginResponse = null;
+    if (keycloakResponseBody != null) {
+      var email = jwtUtil.getEmail(keycloakResponseBody.getAccess_token());
+      var userName = jwtUtil.getUserName(keycloakResponseBody.getAccess_token());
+      var emailVerified = jwtUtil.getEmailVerified(keycloakResponseBody.getAccess_token());
+
+      loginResponse = new LoginResponse(
+          keycloakResponseBody.getAccess_token(),
+          keycloakResponseBody.getRefresh_token(),
+          keycloakResponseBody.getExpires_in(),
+          keycloakResponseBody.getRefresh_expires_in(),
+          keycloakResponseBody.getToken_type(),
+          userName,
+          email,
+          emailVerified);
+    } else {
+      throw new EntityNotFoundException("User not found");
+    }
+    return loginResponse;
   }
 
   /**
@@ -100,10 +128,14 @@ public class AuthService {
    *                                 object
    */
   public void signup(SignupRequest request) throws JsonProcessingException {
-    if (request.getEmail().isBlank()) throw new IllegalArgumentException("Email cannot be empty");
-    if (request.getPassword().isBlank()) throw new IllegalArgumentException("Password cannot be empty");
-    if (request.getFirstName().isBlank()) throw new IllegalArgumentException("First name cannot be empty");
-    if (request.getLastName().isBlank()) throw new IllegalArgumentException("Last name cannot be empty");
+    if (request.getEmail().isBlank())
+      throw new IllegalArgumentException("Email cannot be empty");
+    if (request.getPassword().isBlank())
+      throw new IllegalArgumentException("Password cannot be empty");
+    if (request.getFirstName().isBlank())
+      throw new IllegalArgumentException("First name cannot be empty");
+    if (request.getLastName().isBlank())
+      throw new IllegalArgumentException("Last name cannot be empty");
 
     // Admin access
     HttpHeaders headers = this.getAdminHeaders();
@@ -187,7 +219,8 @@ public class AuthService {
    * Find the user by email, then changes its password with a random one.
    * This method is run when /reset-password endpoint is used.
    *
-   * @param recipient email of the recipient that will have its password changed
+   * @param recipient      email of the recipient that will have its password
+   *                       changed
    * @param randomPassword the password that will be set for the recipient
    * @return true/false depending on if the password change was successful
    * @throws JsonProcessingException if json-body is invalid
@@ -201,9 +234,9 @@ public class AuthService {
     var headers = this.getAdminHeaders();
 
     KeycloakCredentials body = new KeycloakCredentials(
-            "password",
-            randomPassword,
-            false);
+        "password",
+        randomPassword,
+        false);
 
     ObjectMapper mapper = new ObjectMapper();
     String jsonBody = mapper.writeValueAsString(body);
@@ -218,7 +251,8 @@ public class AuthService {
   /**
    * Deletes a user
    *
-   * @throws EntityNotFoundException if a user could not be found with the given email
+   * @throws EntityNotFoundException if a user could not be found with the given
+   *                                 email
    */
   public void delete() {
     String uid = userService.getCurrentUser().getUuid();
@@ -245,7 +279,8 @@ public class AuthService {
 
     // Search for user
     var userDetailUrl = baseUrl + "/auth/admin/realms/" + realm + "/users/?username=" + username;
-    var userDetailResponse = restTemplate.exchange(userDetailUrl, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+    var userDetailResponse = restTemplate.exchange(userDetailUrl, HttpMethod.GET, new HttpEntity<>(headers),
+        String.class);
     var body = userDetailResponse.getBody();
 
     // Check if user was found or not
@@ -255,7 +290,8 @@ public class AuthService {
 
     // Map response to object
     ObjectMapper mapper = new ObjectMapper();
-    var userDetails = mapper.readValue(body, new TypeReference<List<UserDetails>>(){});
+    var userDetails = mapper.readValue(body, new TypeReference<List<UserDetails>>() {
+    });
 
     return userDetails.get(0).getId();
   }
@@ -264,7 +300,7 @@ public class AuthService {
    * Adds a role to a user
    *
    * @param userId of the user to add the role to
-   * @param role the role to be added
+   * @param role   the role to be added
    */
   public void addRole(String userId, Role role) throws JsonProcessingException {
     // Add admin token to headers
@@ -283,7 +319,8 @@ public class AuthService {
   }
 
   /**
-   * Returns a string for the authorization field in an http request in the format "Bearer token"
+   * Returns a string for the authorization field in an http request in the format
+   * "Bearer token"
    *
    * @param token the token to be used in the authorization field
    * @return a complete string for the value of the authorization field
@@ -298,27 +335,42 @@ public class AuthService {
    * @return http headers that can be used in an http request with admin access
    */
   private HttpHeaders getAdminHeaders() {
-    var response = this.login(new LoginRequest(
-            this.managerUsername,
-            this.managerPassword
-    ));
-
     HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(response.getAccess_token()));
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add(CLIENT_ID_KEY, this.clientId);
+    map.add(CLIENT_SECRET_KEY, this.clientSecret);
+    map.add(GRANT_TYPE_KEY, GrantType.PASSWORD.value());
+    map.add("username", this.managerUsername);
+    map.add("password", this.managerPassword);
+
+    HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
+
+    var loginUrl = baseUrl + "/auth/realms/" + realm + "/protocol/openid-connect/token";
+    ResponseEntity<KeycloakLoginResponse> response = restTemplate.postForEntity(loginUrl, httpEntity,
+        KeycloakLoginResponse.class);
+    var body = response.getBody();
+
+    if (body == null) {
+      throw new EntityNotFoundException("Did not find any users with username: " + this.managerUsername);
+    }
+
+    headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(body.getAccess_token()));
 
     return headers;
   }
 
   public void setEmailVerified(String userId, boolean emailVerified) throws JsonProcessingException {
     HttpHeaders headers = this.getAdminHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
     Map<String, Object> updateRequest = new HashMap<>();
     updateRequest.put("emailVerified", emailVerified);
 
     ObjectMapper mapper = new ObjectMapper();
     String jsonBody;
-    
+
     jsonBody = mapper.writeValueAsString(updateRequest);
 
     HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);

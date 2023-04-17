@@ -31,7 +31,7 @@ public class AuthController {
     ResponseEntity<LoginResponse> response;
 
     try {
-      LoginResponse loginResponse = this.authService.login(request);
+      var loginResponse = this.authService.login(request);
       response = new ResponseEntity<>(loginResponse, HttpStatus.OK);
     } catch (Exception e) {
       response = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -137,19 +137,6 @@ public class AuthController {
       } 
     } else {
       response = new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-    }
-    return response;
-  }
-
-  @PostMapping("/email-verified")
-  public ResponseEntity<Boolean> getEmailVerified(@RequestBody TokenRequest token) {
-    ResponseEntity<Boolean> response;
-
-    try {
-      var emailVerified = jwtUtil.getEmailVerified(token.getToken());
-      response = new ResponseEntity<>(emailVerified, HttpStatus.OK);
-    } catch (JsonProcessingException e) {
-      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     return response;
   }

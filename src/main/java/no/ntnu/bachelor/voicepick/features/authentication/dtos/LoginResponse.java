@@ -1,12 +1,17 @@
 package no.ntnu.bachelor.voicepick.features.authentication.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class LoginResponse {
-  private String access_token;
-  private String refresh_token;
-  private String expires_in;
-  private String refresh_expires_in;
-  private String token_type;
+    private String accessToken;
+    private String refreshToken;
+    private String expiresIn;
+    private String refreshExpiresIn;
+    private String tokenType;
+    private String username;
+    private String email;
+    private Boolean emailVerified;
 }
