@@ -1,5 +1,7 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
@@ -21,8 +23,6 @@ public class WarehouseController {
   private final WarehouseService warehouseService;
   private final UserService userService;
 
-  private final AuthService authService;
-
   @PreAuthorize("hasRole('LEADER')")
   @PostMapping("/invite-code")
   public ResponseEntity<String> sendInviteMail(@RequestBody EmailDto recipient) {
@@ -31,11 +31,15 @@ public class WarehouseController {
   }
 
   @PostMapping
-  public ResponseEntity<Warehouse> createWarehouse(@RequestBody AddWarehouseDto request) {
-    ResponseEntity<Warehouse> response;
-    User currentUser = userService.getCurrentUser();
-    Warehouse warehouse = warehouseService.createWarehouse(currentUser, request);
-    response = new ResponseEntity<>(warehouse, HttpStatus.OK);
+  public ResponseEntity<String> createWarehouse(@RequestBody AddWarehouseDto request) {
+    ResponseEntity<String> response;
+    try {
+      User currentUser = userService.getCurrentUser();
+      warehouseService.createWarehouse(currentUser, request);
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
     return response;
   }
 
