@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.ntnu.bachelor.voicepick.models.ProductType;
-import no.ntnu.bachelor.voicepick.models.Status;
 
 /**
  * A class containing information about a product

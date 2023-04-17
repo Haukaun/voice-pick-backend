@@ -100,10 +100,11 @@ public class AuthController {
     ResponseEntity<String> response;
 
     try {
-      if (authService.resetUserPassword(recipient, email.getRandomPassword())) {
+      boolean passwordResetSuccessful = authService.resetUserPassword(recipient, email.getRandomPassword());
+      if (passwordResetSuccessful) {
         response = emailSender.getResultFromFuture(futureResult);
       } else {
-        response = emailSender.getResultFromFuture(futureResult);
+        response = new ResponseEntity<>("Password reset failed.", HttpStatus.BAD_REQUEST);
       }
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
