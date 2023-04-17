@@ -2,7 +2,6 @@ package no.ntnu.bachelor.voicepick.features.pallet.dtos;
 
 import lombok.Data;
 import no.ntnu.bachelor.voicepick.models.ProductType;
-import no.ntnu.bachelor.voicepick.models.Status;
 
 @Data
 public class PalletInfoDto {
