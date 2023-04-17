@@ -43,7 +43,7 @@ public class UserService {
         if (auth != null) {
             return userRepository.findByUuid(auth.getName()).orElseThrow(EntityNotFoundException::new);
         } else {
-            throw new NullPointerException("Auth is null.");
+            throw new EntityNotFoundException("Auth is null.");
         }
     }
 

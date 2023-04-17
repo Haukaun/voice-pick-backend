@@ -42,13 +42,11 @@ public class WarehouseService {
    * Creates a warehouse and adds the user creating the warehouse to it.
    * @param user the user who creates the warehouse
    * @param dto name and address of the warehouse to be added
-   * @return the warehouse that was created
    */
-  public Warehouse createWarehouse(User user, AddWarehouseDto dto) {
+  public void createWarehouse(User user, AddWarehouseDto dto) {
     Warehouse warehouse = new Warehouse(dto.getName(), dto.getAddress());
     warehouse.addUser(user);
     warehouseRepository.save(warehouse);
-    return warehouse;
   }
 
   /**
