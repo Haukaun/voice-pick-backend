@@ -97,8 +97,9 @@ public class PluckListService {
     warehouse.addPluckList(pluckList);
     this.pluckListRepository.save(pluckList);
 
-    final int MAX_PLUCK_AMOUNT = 10;
-    var productsToPluck = this.extractRandomProduct(availableProducts, MAX_PLUCK_AMOUNT);
+    int minPluckAmount = Math.min(2, availableProducts.size());
+    final int maxPluckAmount = Math.min(10, availableProducts.size());
+    var productsToPluck = this.extractRandomProduct(availableProducts, minPluckAmount, maxPluckAmount);
 
     // Generate random plucks based on products to pluck
     final int PLUCK_AMOUNT_UPPER_BOUND = 10;
@@ -119,22 +120,24 @@ public class PluckListService {
    * Extracts n random number of products from a list of products
    * 
    * @param products a list of products that should be extracted from
+   * @param min      the minimum number of product to be extracted.
    * @param max      the maximum numbers of product to be extracted. Note
    *                 that since it extracts a random number of products this can
    *                 be less then the maximum value.
    * @return a set of products
    */
-  private Set<Product> extractRandomProduct(List<Product> products, int max) {
+  private Set<Product> extractRandomProduct(List<Product> products, int min, int max) {
+    if (max > products.size()) {
+      throw new IllegalArgumentException("Max boundary cannot exceed the list size. Max: " + max + ", list size: " + products.size());
+    }
+    if (min > products.size()) {
+      throw new IllegalArgumentException("Min boundary cannot exceed the list size. Min: " + min + ", list size: " + products.size());
+    }
 
     // Copy the list given so we do not alter the original one
-    var productsCopy = new ArrayList<Product>(products);
+    var productsCopy = new ArrayList<>(products);
 
-    int numberOfPlucks;
-    if (productsCopy.size() < max) {
-      numberOfPlucks = random.nextInt(productsCopy.size()) + 1;
-    } else {
-      numberOfPlucks = random.nextInt(max) + 1;
-    }
+    var numberOfPlucks = random.nextInt(max - min + 1) + min;
 
     var extractedProducts = new HashSet<Product>();
     for (var i = 0; i < numberOfPlucks; i++) {
