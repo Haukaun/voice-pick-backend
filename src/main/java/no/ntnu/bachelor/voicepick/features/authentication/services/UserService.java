@@ -5,6 +5,7 @@ import java.util.Optional;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
+
+import javax.naming.AuthenticationException;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -37,13 +41,15 @@ public class UserService {
      * Returns the current user authenticated
      *
      * @return current user from security context
+     * @throws EntityNotFoundException if no user with the uuid is found in the database.
+     * @throws UnauthorizedException if auth is null.
      */
     public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             return userRepository.findByUuid(auth.getName()).orElseThrow(EntityNotFoundException::new);
         } else {
-            throw new EntityNotFoundException("Auth is null.");
+            throw new UnauthorizedException("Auth is null.");
         }
     }
 
