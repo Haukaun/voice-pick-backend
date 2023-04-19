@@ -1,8 +1,10 @@
 package no.ntnu.bachelor.voicepick.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
@@ -31,11 +33,31 @@ public class WarehouseService {
   public ResponseEntity<String> inviteToWarehouse(User inviter, EmailDto recipient) {
     Optional<Warehouse> optionalWarehouse = warehouseRepository.findWarehouseByUsersContaining(inviter);
     if (optionalWarehouse.isPresent()) {
-      Email email = new Email(recipient, Email.Subject.INVITE_CODE);
+      Email email = new Email(optionalWarehouse.get().getId(), recipient);
       Future<String> futureResult = emailSender.sendMail(email);
       return emailSender.getResultFromFuture(futureResult);
     }
     return new ResponseEntity<>("No available warehouse for the requesting user", HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Join a warehouse using the verification code found in email.
+   * @param verificationCodeInfo the verificationCodeInfo to join with.
+   * @param user the user that should join the warehouse.
+   * @throws EntityNotFoundException if it doesn't find the joincode or the warehouse in the db.
+   */
+  public void joinWarehouse(VerificationCodeInfo verificationCodeInfo, User user) {
+    var warehouseId = Email.containsJoinCode(verificationCodeInfo);
+    if (warehouseId == null) {
+      throw new EntityNotFoundException("Verification code (" + verificationCodeInfo.getVerificationCode() + ") does not exist.");
+    }
+    var warehouse = this.findWarehouseById(warehouseId);
+    if (warehouse.isPresent()) {
+      warehouse.get().addUser(user);
+      warehouseRepository.save(warehouse.get());
+    } else {
+      throw new EntityNotFoundException("Warehouse with id (" + warehouseId + ") does not exist.");
+    }
   }
 
   /**

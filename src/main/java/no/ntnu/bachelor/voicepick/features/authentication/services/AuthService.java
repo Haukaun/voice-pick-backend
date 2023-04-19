@@ -139,6 +139,7 @@ public class AuthService {
 
     // Admin access
     HttpHeaders headers = this.getAdminHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
     SignupKeycloakRequest body = new SignupKeycloakRequest(
         request.getFirstName(),
@@ -305,6 +306,7 @@ public class AuthService {
   public void addRole(String userId, Role role) throws JsonProcessingException {
     // Add admin token to headers
     HttpHeaders headers = this.getAdminHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
     // Get role
     var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
