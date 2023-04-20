@@ -1,11 +1,14 @@
 package no.ntnu.bachelor.voicepick.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
@@ -22,6 +25,8 @@ public class WarehouseService {
 
   private final EmailSender emailSender;
   private final WarehouseRepository warehouseRepository;
+
+  private final AuthService authService;
 
   /**
    * Sends an invitation email with a join code to the specified recipient
@@ -46,18 +51,21 @@ public class WarehouseService {
    * @param user the user that should join the warehouse.
    * @throws EntityNotFoundException if it doesn't find the joincode or the warehouse in the db.
    */
-  public void joinWarehouse(VerificationCodeInfo verificationCodeInfo, User user) {
+  public Warehouse joinWarehouse(VerificationCodeInfo verificationCodeInfo, User user) {
     var warehouseId = Email.containsJoinCode(verificationCodeInfo);
     if (warehouseId == null) {
       throw new EntityNotFoundException("Verification code (" + verificationCodeInfo.getVerificationCode() + ") does not exist.");
     }
-    var warehouse = this.findWarehouseById(warehouseId);
-    if (warehouse.isPresent()) {
-      warehouse.get().addUser(user);
-      warehouseRepository.save(warehouse.get());
+    var optionalWarehouse = this.findWarehouseById(warehouseId);
+    Warehouse warehouse;
+    if (optionalWarehouse.isPresent()) {
+      warehouse = optionalWarehouse.get();
+      warehouse.addUser(user);
+      warehouseRepository.save(warehouse);
     } else {
       throw new EntityNotFoundException("Warehouse with id (" + warehouseId + ") does not exist.");
     }
+    return warehouse;
   }
 
   /**
@@ -65,10 +73,11 @@ public class WarehouseService {
    * @param user the user who creates the warehouse
    * @param dto name and address of the warehouse to be added
    */
-  public void createWarehouse(User user, AddWarehouseDto dto) {
+  public Warehouse createWarehouse(User user, AddWarehouseDto dto) {
     Warehouse warehouse = new Warehouse(dto.getName(), dto.getAddress());
     warehouse.addUser(user);
     warehouseRepository.save(warehouse);
+    return user.getWarehouse();
   }
 
   /**

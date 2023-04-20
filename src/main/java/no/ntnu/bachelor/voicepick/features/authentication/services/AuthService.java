@@ -12,6 +12,8 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.mappers.UserMapper;
 
+import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -35,6 +37,8 @@ public class AuthService {
   private final UserService userService;
 
   private final JwtUtil jwtUtil;
+
+  private final WarehouseMapper warehouseMapper = Mappers.getMapper(WarehouseMapper.class);
 
   @Value("${keycloak.base-url}")
   private String baseUrl;
@@ -81,7 +85,7 @@ public class AuthService {
    * @param request login request containing user credentials
    * @return a login response containing token information
    */
-  public LoginResponse login(LoginRequest request) throws JsonMappingException, JsonProcessingException {
+  public LoginResponse login(LoginRequest request) throws JsonProcessingException {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -104,6 +108,12 @@ public class AuthService {
       var email = jwtUtil.getEmail(keycloakResponseBody.getAccess_token());
       var userName = jwtUtil.getUserName(keycloakResponseBody.getAccess_token());
       var emailVerified = jwtUtil.getEmailVerified(keycloakResponseBody.getAccess_token());
+      var currentUser = userService.getUserByEmail(email);
+
+      Warehouse warehouse = null;
+      if (currentUser.isPresent()) {
+        warehouse = currentUser.get().getWarehouse();
+      }
 
       loginResponse = new LoginResponse(
           keycloakResponseBody.getAccess_token(),
@@ -113,7 +123,8 @@ public class AuthService {
           keycloakResponseBody.getToken_type(),
           userName,
           email,
-          emailVerified);
+          emailVerified,
+          warehouseMapper.toWarehouseDto(warehouse));
     } else {
       throw new EntityNotFoundException("User not found");
     }

@@ -1,14 +1,19 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
 import no.ntnu.bachelor.voicepick.services.WarehouseService;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,8 +24,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WarehouseController {
 
+  private final WarehouseMapper warehouseMapper = Mappers.getMapper(WarehouseMapper.class);
   private final WarehouseService warehouseService;
   private final UserService userService;
+
+  private final AuthService authService;
 
   /**
    * Sends a email to the recipient with an invitation code to
@@ -43,12 +51,12 @@ public class WarehouseController {
    * authenticated user. 401 UNAUTHORIZED if the user isn't authorized.
    */
   @PostMapping("/join")
-  public ResponseEntity<String> joinWarehouse(@RequestBody VerificationCodeInfo verificationCodeInfo) {
-    ResponseEntity<String> response;
+  public ResponseEntity<Object> joinWarehouse(@RequestBody VerificationCodeInfo verificationCodeInfo) {
+    ResponseEntity<Object> response;
       try {
         User currentUser = userService.getCurrentUser();
-        warehouseService.joinWarehouse(verificationCodeInfo, currentUser);
-        response = new ResponseEntity<>(HttpStatus.OK);
+        var warehouse = warehouseService.joinWarehouse(verificationCodeInfo, currentUser);
+        response = new ResponseEntity<>(warehouseMapper.toWarehouseDto(warehouse), HttpStatus.OK);
       } catch (EntityNotFoundException e) {
         response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
       } catch (UnauthorizedException e) {
@@ -64,14 +72,17 @@ public class WarehouseController {
    * if the user is not found.
    */
   @PostMapping
-  public ResponseEntity<String> createWarehouse(@RequestBody AddWarehouseDto addWarehouseDto) {
-    ResponseEntity<String> response;
+  public ResponseEntity<Object> createWarehouse(@RequestBody AddWarehouseDto addWarehouseDto) {
+    ResponseEntity<Object> response;
     try {
       User currentUser = userService.getCurrentUser();
-      warehouseService.createWarehouse(currentUser, addWarehouseDto);
-      response = new ResponseEntity<>(HttpStatus.OK);
+      var warehouse = warehouseService.createWarehouse(currentUser, addWarehouseDto);
+      authService.addRole(currentUser.getUuid(), Role.LEADER);
+      response = new ResponseEntity<>(warehouseMapper.toWarehouseDto(warehouse), HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return response;
   }
