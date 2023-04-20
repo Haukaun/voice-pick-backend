@@ -2,6 +2,7 @@ package no.ntnu.bachelor.voicepick.features.authentication.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import no.ntnu.bachelor.voicepick.dtos.WarehouseDto;
 
 @Data
 @AllArgsConstructor
@@ -14,4 +15,6 @@ public class LoginResponse {
     private String username;
     private String email;
     private Boolean emailVerified;
+
+    private WarehouseDto warehouse;
 }

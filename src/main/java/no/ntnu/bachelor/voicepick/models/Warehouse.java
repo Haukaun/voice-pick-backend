@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.pluck.models.Pluck;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import java.util.LinkedHashSet;
 import java.util.Set;

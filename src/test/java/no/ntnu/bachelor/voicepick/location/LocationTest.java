@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.location;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
