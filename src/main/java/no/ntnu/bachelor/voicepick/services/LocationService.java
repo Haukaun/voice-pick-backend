@@ -59,6 +59,10 @@ public class LocationService {
         return this.locationRepository.findByWarehouseAndLocationType(warehouse, LocationType.PLUCK_LIST);
     }
 
+    public Set<Location> getAllLocationsInWarehouse(Long id) {
+        return this.locationRepository.findByWarehouseId(id);
+    }
+
     /**
      * Returns a set of all entities stored at a specific location
      *
@@ -103,6 +107,25 @@ public class LocationService {
         Optional<Location> optionalLocation = locationRepository.findById(id);
         if (optionalLocation.isEmpty()) {
             throw new EntityNotFoundException("Location with code: " + id + " was not found.");
+        }
+
+        var location = optionalLocation.get();
+
+        location.removeWarehouse();
+        this.clearLocationEntities(location);
+
+        this.locationRepository.delete(location);
+    }
+
+    /**
+     * Deletes a specific location
+     *
+     * @param code of the locations to delete
+     */
+    public void deleteSpecificLocation(String code, Warehouse wh) {
+        Optional<Location> optionalLocation = locationRepository.findByCodeAndWarehouse(code, wh);
+        if (optionalLocation.isEmpty()) {
+            throw new EntityNotFoundException("Location with code: " + code + " was not found.");
         }
 
         var location = optionalLocation.get();
