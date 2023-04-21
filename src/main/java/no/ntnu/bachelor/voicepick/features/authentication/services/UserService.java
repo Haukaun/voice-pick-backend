@@ -93,6 +93,8 @@ public class UserService {
         userRepository.deleteByUuid(id);
     }
 
+
+
     /**
      * Deletes all user stored in the repository
      */

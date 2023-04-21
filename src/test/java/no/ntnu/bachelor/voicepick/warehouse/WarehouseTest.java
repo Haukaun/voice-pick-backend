@@ -47,13 +47,13 @@ class WarehouseTest {
       fail();
     }
     this.user = optionalUser.get();
+    warehouseService.createWarehouse(user, new AddWarehouseDto(WAREHOUSE_NAME, "testgata"));
+    warehouseService.findByName(WAREHOUSE_NAME).ifPresent(value -> warehouse = value);
   }
 
   @Test
   @DisplayName("Remove user from warehouse when user is deleted.")
   void removeUserFromWarehouseOnUserDelete() {
-    warehouseService.createWarehouse(user, new AddWarehouseDto(WAREHOUSE_NAME, "testgata"));
-    warehouseService.findByName(WAREHOUSE_NAME).ifPresent(value -> warehouse = value);
     assertEquals(1, warehouse.getUsers().size());
     try {
       userService.deleteUser(UUID);
@@ -73,5 +73,34 @@ class WarehouseTest {
       fail();
     }
   }
+  
+  @Test
+  @DisplayName("Successfully get all users in warehouse")
+  void successfullyGetAllUsersInWarehouse() {
+    try {
+      var users = warehouseService.findAllUsersInWarehouse(warehouse);
+      assertEquals(1, users.size());
+    } catch (IllegalArgumentException e) {
+      fail();
+    }
+  }
 
+  @Test
+  @DisplayName("Successfully get zero users from warehouse after removing the last user.")
+  void successfullyGetZeroUsersFromWarehouseAfterRemovingUser() {
+    assertEquals(1, warehouseService.findAllUsersInWarehouse(warehouse).size());
+    warehouse.removeUser(user);
+    assertEquals(0, warehouseService.findAllUsersInWarehouse(warehouse).size());
+  }
+
+  @Test
+  @DisplayName("Successfully get error when getting users from null warehouse.")
+  void successfullyGetErrorWhenGettingUsersFromNullWarehouse() {
+    try {
+      warehouseService.findAllUsersInWarehouse(null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Warehouse if the current user is null.", e.getMessage());
+    }
+  }
 }

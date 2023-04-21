@@ -11,6 +11,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.mappers.UserMapper;
 import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
 import no.ntnu.bachelor.voicepick.services.WarehouseService;
 import org.mapstruct.factory.Mappers;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/warehouse")
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class WarehouseController {
 
   private final WarehouseMapper warehouseMapper = Mappers.getMapper(WarehouseMapper.class);
+  private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
   private final WarehouseService warehouseService;
   private final UserService userService;
 
@@ -83,6 +86,21 @@ public class WarehouseController {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return response;
+  }
+
+  @PreAuthorize("hasRole('ADMIN', 'LEADER')")
+  @GetMapping("/users")
+  public ResponseEntity<Object> getUsersInWarehouse() {
+    ResponseEntity<Object> response;
+    var currentUser = userService.getCurrentUser();
+    Set<User> usersInWarehouse;
+    try {
+      usersInWarehouse = warehouseService.findAllUsersInWarehouse(currentUser.getWarehouse());
+      response = new ResponseEntity<>(userMapper.toUserDto(usersInWarehouse), HttpStatus.OK);
+    } catch (IllegalArgumentException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
     return response;
   }
