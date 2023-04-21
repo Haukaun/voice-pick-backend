@@ -1,11 +1,8 @@
 package no.ntnu.bachelor.voicepick.features.smtp.models;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
-import no.ntnu.bachelor.voicepick.models.Warehouse;
-
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

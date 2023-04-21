@@ -4,14 +4,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
-import no.ntnu.bachelor.voicepick.mappers.UserMapper;
-
 import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
 import org.mapstruct.factory.Mappers;
@@ -23,7 +20,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;

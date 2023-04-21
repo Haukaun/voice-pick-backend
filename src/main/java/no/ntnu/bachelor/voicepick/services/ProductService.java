@@ -2,9 +2,6 @@ package no.ntnu.bachelor.voicepick.services;
 
 import java.util.List;
 
-import jakarta.persistence.EntityNotFoundException;
-import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.LocationType;
 import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.models.Warehouse;

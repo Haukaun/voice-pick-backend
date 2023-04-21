@@ -3,7 +3,6 @@ package no.ntnu.bachelor.voicepick.features.pallet.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import no.ntnu.bachelor.voicepick.models.ProductType;
-import no.ntnu.bachelor.voicepick.models.Status;
 
 @Data
 @AllArgsConstructor

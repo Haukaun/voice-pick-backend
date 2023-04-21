@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
 
-import javax.naming.AuthenticationException;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -76,6 +74,7 @@ public class UserService {
      * Deletes a user based on id
      *
      * @param id of the user to delete
+     * @throws EntityNotFoundException if user with given uuid is not found.
      */
     public void deleteUser(String id) {
         Optional<User> optionalUser = getUserByUuid(id);
@@ -86,6 +85,10 @@ public class UserService {
         for (PluckList pluckList : pluckLists) {
             pluckList.setUser(null);
             pluckListRepository.save(pluckList);
+        }
+        var warehouse = optionalUser.get().getWarehouse();
+        if (warehouse != null) {
+            warehouse.removeUser(optionalUser.get());
         }
         userRepository.deleteByUuid(id);
     }
