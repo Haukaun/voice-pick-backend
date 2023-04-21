@@ -6,7 +6,6 @@ import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
@@ -14,7 +13,9 @@ import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 @RequiredArgsConstructor
@@ -23,8 +24,6 @@ public class WarehouseService {
 
   private final EmailSender emailSender;
   private final WarehouseRepository warehouseRepository;
-
-  private final AuthService authService;
 
   /**
    * Sends an invitation email with a join code to the specified recipient
@@ -103,6 +102,19 @@ public class WarehouseService {
    */
   public Optional<Warehouse> findByName(String name) {
     return this.warehouseRepository.findByName(name);
+  }
+
+  /**
+   * Returns a set of the users in a given warehouse
+   * @param warehouse the warehouse to get users from
+   * @return set of the users, or empty set if there are no users in the warehouse
+   * @throws IllegalArgumentException if the warehouse of the current user is null.
+   */
+  public Set<User> findAllUsersInWarehouse(Warehouse warehouse) {
+    if (warehouse == null) {
+      throw new IllegalArgumentException("Warehouse if the current user is null.");
+    }
+    return warehouse.getUsers();
   }
 
   /**
