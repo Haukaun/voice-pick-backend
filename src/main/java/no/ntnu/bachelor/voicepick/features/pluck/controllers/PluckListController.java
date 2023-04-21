@@ -45,7 +45,7 @@ public class PluckListController {
 
       return new ResponseEntity<>(pluckListMapper.toPluckListDto(this.pluckListService.generateRandomPluckList(uid)), HttpStatus.OK);
     } catch (EmptyListException e) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     } catch (JsonProcessingException e) {
       return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
     }
