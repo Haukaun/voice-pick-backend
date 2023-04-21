@@ -6,6 +6,7 @@ import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
@@ -24,6 +25,7 @@ public class WarehouseService {
 
   private final EmailSender emailSender;
   private final WarehouseRepository warehouseRepository;
+  private final UserService userService;
 
   /**
    * Sends an invitation email with a join code to the specified recipient
@@ -102,6 +104,15 @@ public class WarehouseService {
    */
   public Optional<Warehouse> findByName(String name) {
     return this.warehouseRepository.findByName(name);
+  }
+
+  public void removeUserFromWarehouse(Warehouse warehouse, String userId) {
+    Optional<User> optionalUserToRemove = userService.getUserByUuid(userId);
+    if (optionalUserToRemove.isEmpty()) {
+      throw new EntityNotFoundException("User with userId: ( " + userId + " ) could not be removed because it does not exist.");
+    }
+    warehouse.removeUser(optionalUserToRemove.get());
+    warehouseRepository.save(warehouse);
   }
 
   /**

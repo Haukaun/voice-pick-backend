@@ -90,19 +90,41 @@ public class WarehouseController {
     return response;
   }
 
-  @PreAuthorize("hasRole('ADMIN', 'LEADER')")
+  /**
+   * Gets all users in a warehouse.
+   * @param userId the id of the user to remove.
+   * @return 204 OK if user is successfully removed from the warehouse.
+   */
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  @PatchMapping("/users/{id}")
+  public ResponseEntity<String> removeUserFromWarehouse(@PathVariable("id") String userId) {
+    ResponseEntity<String> response;
+    try {
+      User currentUser = userService.getCurrentUser();
+      var warehouse = currentUser.getWarehouse();
+      warehouseService.removeUserFromWarehouse(warehouse, userId);
+      response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    return response;
+  }
+
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @GetMapping("/users")
   public ResponseEntity<Object> getUsersInWarehouse() {
     ResponseEntity<Object> response;
     var currentUser = userService.getCurrentUser();
     Set<User> usersInWarehouse;
     try {
-      usersInWarehouse = warehouseService.findAllUsersInWarehouse(currentUser.getWarehouse());
+      usersInWarehouse = warehouseService.findAllUsersInWarehouse(warehouseService.findWarehouseByUser(currentUser).orElse(null));
       response = new ResponseEntity<>(userMapper.toUserDto(usersInWarehouse), HttpStatus.OK);
     } catch (IllegalArgumentException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
     return response;
   }
+
+
 
 }

@@ -7,6 +7,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
 import no.ntnu.bachelor.voicepick.services.WarehouseService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,8 +36,7 @@ class WarehouseTest {
   private static final String LAST_NAME = "mann";
 
   private Warehouse warehouse;
-
-  private User user;
+  private User leader;
 
   @BeforeEach
   void setup() {
@@ -46,9 +46,15 @@ class WarehouseTest {
     if (optionalUser.isEmpty()) {
       fail();
     }
-    this.user = optionalUser.get();
-    warehouseService.createWarehouse(user, new AddWarehouseDto(WAREHOUSE_NAME, "testgata"));
+    this.leader = optionalUser.get();
+    warehouseService.createWarehouse(leader, new AddWarehouseDto(WAREHOUSE_NAME, "testgata"));
     warehouseService.findByName(WAREHOUSE_NAME).ifPresent(value -> warehouse = value);
+  }
+
+  @AfterEach
+  void tearDown() {
+    userService.deleteAll();
+    warehouseService.deleteAll();
   }
 
   @Test
@@ -67,8 +73,10 @@ class WarehouseTest {
   @DisplayName("Successfully delete user when warehouse is set to null")
   void removeUserWithNoWarehouseOnDelete() {
     try {
-      userService.deleteUser(UUID);
-      assertEquals(Optional.empty(), userService.getUserByUuid(UUID));
+      User user = new User("qweqwe", "Ola", "Nordmann", "ola@nordmann.no");
+      userService.createUser(user);
+      userService.deleteUser("qweqwe");
+      assertEquals(Optional.empty(), userService.getUserByUuid("qweqwe"));
     } catch (EntityNotFoundException e) {
       fail();
     }
@@ -86,10 +94,35 @@ class WarehouseTest {
   }
 
   @Test
+  @DisplayName("Successfully remove user from warehouse.")
+  void removeUserFromWarehouse() {
+    User userObject = new User("qweqwe", "Ola", "Nordmann", "ola@nordmann.no");
+    userService.createUser(userObject);
+    var warehouse = leader.getWarehouse();
+
+    if (warehouse == null) {
+      fail();
+    }
+
+    Optional<User> optionalUserToRemove = userService.getUserByUuid("qweqwe");
+    if (optionalUserToRemove.isEmpty()) {
+      fail();
+    }
+    var user = optionalUserToRemove.get();
+    warehouse.addUser(user);
+
+    assertEquals(2, warehouse.getUsers().size());
+
+    warehouseService.removeUserFromWarehouse(warehouse, user.getUuid());
+
+    assertEquals(1, warehouse.getUsers().size());
+  }
+
+  @Test
   @DisplayName("Successfully get zero users from warehouse after removing the last user.")
   void successfullyGetZeroUsersFromWarehouseAfterRemovingUser() {
     assertEquals(1, warehouseService.findAllUsersInWarehouse(warehouse).size());
-    warehouse.removeUser(user);
+    warehouse.removeUser(leader);
     assertEquals(0, warehouseService.findAllUsersInWarehouse(warehouse).size());
   }
 
