@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.dtos.LocationDto;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.mappers.LocationMapper;
-import no.ntnu.bachelor.voicepick.models.LocationEntity;
+import no.ntnu.bachelor.voicepick.models.Warehouse;
 import no.ntnu.bachelor.voicepick.services.LocationService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
-
 import java.util.Set;
 
 @RestController
@@ -27,26 +26,6 @@ public class LocationController {
   private final UserService userService;
 
   private final LocationMapper locationMapper = Mappers.getMapper(LocationMapper.class);
-
-  /**
-   * Endpoint for getting entities stored at a location
-   *
-   * @param id of the location to get entities for
-   * @return {@code 200 OK} with a list of all entities stored if everything is ok.
-   * {@code 404 NOT_FOUND} if no location was found with the id provided
-   */
-  @GetMapping("/{id}")
-  public ResponseEntity<Set<LocationEntity>> getLocationEntities(@PathVariable Long id) {
-    ResponseEntity<Set<LocationEntity>> response;
-
-    try {
-      response = new ResponseEntity<>(this.locationService.getLocationEntities(id), HttpStatus.OK);
-    } catch (EntityNotFoundException e) {
-      response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    return response;
-  }
 
   /**
    * Endpoint for adding a new location
@@ -64,6 +43,34 @@ public class LocationController {
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (IllegalArgumentException | EntityExistsException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    return response;
+  }
+
+  @DeleteMapping("/locations/{code}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  public ResponseEntity<String> deleteLocation(@PathVariable("code") String code) {
+    ResponseEntity<String> response;
+    try {
+      this.locationService.deleteSpecificLocation(code, userService.getCurrentUser().getWarehouse());
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (IllegalArgumentException | EntityExistsException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    return response;
+  }
+
+  @GetMapping()
+  public ResponseEntity<Set<LocationDto>> getAllLocationsInWarehouse() {
+    ResponseEntity<Set<LocationDto>> response;
+    var locations = locationMapper.toLocationDto(this.locationService.getAllLocationsInWarehouse(userService.getCurrentUser().getWarehouse().getId()));
+
+    try {
+      response = new ResponseEntity<>(locations, HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     return response;
