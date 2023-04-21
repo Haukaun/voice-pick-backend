@@ -1,6 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
@@ -76,6 +77,7 @@ public class AuthController {
   }
 
   @DeleteMapping("/users")
+  @Transactional
   public ResponseEntity<String> delete() {
     ResponseEntity<String> response;
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
+import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PluckListRepository pluckListRepository;
+    private final WarehouseRepository warehouseRepository;
 
     /**
      * Saves a user to the repository
@@ -89,6 +91,7 @@ public class UserService {
         var warehouse = optionalUser.get().getWarehouse();
         if (warehouse != null) {
             warehouse.removeUser(optionalUser.get());
+            warehouseRepository.save(warehouse);
         }
         userRepository.deleteByUuid(id);
     }
