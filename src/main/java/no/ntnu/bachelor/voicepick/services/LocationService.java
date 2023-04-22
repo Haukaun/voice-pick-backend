@@ -93,9 +93,8 @@ public class LocationService {
         if (optionalLocation.isPresent()) {
             throw new EntityExistsException("Location with code (" + location.getCode() + ") already exists");
         }
-        Location locationToSave = new Location(location.getCode(), location.getControlDigits(), location.getLocationType());
-        warehouse.addLocation(locationToSave);
-        this.locationRepository.save(locationToSave);
+        warehouse.addLocation(location);
+        this.locationRepository.save(location);
     }
 
     /**

@@ -4,10 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
+import no.ntnu.bachelor.voicepick.dtos.LocationDto;
+import no.ntnu.bachelor.voicepick.dtos.ProductDto;
+import no.ntnu.bachelor.voicepick.dtos.UserDto;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.UpdatePluckListRequest;
+import no.ntnu.bachelor.voicepick.features.pluck.mappers.PluckListMapper;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.models.Pluck;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
@@ -22,8 +30,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,6 +65,8 @@ class PluckListTest {
 
   @Autowired
   private WarehouseService warehouseService;
+
+  private final PluckListMapper pluckListMapper = Mappers.getMapper(PluckListMapper.class);
 
   private static final String WAREHOUSE_NAME = "test";
 
@@ -304,4 +318,53 @@ class PluckListTest {
     }
   }
 
+  @Test
+  @DisplayName("Update pluck list with invalid pluck list id")
+  void updateInvalidPluckListId() {
+    var now = LocalDateTime.now();
+    try {
+      this.pluckListService.updatePluckList(1L, new UpdatePluckListRequest(now, now));
+      fail();
+    } catch (EntityNotFoundException e) {
+      assertTrue(true);
+    }
+  }
+
+  @Test
+  @DisplayName("Update pluck list")
+  void updatePluckList() {
+    var product = new Product("product1", 1.0, 1.0, 1, ProductType.D_PAK, Status.READY);
+    var productLocation = new Location("H209", 123, LocationType.PRODUCT);
+    productLocation.addEntity(product);
+    this.locationRepository.save(productLocation);
+    this.productRepository.save(product);
+    var pluckListLocation = new Location("B842", 956, LocationType.PLUCK_LIST);
+    this.locationRepository.save(pluckListLocation);
+    warehouse.addLocation(pluckListLocation);
+
+    PluckList pluckList = null;
+    try {
+      pluckList = this.pluckListService.generateRandomPluckList(UUID);
+    } catch (EmptyListException e) {
+      fail("Failed to generate pluck list");
+    }
+
+    var now = LocalDateTime.now();
+    var updatedPluck = new UpdatePluckListRequest(now, now);
+
+    try {
+      this.pluckListService.updatePluckList(pluckList.getId(), updatedPluck);
+    } catch (Exception e) {
+      fail();
+    }
+
+    var optionalNewPluckList = this.pluckListRepository.findById(pluckList.getId());
+    if (optionalNewPluckList.isEmpty()) {
+      fail("Failed to fetch pluck list after updating");
+    }
+    var newPluckList = optionalNewPluckList.get();
+
+    assertEquals(newPluckList.getConfirmedAt(), now);
+    assertEquals(newPluckList.getFinishedAt(), now);
+  }
 }

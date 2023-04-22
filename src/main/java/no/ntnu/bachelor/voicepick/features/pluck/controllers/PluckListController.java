@@ -3,8 +3,8 @@ package no.ntnu.bachelor.voicepick.features.pluck.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
-import no.ntnu.bachelor.voicepick.features.pluck.dtos.CargoCarrierDto;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.UpdatePluckListRequest;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.mappers.PluckListMapper;
 import org.mapstruct.factory.Mappers;
@@ -19,7 +19,7 @@ import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/plucks")
+@RequestMapping("/pluck-lists")
 @RequiredArgsConstructor
 public class PluckListController {
 
@@ -61,12 +61,19 @@ public class PluckListController {
     return response;
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<String> updateCargoCarrier(@PathVariable Long id, @RequestBody CargoCarrierDto requestBody) {
+  /**
+   * Update a pluck list
+   *
+   * @param id of the pluck list to update
+   * @param request containing information of field of the pluck list to update with the updated values
+   * @return {@code 200 OK} if successful, {@code 400 BAD REQUEST} if not
+   */
+  @PatchMapping("/{id}")
+  public ResponseEntity<String> updatePluckList(@PathVariable Long id, @RequestBody UpdatePluckListRequest request) {
     ResponseEntity<String> response;
 
     try {
-      this.pluckListService.updateCargoCarrier(id, requestBody.getIdentifier());
+      this.pluckListService.updatePluckList(id, request);
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);

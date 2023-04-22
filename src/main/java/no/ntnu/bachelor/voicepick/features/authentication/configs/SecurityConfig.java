@@ -35,6 +35,8 @@ public class SecurityConfig {
             .requestMatchers("/auth/signout").authenticated()
             .requestMatchers("/auth/users/**").authenticated()
             .requestMatchers("/warehouse").authenticated()
+            .requestMatchers("/pluck-lists").authenticated()
+            .requestMatchers("/plucks").authenticated()
             .anyRequest().permitAll())
         .oauth2ResourceServer()
         .jwt()
