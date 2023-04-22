@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.pluck.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 

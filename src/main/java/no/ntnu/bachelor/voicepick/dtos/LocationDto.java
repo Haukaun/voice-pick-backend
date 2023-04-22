@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import no.ntnu.bachelor.voicepick.models.LocationType;
 

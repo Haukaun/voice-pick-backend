@@ -5,6 +5,8 @@ import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.UpdatePluckListRequest;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
 import no.ntnu.bachelor.voicepick.services.LocationService;
@@ -171,6 +173,24 @@ public class PluckListService {
 
     cargoCarrier.addToPluckList(pluckList);
     this.cargoCarrierRepository.save(cargoCarrier);
+    this.pluckListRepository.save(pluckList);
+  }
+
+  /**
+   * Updates a pluck list
+   *
+   * @param updatedPluckList an object containing the updated information of the pluck list to update
+   */
+  public void updatePluckList(Long id, UpdatePluckListRequest updatedPluckList) {
+    var optionalPluckList = this.pluckListRepository.findById(id);
+    if (optionalPluckList.isEmpty()) {
+      throw new EntityNotFoundException("Could not find pluck list with id: " + id);
+    }
+    var pluckList = optionalPluckList.get();
+
+    pluckList.setConfirmedAt(updatedPluckList.getConfirmedAt());
+    pluckList.setFinishedAt(updatedPluckList.getFinishedAt());
+
     this.pluckListRepository.save(pluckList);
   }
 
