@@ -8,6 +8,7 @@ import no.ntnu.bachelor.voicepick.dtos.LocationDto;
 import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 import no.ntnu.bachelor.voicepick.dtos.UserDto;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;

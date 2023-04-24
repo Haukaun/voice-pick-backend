@@ -3,6 +3,8 @@ package no.ntnu.bachelor.voicepick.warehouse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.Warehouse;

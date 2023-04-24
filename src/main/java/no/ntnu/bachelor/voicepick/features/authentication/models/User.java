@@ -1,6 +1,7 @@
 package no.ntnu.bachelor.voicepick.features.authentication.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,15 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new LinkedHashSet<>();
+
     @JsonBackReference
     @OneToMany(mappedBy = "user")
     private Set<PluckList> pluckLists = new LinkedHashSet<>();
@@ -66,5 +76,15 @@ public class User {
     public void removePluckList(PluckList pluckList) {
         this.pluckLists.remove(pluckList);
         pluckList.setUser(null);
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.addUser(this);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.removeUser(this);
     }
 }

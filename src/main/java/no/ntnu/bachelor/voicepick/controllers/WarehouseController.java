@@ -7,7 +7,7 @@ import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
-import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
@@ -80,7 +80,7 @@ public class WarehouseController {
     try {
       User currentUser = userService.getCurrentUser();
       var warehouse = warehouseService.createWarehouse(currentUser, addWarehouseDto);
-      authService.addRole(currentUser.getUuid(), Role.LEADER);
+      authService.addRole(currentUser.getUuid(), RoleType.LEADER);
       response = new ResponseEntity<>(warehouseMapper.toWarehouseDto(warehouse), HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

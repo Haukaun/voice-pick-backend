@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
@@ -310,7 +311,7 @@ public class AuthService {
    * @param userId of the user to add the role to
    * @param role   the role to be added
    */
-  public void addRole(String userId, Role role) throws JsonProcessingException {
+  public void addRole(String userId, RoleType role) throws JsonProcessingException {
     // Add admin token to headers
     HttpHeaders headers = this.getAdminHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -324,7 +325,11 @@ public class AuthService {
     HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
     var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm";
-    restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+    var updateResponse = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+
+    if (updateResponse.getStatusCode().is2xxSuccessful()) {
+      this.userService.addRole(userId, role);
+    }
   }
 
   /**
