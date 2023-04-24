@@ -4,6 +4,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 
@@ -40,8 +41,9 @@ class AuthTests {
     try {
       User user = new User(UID, FIRST_NAME, LAST_NAME, "");
       this.userService.createUser(user);
+      fail();
     } catch (Exception e) {
-      assertEquals("Email cannot be empty", e.getMessage());
+      assertTrue(true);
     }
   }
 

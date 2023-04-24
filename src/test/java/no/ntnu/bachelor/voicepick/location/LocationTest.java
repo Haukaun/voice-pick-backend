@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.exceptions.EmptyListException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.services.PluckListService;

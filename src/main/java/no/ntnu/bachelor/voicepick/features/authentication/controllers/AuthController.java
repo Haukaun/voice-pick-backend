@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import org.springframework.http.HttpStatus;
@@ -147,7 +148,7 @@ public class AuthController {
   public ResponseEntity<String> addLeaderRole(@PathVariable("id") String id) {
     ResponseEntity<String> response;
     try {
-      authService.addRole(id, Role.LEADER);
+      authService.addRole(id, RoleType.LEADER);
       response = new ResponseEntity<>(HttpStatus.OK);
     } catch (JsonProcessingException e) {
        response = new ResponseEntity<>("Failed to add role", HttpStatus.BAD_REQUEST);

@@ -6,6 +6,9 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
+import no.ntnu.bachelor.voicepick.features.authentication.repositories.RoleRepository;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
 import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
@@ -23,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PluckListRepository pluckListRepository;
     private final WarehouseRepository warehouseRepository;
+    private final RoleRepository roleRepository;
 
     /**
      * Saves a user to the repository
@@ -34,7 +38,45 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new EntityExistsException("User with uid (" + user.getId() + ") already exists.");
         }
+
+        var optionalRole = this.roleRepository.findByType(RoleType.USER);
+        Role role;
+        if (optionalRole.isEmpty()) {
+            role = new Role(RoleType.USER);
+            this.roleRepository.save(role);
+        } else {
+            role = optionalRole.get();
+        }
+
+        user.addRole(role);
         userRepository.save(user);
+    }
+
+    /**
+     * Adds a role to a user
+     *
+     * @param uuid id of the user to update
+     * @param roleType the type of role to add
+     */
+    public void addRole(String uuid, RoleType roleType) {
+        var optionalUser = this.userRepository.findByUuid(uuid);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException("Could not find user with uuid: " + uuid);
+        }
+
+        var optionalRole = this.roleRepository.findByType(roleType);
+        Role role;
+        if (optionalRole.isEmpty()) {
+            role = new Role(roleType);
+            this.roleRepository.save(role);
+        } else {
+            role = optionalRole.get();
+        }
+
+        var user = optionalUser.get();
+        user.addRole(role);
+
+        this.userRepository.save(user);
     }
 
     /**
