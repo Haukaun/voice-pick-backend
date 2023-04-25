@@ -37,6 +37,7 @@ public class SecurityConfig {
             .requestMatchers("/warehouse").authenticated()
             .requestMatchers("/pluck-lists").authenticated()
             .requestMatchers("/plucks").authenticated()
+            .requestMatchers("/locations/**").authenticated()
             .anyRequest().permitAll())
         .oauth2ResourceServer()
         .jwt()

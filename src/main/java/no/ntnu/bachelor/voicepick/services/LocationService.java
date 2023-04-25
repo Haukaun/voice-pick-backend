@@ -79,6 +79,21 @@ public class LocationService {
     }
 
     /**
+     * Returns a list of all entities stored at a location
+     *
+     * @param code location code like H201
+     * @return all entities in a location
+     */
+    public Set<LocationEntity> getEntitiesInLocation(String code, Warehouse warehouse) {
+        var optionalLocation = getLocationByCodeAndWarehouse(code, warehouse);
+        if (optionalLocation.isEmpty()) {
+            throw new EntityNotFoundException("Could not find location with code: " + code);
+        }
+
+        return optionalLocation.get().getEntities();
+    }
+
+    /**
      * Adds a location to the repository
      *
      * @param location to add
