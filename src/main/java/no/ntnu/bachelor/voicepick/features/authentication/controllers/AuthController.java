@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
-import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 
 import java.util.concurrent.Future;
 
@@ -26,7 +25,6 @@ public class AuthController {
 
   private final AuthService authService;
   private final EmailSender emailSender;
-  private final JwtUtil jwtUtil;
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {

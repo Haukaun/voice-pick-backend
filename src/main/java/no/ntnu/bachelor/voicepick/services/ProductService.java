@@ -7,8 +7,11 @@ import no.ntnu.bachelor.voicepick.models.Status;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
+import no.ntnu.bachelor.voicepick.dtos.UpdateProductRequest;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 
@@ -19,9 +22,10 @@ import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 @RequiredArgsConstructor
 public class ProductService {
 
-  private final ProductRepository repository;
+  private final ProductRepository productRepository;
   private final LocationService locationService;
   private final WarehouseService warehouseService;
+  private final UserService userService;
 
   /**
    * Adds a product to the repository
@@ -52,7 +56,7 @@ public class ProductService {
           Status.WITHOUT_LOCATION);
     }
     warehouse.addProduct(productToSave);
-    this.repository.save(productToSave);
+    this.productRepository.save(productToSave);
   }
 
   /**
@@ -62,7 +66,7 @@ public class ProductService {
    * @return a list of products
    */
   public List<Product> getAvailableProducts() {
-    return this.repository.findProductsWithLocation(Status.INACTIVE);
+    return this.productRepository.findProductsWithLocation(Status.INACTIVE);
   }
 
   /**
@@ -72,7 +76,7 @@ public class ProductService {
    * @return a list of all products without a location
    */
   public List<Product> getProductsWithoutLocation(String name) {
-    return this.repository.findProductsWithoutLocation(name);
+    return this.productRepository.findProductsWithoutLocation(name);
   }
 
   /**
@@ -81,7 +85,7 @@ public class ProductService {
    * @return a list of all products
    */
   public List<Product> getAllProducts() {
-    return this.repository.findAll();
+    return this.productRepository.findAll();
   }
 
   /**
@@ -91,7 +95,7 @@ public class ProductService {
    * @return a list of products with the name given
    */
   public List<Product> getProductsByName(String name) {
-    return this.repository.findByName(name);
+    return this.productRepository.findByName(name);
   }
 
   /**
@@ -101,7 +105,7 @@ public class ProductService {
    * @return a list of products
    */
   public List<Product> getAvailableProductsByName(String name) {
-    return this.repository.findProductsWithLocationByName(name, Status.INACTIVE);
+    return this.productRepository.findProductsWithLocationByName(name, Status.INACTIVE);
   }
 
   /**
@@ -114,8 +118,35 @@ public class ProductService {
 
     for (Product product : productsFound) {
       product.setStatus(Status.INACTIVE);
-      this.repository.save(product);
+      this.productRepository.save(product);
     }
   }
 
+
+
+
+
+  public void updateProduct(Long productId, UpdateProductRequest dto) {
+    var optionalProduct = this.productRepository.findById(productId);
+    var optionalUser = this.userService.getCurrentUser();
+    var optionalWarehouse = this.warehouseService.findWarehouseByUser(optionalUser);
+    var optionalLocation = this.locationService.getLocationByCodeAndWarehouse(dto.getLocationCode(), optionalWarehouse.get());
+
+    if (optionalProduct.isEmpty()) {
+      throw new EntityNotFoundException("Could not find product id: " + productId);
+    }
+
+    var product = optionalProduct.get();
+
+
+    product.setName(dto.getName());
+    product.setWeight(dto.getWeight());
+    product.setVolume(dto.getVolume());
+    product.setQuantity(dto.getQuantity());
+    product.setType(dto.getType());
+    product.setStatus(dto.getStatus());
+    product.setLocation(optionalLocation.orElse(null));
+
+    this.productRepository.save(product);
+  }
 }

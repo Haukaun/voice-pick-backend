@@ -5,7 +5,6 @@ import java.util.*;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
-import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.UpdatePluckListRequest;
 import no.ntnu.bachelor.voicepick.features.pluck.models.CargoCarrier;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.CargoCarrierRepository;
