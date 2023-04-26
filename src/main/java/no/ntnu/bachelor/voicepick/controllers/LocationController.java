@@ -65,8 +65,10 @@ public class LocationController {
     try {
       this.locationService.deleteSpecificLocation(code, userService.getCurrentUser().getWarehouse());
       response = new ResponseEntity<>(HttpStatus.OK);
-    } catch (IllegalArgumentException | EntityExistsException e) {
-      response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (IllegalArgumentException e){
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     return response;

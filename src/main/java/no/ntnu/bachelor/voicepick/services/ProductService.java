@@ -1,10 +1,9 @@
 package no.ntnu.bachelor.voicepick.services;
 
 import java.util.List;
+import java.util.Optional;
 
-import no.ntnu.bachelor.voicepick.models.LocationType;
-import no.ntnu.bachelor.voicepick.models.Status;
-import no.ntnu.bachelor.voicepick.models.Warehouse;
+import no.ntnu.bachelor.voicepick.models.*;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddProductRequest;
 import no.ntnu.bachelor.voicepick.dtos.UpdateProductRequest;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
-import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 
 /**
@@ -108,6 +106,10 @@ public class ProductService {
     return this.productRepository.findProductsWithLocationByName(name, Status.INACTIVE);
   }
 
+  public List<Product> getAllAvailableProductsByWarehouse(Warehouse warehouse) {
+    return this.productRepository.findByWarehouse(warehouse);
+  }
+
   /**
    * Deletes all products with the given name
    *
@@ -120,6 +122,26 @@ public class ProductService {
       product.setStatus(Status.INACTIVE);
       this.productRepository.save(product);
     }
+  }
+
+  /**
+   * Deletes a specific product
+   *
+   * @param productId of the product to delete
+   */
+  public void deleteSpecificProduct(Long productId, Warehouse wh) {
+    if (wh == null){
+      throw new IllegalArgumentException("You must specify a warehouse!");
+    }
+    Optional<Product> optionalProduct = productRepository.findByIdAndWarehouse(productId, wh);
+    if (optionalProduct.isEmpty()) {
+      throw new EntityNotFoundException("Product with id: " + productId + " was not found.");
+    }
+
+    var product = optionalProduct.get();
+    product.setStatus(Status.INACTIVE);
+
+    this.productRepository.save(product);
   }
 
 

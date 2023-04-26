@@ -1,22 +1,19 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import jakarta.persistence.EntityExistsException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.mappers.ProductMapper;
 import no.ntnu.bachelor.voicepick.models.Product;
+
+import java.util.List;
 import java.util.Set;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +27,7 @@ import no.ntnu.bachelor.voicepick.services.ProductService;
 public class ProductController {
 
   private final ProductService productService;
-
+  ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
   private final UserService userService;
 
   /**
@@ -55,6 +52,29 @@ public class ProductController {
   }
 
   /**
+   * Endpoint for deleting a product
+   *
+   * @param id a path-variable containing the product id
+   * @return {@code 200 OK} if removed, {@code 405 METHOD_NOT_ALLOWED} if request
+   *         body is incorrect
+   */
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) {
+    ResponseEntity<String> response;
+    try {
+      this.productService.deleteSpecificProduct(id, userService.getCurrentUser().getWarehouse());
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (IllegalArgumentException e){
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    return response;
+  }
+
+  /**
    * Endpoint for getting all products
    * 
    * @return {@code 200 OK} if added, {@code 404 METHOD_NOT_ALLOWED} if request
@@ -65,10 +85,8 @@ public class ProductController {
   public ResponseEntity<Object> getProducts() {
     ResponseEntity<Object> response;
     try {
-      Set<Product> products = this.userService.getCurrentUser().getWarehouse().getProducts();
-      ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
-      productMapper.toProductDto(products);
-      response = new ResponseEntity<>(products, HttpStatus.OK);
+      List<Product> activeProducts = this.productService.getAllAvailableProductsByWarehouse(this.userService.getCurrentUser().getWarehouse());
+      response = new ResponseEntity<>(productMapper.toProductDto(activeProducts), HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     } catch (UnauthorizedException e) {
