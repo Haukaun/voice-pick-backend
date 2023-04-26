@@ -137,6 +137,9 @@ public class LocationService {
      * @param code of the locations to delete
      */
     public void deleteSpecificLocation(String code, Warehouse wh) {
+        if (wh == null){
+            throw new IllegalArgumentException("You must specify a warehouse!");
+        }
         Optional<Location> optionalLocation = locationRepository.findByCodeAndWarehouse(code, wh);
         if (optionalLocation.isEmpty()) {
             throw new EntityNotFoundException("Location with code: " + code + " was not found.");
