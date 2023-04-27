@@ -27,7 +27,7 @@ public class WarehouseService {
   private final WarehouseRepository warehouseRepository;
   private final UserService userService;
 
-  private final TokenStore<String, WarehouseInviteCode> inviteCodeStore = new TokenStore<>(8, 1);
+  private final TokenStore<String, WarehouseInviteCode> inviteCodeStore;
 
 
   /**
@@ -37,6 +37,8 @@ public class WarehouseService {
    * @param recipient the user who is invited to the warehouse
    * @return 200 OK if valid, 404 if the inviter is not in a warehouse, or proper error
    * if the email cannot be sent.
+   * @throws EntityNotFoundException if the user is not in a warehouse, or the user they are
+   * inviting does not exist..
    */
   public ResponseEntity<String> inviteToWarehouse(User inviter, EmailDto recipient) {
     var optionalWarehouse = this.warehouseRepository.findWarehouseByUsersContaining(inviter);
