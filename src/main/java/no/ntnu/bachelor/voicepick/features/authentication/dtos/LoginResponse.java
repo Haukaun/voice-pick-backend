@@ -12,6 +12,8 @@ public class LoginResponse {
     private String expiresIn;
     private String refreshExpiresIn;
     private String tokenType;
+
+    private String uuid;
     private String username;
     private String email;
     private Boolean emailVerified;

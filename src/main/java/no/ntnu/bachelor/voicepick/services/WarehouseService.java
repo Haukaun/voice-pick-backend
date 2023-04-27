@@ -4,20 +4,20 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.exceptions.InvalidInviteCodeException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
+import no.ntnu.bachelor.voicepick.pojos.WarehouseInviteCode;
 import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 @RequiredArgsConstructor
 @Service
@@ -27,21 +27,39 @@ public class WarehouseService {
   private final WarehouseRepository warehouseRepository;
   private final UserService userService;
 
+  private final TokenStore<String, WarehouseInviteCode> inviteCodeStore = new TokenStore<>(8, 1);
+
+
   /**
    * Sends an invitation email with a join code to the specified recipient
+   *
    * @param inviter the user which invites the recipient
    * @param recipient the user who is invited to the warehouse
    * @return 200 OK if valid, 404 if the inviter is not in a warehouse, or proper error
    * if the email cannot be sent.
    */
   public ResponseEntity<String> inviteToWarehouse(User inviter, EmailDto recipient) {
-    Optional<Warehouse> optionalWarehouse = warehouseRepository.findWarehouseByUsersContaining(inviter);
-    if (optionalWarehouse.isPresent()) {
-      Email email = new Email(optionalWarehouse.get().getId(), recipient);
-      Future<String> futureResult = emailSender.sendMail(email);
-      return emailSender.getResultFromFuture(futureResult);
+    var optionalWarehouse = this.warehouseRepository.findWarehouseByUsersContaining(inviter);
+    if (optionalWarehouse.isEmpty()) {
+      throw new EntityNotFoundException("Could not find warehouse for user requesting to invite");
     }
-    return new ResponseEntity<>("No available warehouse for the requesting user", HttpStatus.NOT_FOUND);
+
+    var optionalReceiver = this.userService.getUserByEmail(recipient.getEmail());
+    if (optionalReceiver.isEmpty()) {
+      throw new EntityNotFoundException("Could not find receiver with email: " + recipient.getEmail());
+    }
+
+    // Generate invite code and store it
+    var uuid = optionalReceiver.get().getUuid();
+    var warehouse = optionalWarehouse.get();
+    var code = this.inviteCodeStore.generateCode();
+    this.inviteCodeStore.addToken(uuid, new WarehouseInviteCode(warehouse.getId(), code));
+
+    // Send email with generated code
+    var email = new Email(recipient, Email.Subject.INVITE_CODE, code);
+    var futureResult = emailSender.sendMail(email);
+
+    return emailSender.getResultFromFuture(futureResult);
   }
 
   /**
@@ -50,21 +68,30 @@ public class WarehouseService {
    * @param user the user that should join the warehouse.
    * @throws EntityNotFoundException if it doesn't find the joincode or the warehouse in the db.
    */
-  public Warehouse joinWarehouse(VerificationCodeInfo verificationCodeInfo, User user) {
-    var warehouseId = Email.containsJoinCode(verificationCodeInfo);
-    if (warehouseId == null) {
-      throw new EntityNotFoundException("Verification code (" + verificationCodeInfo.getVerificationCode() + ") does not exist.");
-    }
-    var optionalWarehouse = this.findWarehouseById(warehouseId);
-    Warehouse warehouse;
-    if (optionalWarehouse.isPresent()) {
-      warehouse = optionalWarehouse.get();
+  public Warehouse joinWarehouse(VerificationCodeInfo verificationCodeInfo, User user) throws InvalidInviteCodeException {
+    var uuid = user.getUuid();
+    var code = verificationCodeInfo.getVerificationCode();
+
+    // Check if invite code is correct
+    if (this.inviteCodeStore.isValidToken(uuid, code)) {
+      // If yes, add user to warehouse
+      var warehouseId = this.inviteCodeStore.getToken(uuid).getWarehouseId();
+      var optionalWarehouse = this.findWarehouseById(warehouseId);
+      if (optionalWarehouse.isEmpty()) {
+        throw new EntityNotFoundException("Could not find warehouse with id: " + warehouseId);
+      }
+
+      var warehouse = optionalWarehouse.get();
       warehouse.addUser(user);
-      warehouseRepository.save(warehouse);
+      this.warehouseRepository.save(warehouse);
+
+      // Delete token from store
+      this.inviteCodeStore.removeToken(uuid);
+
+      return warehouse;
     } else {
-      throw new EntityNotFoundException("Warehouse with id (" + warehouseId + ") does not exist.");
+      throw new InvalidInviteCodeException("Code given is not valid");
     }
-    return warehouse;
   }
 
   /**

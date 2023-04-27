@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
+import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
+import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
@@ -96,49 +98,98 @@ public class AuthController {
 
   @PostMapping("/reset-password")
   public ResponseEntity<String> sendPasswordMail(@RequestBody EmailDto recipient) {
-    Email email = new Email(recipient, Email.Subject.RESET_PASSWORD);
-    Future<String> futureResult = emailSender.sendMail(email);
     ResponseEntity<String> response;
 
     try {
-      boolean passwordResetSuccessful = authService.resetUserPassword(recipient, email.getRandomPassword());
-      if (passwordResetSuccessful) {
-        response = emailSender.getResultFromFuture(futureResult);
-      } else {
-        response = new ResponseEntity<>("Password reset failed.", HttpStatus.BAD_REQUEST);
-      }
+      var uuid = this.authService.getUserId(recipient.getEmail());
+      var password = this.authService.forgotPassword(uuid);
+      var email = new Email(recipient, Email.Subject.RESET_PASSWORD, password);
+      var futureResult = emailSender.sendMail(email);
+      response = emailSender.getResultFromFuture(futureResult);
     } catch (JsonProcessingException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (ResetPasswordException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    return response;
+  }
+
+  /**
+   * Change password of a user
+   *
+   * @param uuid of the user to change the password of
+   * @param request the request containing information of the current password and the new password
+   * @return a new login response containing updated tokens
+   */
+  @PostMapping("/users/{uuid}/change-password")
+  public ResponseEntity<Object> changePassword(@PathVariable String uuid, @RequestBody ChangePasswordRequest request) {
+    ResponseEntity<Object> response;
+
+    try {
+      var loginResponse = this.authService.changePassword(uuid, request.getEmail(), request.getCurrentPassword(), request.getNewPassword());
+      response = new ResponseEntity<>(loginResponse, HttpStatus.OK);
+    } catch (JsonProcessingException | ResetPasswordException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (InvalidPasswordException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
     return response;
   }
 
   @PostMapping("/verify-email")
   public ResponseEntity<String> sendRegistrationMail(@RequestBody EmailDto recipient) {
-    Email email = new Email(recipient, Email.Subject.COMPLETE_REGISTRATION);
-    Future<String> futureResult = emailSender.sendMail(email);
-    return emailSender.getResultFromFuture(futureResult);
+    ResponseEntity<String> response = null;
+
+    String uuid = null;
+    try {
+      uuid = this.authService.getUserId(recipient.getEmail());
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (response == null) {
+      var verificationCode = this.authService.generateEmailVerificationCode(uuid);
+
+      var email = new Email(recipient, Email.Subject.COMPLETE_REGISTRATION, verificationCode);
+      var futureResult = emailSender.sendMail(email);
+
+      response = emailSender.getResultFromFuture(futureResult);
+    }
+
+    return response;
   }
 
 
   @PostMapping("/check-verification-code")
   public ResponseEntity<Boolean> checkVerificationCode(@RequestBody VerificationCodeInfo verificationCode) {
-    ResponseEntity<Boolean> response;
+    ResponseEntity<Boolean> response = null;
 
-    if (Email.containsVerificationCode(verificationCode.getVerificationCode())) {
-      response = new ResponseEntity<>(true, HttpStatus.OK);
-      // Update the emailVerified attribute in Keycloak
-      try{
-        String userId = authService.getUserId(verificationCode.getEmail());
-        authService.setEmailVerified(userId, true);
-      } catch (JsonProcessingException e) {
-        response = new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
-      } 
-    } else {
-      response = new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+    var code = verificationCode.getVerificationCode();
+    String uuid = null;
+    try {
+      uuid = this.authService.getUserId(verificationCode.getEmail());
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    if (response == null) {
+      var validCode = this.authService.validateEmailVerificationCode(uuid, code);
+      if (validCode) {
+        try {
+          this.authService.setEmailVerified(uuid, true);
+          response = new ResponseEntity<>(true, HttpStatus.OK);
+        } catch (JsonProcessingException e) {
+          response = new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      } else {
+        response = new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+      }
+    }
+
     return response;
   }
 
