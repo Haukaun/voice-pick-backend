@@ -43,8 +43,18 @@ public class WarehouseController {
   @PreAuthorize("hasRole('LEADER')")
   @PostMapping("/invite")
   public ResponseEntity<String> sendInviteMail(@RequestBody EmailDto recipient) {
-    User currentUser = userService.getCurrentUser();
-    return warehouseService.inviteToWarehouse(currentUser, recipient);
+    ResponseEntity<String> response;
+    try {
+      User currentUser = userService.getCurrentUser();
+      response = warehouseService.inviteToWarehouse(currentUser, recipient);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (UnauthorizedException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    } catch (RuntimeException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return response;
   }
 
   /**
@@ -99,7 +109,7 @@ public class WarehouseController {
    * @return 204 OK if user is successfully removed from the warehouse.
    */
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
-  @PatchMapping("/users/{id}")
+  @DeleteMapping("/users/{id}")
   public ResponseEntity<String> removeUserFromWarehouse(@PathVariable("id") String userId) {
     ResponseEntity<String> response;
     try {

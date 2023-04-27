@@ -152,6 +152,11 @@ public class ProductService {
     var optionalProduct = this.productRepository.findById(productId);
     var optionalUser = this.userService.getCurrentUser();
     var optionalWarehouse = this.warehouseService.findWarehouseByUser(optionalUser);
+
+    if (optionalWarehouse.isEmpty()) {
+      throw new EntityNotFoundException("User is not in a warehouse.");
+    }
+
     var optionalLocation = this.locationService.getLocationByCodeAndWarehouse(dto.getLocationCode(), optionalWarehouse.get());
 
     if (optionalProduct.isEmpty()) {

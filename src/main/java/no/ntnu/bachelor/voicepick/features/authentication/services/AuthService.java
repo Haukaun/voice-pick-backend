@@ -61,7 +61,7 @@ public class AuthService {
   private static final String GRANT_TYPE_KEY = "grant_type";
   private static final String AUTHORIZATION_KEY = "Authorization";
 
-  private final TokenStore<String, TokenObject> emailVerificationStore = new TokenStore<>(8, 10);
+  private final TokenStore<String, TokenObject> emailVerificationStore;
 
   /*
    * Different grant types allowed with keycloak

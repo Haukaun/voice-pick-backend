@@ -1,6 +1,9 @@
 package no.ntnu.bachelor.voicepick.services;
 
+import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.pojos.TokenObject;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -24,24 +27,14 @@ import java.util.concurrent.TimeUnit;
  *           boolean result = myStore.isValidToken(myKey, myToken)
  *           // Note: the key has to be of the same type defined when creating the store. In this example `String`
  */
+@Service
 public class TokenStore<T, U extends TokenObject> {
 
-    private int tokenLength;
-    private int expirationDelay;
+    private final int tokenLength = 8;
+    private final int expirationDelay = 10;
     private final HashMap<T, U> tokens = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    /**
-     * Creates a token store
-     *
-     * @param tokenLength how many characters the token should be
-     * @param expirationDelay the time between the token is created til its deletes
-     */
-    public TokenStore(int tokenLength, int expirationDelay) {
-        this.tokenLength = tokenLength;
-        this.expirationDelay = expirationDelay;
-    }
 
     /**
      * Generates a random code

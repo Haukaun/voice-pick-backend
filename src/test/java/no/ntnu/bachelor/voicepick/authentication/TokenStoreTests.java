@@ -17,7 +17,7 @@ public class TokenStoreTests {
 
     @BeforeEach
     void setup() {
-        this.myStore = new TokenStore<>(10, 10);
+        this.myStore = new TokenStore<>();
     }
 
     @Test
