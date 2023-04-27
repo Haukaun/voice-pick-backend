@@ -95,6 +95,28 @@ public class LocationController {
 
 
   /**
+   * Endpoint for updating a location
+   *
+   * @param locationCode a path-variable containing the location code
+   * @param location a request body containing information about the location
+   * @return {@code 200 OK} if updated, {@code 405 METHOD_NOT_ALLOWED} if request
+   *         body is incorrect
+   */
+  @PatchMapping("/{locationCode}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  public ResponseEntity<String> updateLocation(@PathVariable("locationCode") String locationCode, @RequestBody LocationDto location) {
+    ResponseEntity<String> response;
+    try {
+      this.locationService.updateLocation(locationCode, location);
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityExistsException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+    return response;
+  }
+
+
+  /**
    * Endpoint for getting all entities stored at a specific location
    *
    * @param code path-variable containing the location code

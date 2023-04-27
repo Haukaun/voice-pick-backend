@@ -6,7 +6,6 @@ import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
-import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
@@ -17,8 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
-
-import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/auth")

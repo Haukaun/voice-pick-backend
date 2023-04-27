@@ -3,7 +3,9 @@ package no.ntnu.bachelor.voicepick.services;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import no.ntnu.bachelor.voicepick.dtos.LocationDto;
 import no.ntnu.bachelor.voicepick.exceptions.IllegalEntityException;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
 import no.ntnu.bachelor.voicepick.models.*;
@@ -22,6 +24,8 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final ProductRepository productRepository;
     private final PluckListRepository pluckListRepository;
+    private final UserService userService;
+    private final WarehouseService warehouseService;
 
     public List<Location> getAll() {
         return this.locationRepository.findAll();
@@ -170,6 +174,37 @@ public class LocationService {
                 throw new IllegalEntityException("Could not clear location as it is mapped to an entity of type: " + entity.getClass());
             }
         }
+    }
+
+
+    /**
+     * Updates a location
+     *
+     * @param locationCode of the location to update
+     * @param dto          with the new values
+     */
+    public void updateLocation(String locationCode, LocationDto dto) {
+
+        var currentUser = this.userService.getCurrentUser();
+        var optionalWarehouse = this.warehouseService.findWarehouseByUser(currentUser);
+
+        if (optionalWarehouse.isEmpty()) {
+            throw new EntityNotFoundException("Could not find warehouse for user: " + currentUser.getEmail());
+        }
+
+        var locationOptional = this.locationRepository.findByCodeAndWarehouse(locationCode, optionalWarehouse.get());
+
+        if (locationOptional.isEmpty()) {
+            throw new EntityNotFoundException("Could not find location with id: " + locationCode);
+        }
+
+        var location = locationOptional.get();
+
+        location.setControlDigits(dto.getControlDigits());
+        location.setCode(dto.getCode());
+        location.setLocationType(dto.getLocationType());
+
+        this.locationRepository.save(location);
     }
 
     /**

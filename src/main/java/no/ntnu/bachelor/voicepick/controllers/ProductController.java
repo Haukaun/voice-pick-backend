@@ -1,13 +1,11 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
-import jakarta.persistence.EntityExistsException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.mappers.ProductMapper;
 import no.ntnu.bachelor.voicepick.models.Product;
 
 import java.util.List;
-import java.util.Set;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
