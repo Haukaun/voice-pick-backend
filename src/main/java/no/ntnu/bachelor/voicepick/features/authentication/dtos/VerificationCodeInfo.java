@@ -14,15 +14,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class VerificationCodeInfo {
-    
     private final String verificationCode;
-
     private final String email;
-
-    @JsonIgnore
-    private final LocalDateTime expirationTime;
-
-    public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expirationTime);
-    }
 }

@@ -16,7 +16,7 @@ class EmailTest {
     void createInvalidEmail(){
         EmailDto invalidEmailDto1 = new EmailDto("");
         try {
-            new Email(invalidEmailDto1, Email.Subject.COMPLETE_REGISTRATION);
+            new Email(invalidEmailDto1, Email.Subject.COMPLETE_REGISTRATION, "");
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
@@ -24,7 +24,7 @@ class EmailTest {
 
         EmailDto invalidEmailDto2 = new EmailDto("wrong-email");
         try {
-            new Email(invalidEmailDto2, Email.Subject.COMPLETE_REGISTRATION);
+            new Email(invalidEmailDto2, Email.Subject.COMPLETE_REGISTRATION, "");
             fail();
         } catch (IllegalArgumentException e) {
             assertTrue(true);
@@ -35,17 +35,17 @@ class EmailTest {
     @DisplayName("Test creating valid emails")
     void createValidEmail(){
         EmailDto validEmailDto1 = new EmailDto("john@gmail.com");
-        Email email1 = new Email(validEmailDto1, Email.Subject.COMPLETE_REGISTRATION);
+        Email email1 = new Email(validEmailDto1, Email.Subject.COMPLETE_REGISTRATION, "");
         assertEquals("john@gmail.com", email1.getRecipient());
         assertEquals("Complete registration - Voice Pick", email1.getEmailSubject().getText());
 
         EmailDto validEmailDto2 = new EmailDto("kyle@gmail.com");
-        Email email2 = new Email(validEmailDto2, Email.Subject.INVITE_CODE);
+        Email email2 = new Email(validEmailDto2, Email.Subject.INVITE_CODE, "");
         assertEquals("kyle@gmail.com", email2.getRecipient());
         assertEquals("Invite code - Voice Pick", email2.getEmailSubject().getText());
 
         EmailDto validEmailDto3 = new EmailDto("adam@gmail.com");
-        Email email3 = new Email(validEmailDto3, Email.Subject.RESET_PASSWORD);
+        Email email3 = new Email(validEmailDto3, Email.Subject.RESET_PASSWORD, "");
         assertEquals("adam@gmail.com", email3.getRecipient());
         assertEquals("Reset password - Voice Pick", email3.getEmailSubject().getText());
     }

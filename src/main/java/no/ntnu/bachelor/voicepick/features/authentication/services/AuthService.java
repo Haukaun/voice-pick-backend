@@ -1,17 +1,20 @@
 package no.ntnu.bachelor.voicepick.features.authentication.services;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
-import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
-import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
+import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
+import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
 import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
+import no.ntnu.bachelor.voicepick.pojos.TokenObject;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
+import no.ntnu.bachelor.voicepick.services.TokenStore;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -57,6 +60,8 @@ public class AuthService {
   private static final String REFRESH_TOKEN_KEY = "refresh_token";
   private static final String GRANT_TYPE_KEY = "grant_type";
   private static final String AUTHORIZATION_KEY = "Authorization";
+
+  private final TokenStore<String, TokenObject> emailVerificationStore = new TokenStore<>(8, 10);
 
   /*
    * Different grant types allowed with keycloak
@@ -108,7 +113,9 @@ public class AuthService {
       var currentUser = userService.getUserByEmail(email);
 
       Warehouse warehouse = null;
+      var uuid = "";
       if (currentUser.isPresent()) {
+        uuid = currentUser.get().getUuid();
         warehouse = currentUser.get().getWarehouse();
       }
 
@@ -118,6 +125,7 @@ public class AuthService {
           keycloakResponseBody.getExpires_in(),
           keycloakResponseBody.getRefresh_expires_in(),
           keycloakResponseBody.getToken_type(),
+          uuid,
           userName,
           email,
           emailVerified,
@@ -225,36 +233,107 @@ public class AuthService {
   }
 
   /**
-   * Find the user by email, then changes its password with a random one.
-   * This method is run when /reset-password endpoint is used.
+   * Updates the password of the user to a new random password
    *
-   * @param recipient      email of the recipient that will have its password
-   *                       changed
-   * @param randomPassword the password that will be set for the recipient
-   * @return true/false depending on if the password change was successful
-   * @throws JsonProcessingException if json-body is invalid
+   * @param uuid of the user to update password of
+   * @return the random password set to the user
    */
-  public boolean resetUserPassword(EmailDto recipient, String randomPassword) throws JsonProcessingException {
-    Optional<User> user = userService.getUserByEmail(recipient.getEmail());
+  public String forgotPassword(String uuid) throws EntityNotFoundException, JsonProcessingException, ResetPasswordException {
+    var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    var LENGTH = 8;
+    var random = new SecureRandom();
+
+    var newPassword = new StringBuilder(LENGTH);
+    for (int i = 0; i < LENGTH; i++) {
+      newPassword.append(CHARS.charAt(random.nextInt(CHARS.length())));
+    }
+    this.resetUserPassword(uuid, newPassword.toString());
+    return newPassword.toString();
+  }
+
+  /**
+   * Changes the password of a user
+   *
+   * @param uuid of the user to change the password of
+   * @param email of the user to update
+   * @param currentPassword the password of the user before changing it
+   * @param newPassword the value set to the new password of the user
+   * @throws JsonProcessingException if something went wrong when parsing request details
+   * @throws InvalidPasswordException if current password provided is invalid
+   * @throws ResetPasswordException if something went wrong when resetting password
+   */
+  public LoginResponse changePassword(String uuid, String email, String currentPassword, String newPassword) throws JsonProcessingException, InvalidPasswordException, ResetPasswordException {
+    LoginResponse response = null;
+
+    try {
+      // Login to check if password provided is correct
+      response = this.login(new LoginRequest(email, currentPassword));
+
+      // Update the password
+      this.resetUserPassword(uuid, newPassword);
+
+    } catch (Exception e) {
+      throw new InvalidPasswordException("The current password provided does not match");
+    }
+
+    return response;
+  }
+
+  /**
+   * Changes the password of a user
+   *
+   * @param uuid of the user to update password of
+   * @param password the password that will be set for the recipient
+   * @throws JsonProcessingException if json-body is invalid
+   * @throws ResetPasswordException if something went wrong when trying to reset the password
+   * @throws EntityNotFoundException if no user with the given uuid was found
+   */
+  private void resetUserPassword(String uuid, String password) throws JsonProcessingException, ResetPasswordException {
+    Optional<User> user = userService.getUserByUuid(uuid);
 
     if (user.isEmpty()) {
-      throw new EntityNotFoundException("User with email (" + recipient.getEmail() + ") does not exist.");
+      throw new EntityNotFoundException("User with uuid (" + uuid + ") does not exist.");
     }
     var headers = this.getAdminHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
     KeycloakCredentials body = new KeycloakCredentials(
         "password",
-        randomPassword,
+        password,
         false);
 
     ObjectMapper mapper = new ObjectMapper();
     String jsonBody = mapper.writeValueAsString(body);
 
-    String uid = user.get().getUuid();
-    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uid + "/reset-password";
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uuid + "/reset-password";
     var response = restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(jsonBody, headers), String.class);
 
-    return response.getStatusCode().is2xxSuccessful();
+    if (!response.getStatusCode().is2xxSuccessful()) {
+      throw new ResetPasswordException("Failed to reset password for user with uuid: " + uuid);
+    }
+  }
+
+  /**
+   * Generates an email verification code
+   *
+   * @param uuid of the user to generate a email verification code for
+   * @return the generated code
+   */
+  public String generateEmailVerificationCode(String uuid) {
+    var code =  this.emailVerificationStore.generateCode();
+    this.emailVerificationStore.addToken(uuid, new TokenObject(code));
+    return code;
+  }
+
+  /**
+   * Validated a verification code for a user
+   *
+   * @param uuid of the user to be validated
+   * @param code to validate
+   * @return {@code true} if code is valid for the user, {@code false} otherwise
+   */
+  public boolean validateEmailVerificationCode(String uuid, String code) {
+    return this.emailVerificationStore.isValidToken(uuid, code);
   }
 
   /**
@@ -375,7 +454,13 @@ public class AuthService {
     return headers;
   }
 
-  public void setEmailVerified(String userId, boolean emailVerified) throws JsonProcessingException {
+  /**
+   * Updates the verified field of a user
+   *
+   * @param uuid of the user to update
+   * @param emailVerified a boolean describing if the mail is verified or not
+   */
+  public void setEmailVerified(String uuid, boolean emailVerified) throws JsonProcessingException {
     HttpHeaders headers = this.getAdminHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -389,7 +474,7 @@ public class AuthService {
 
     HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, headers);
 
-    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId;
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + uuid;
     restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
   }
 }

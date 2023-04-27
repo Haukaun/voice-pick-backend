@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.exceptions.InvalidInviteCodeException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
@@ -64,6 +65,8 @@ public class WarehouseController {
         response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
       } catch (UnauthorizedException e) {
         response = new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+      } catch (InvalidInviteCodeException e) {
+        response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
       }
     return response;
   }
