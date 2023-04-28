@@ -27,7 +27,7 @@ public class WarehouseService {
   private final WarehouseRepository warehouseRepository;
   private final UserService userService;
 
-  private final TokenStore<String, WarehouseInviteCode> inviteCodeStore;
+  private final TokenStore<String, WarehouseInviteCode> inviteCodeStore = new TokenStore<>(8, 10);
 
 
   /**
