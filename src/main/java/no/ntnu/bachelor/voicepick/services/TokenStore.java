@@ -27,24 +27,32 @@ import java.util.concurrent.TimeUnit;
  *           boolean result = myStore.isValidToken(myKey, myToken)
  *           // Note: the key has to be of the same type defined when creating the store. In this example `String`
  */
-@Service
 public class TokenStore<T, U extends TokenObject> {
-
-    private final int tokenLength = 8;
-    private final int expirationDelay = 10;
     private final HashMap<T, U> tokens = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final int expirationDelay;
+    private final int tokenLength;
 
     /**
-     * Generates a random code
+     * Creates an instance of a token store
      *
-     * @return the token generated
+     * @param expirationDelay how long before the token expires
+     */
+    public TokenStore(int tokenLength, int expirationDelay) {
+        this.tokenLength = tokenLength;
+        this.expirationDelay = expirationDelay;
+    }
+
+    /**
+     * A helper function for creating a randomly generated code
+     *
+     * @return the randomly generated code
      */
     public String generateCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-        StringBuilder token = new StringBuilder(tokenLength);
-        for (int i = 0; i < tokenLength; i++) {
+        StringBuilder token = new StringBuilder(this.tokenLength);
+        for (int i = 0; i < this.tokenLength; i++) {
             token.append(chars.charAt(random.nextInt(chars.length())));
         }
         return token.toString();
@@ -70,7 +78,7 @@ public class TokenStore<T, U extends TokenObject> {
         this.tokens.put(key, value);
 
         // Schedule to remove the token x minutes after its added
-        this.scheduler.schedule(() -> this.removeToken(key), expirationDelay, TimeUnit.MINUTES);
+        this.scheduler.schedule(() -> this.removeToken(key), this.expirationDelay, TimeUnit.MINUTES);
     }
 
     /**
