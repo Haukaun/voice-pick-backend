@@ -64,7 +64,7 @@ public class ProductService {
    * @return a list of products
    */
   public List<Product> getAvailableProducts() {
-    return this.productRepository.findProductsWithLocation(Status.INACTIVE);
+    return this.productRepository.findProductsWithLocationAndQuantity(Status.INACTIVE);
   }
 
   /**

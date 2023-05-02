@@ -14,13 +14,13 @@ import org.springframework.data.repository.query.Param;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
   /**
-   * Returns all products that has a location and filtered out the status provided.
+   * Returns all products that has a location and a minimum quantity of 1 and filtered out the status provided.
    *
    * @param status the status to not be included in the result
    * @return a list of all products with a location and filtered status
    */
-  @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status")
-  List<Product> findProductsWithLocation(@Param("status") Status status);
+  @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status AND p.quantity > 0")
+  List<Product> findProductsWithLocationAndQuantity(@Param("status") Status status);
 
   @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status AND p.name LIKE :name")
   List<Product> findProductsWithLocationByName(@Param("name") String name, @Param("status") Status status);
