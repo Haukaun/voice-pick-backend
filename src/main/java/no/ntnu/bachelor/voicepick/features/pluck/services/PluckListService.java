@@ -19,6 +19,8 @@ import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepositor
 import no.ntnu.bachelor.voicepick.models.Product;
 import no.ntnu.bachelor.voicepick.services.ProductService;
 
+import static java.lang.Math.min;
+
 /**
  * A service class that exposes method for the pluck list entity
  */
@@ -98,16 +100,18 @@ public class PluckListService {
     warehouse.addPluckList(pluckList);
     this.pluckListRepository.save(pluckList);
 
-    int minPluckAmount = Math.min(2, availableProducts.size());
-    final int maxPluckAmount = Math.min(10, availableProducts.size());
+    int minPluckAmount = min(2, availableProducts.size());
+    final int maxPluckAmount = min(10, availableProducts.size());
     var productsToPluck = this.extractRandomProduct(availableProducts, minPluckAmount, maxPluckAmount);
 
     // Generate random plucks based on products to pluck
     final int PLUCK_AMOUNT_UPPER_BOUND = 10;
     for (var product : productsToPluck) {
+      var amountToPluck = min(product.getQuantity(), random.nextInt((PLUCK_AMOUNT_UPPER_BOUND - 1) + 1));
+
       var pluck = new Pluck(
           product,
-          random.nextInt((PLUCK_AMOUNT_UPPER_BOUND - 1)) + 1,
+          amountToPluck,
           LocalDateTime.now());
 
       pluckList.addPluck(this.pluckService.savePluck(pluck));
