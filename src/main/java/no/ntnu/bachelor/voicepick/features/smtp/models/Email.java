@@ -46,11 +46,11 @@ public class Email {
      * @throws IllegalArgumentException if email does not match regex or when subject is invalid
      */
     public Email(EmailDto recipient, Subject emailSubject, String content) {
-        if (!isValidEmailAddress(recipient.getEmail())) {
+        if (!isValidEmailAddress(recipient.getEmail().toLowerCase())) {
             throw new IllegalArgumentException("Invalid email address: " + recipient);
         }
 
-        this.recipient = recipient.getEmail();
+        this.recipient = recipient.getEmail().toLowerCase();
         this.emailSubject = emailSubject;
 
         switch (emailSubject) {
