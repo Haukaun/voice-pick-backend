@@ -118,7 +118,7 @@ class ProductTest {
       this.productService.addProduct(new AddProductRequest("", "", -1, -1, -1, null), warehouse);
       fail("Product should not be created");
     } catch (Exception e) {
-      assertEquals(0, this.productService.getAvailableProducts().size());
+      assertEquals(0, this.productService.getAvailableProducts(warehouse).size());
     }
 
   }
@@ -155,7 +155,7 @@ class ProductTest {
       fail("Could not find correct product");
     }
     var productFound = result.get(0);
-    assertEquals(1, this.productService.getAvailableProducts().size());
+    assertEquals(1, this.productService.getAvailableProducts(warehouse).size());
     assertEquals("Pepsi", productFound.getName());
     assertNotNull(productFound.getLocation());
     assertEquals(locations.get(0).getId(), productFound.getLocation().getId());
@@ -175,6 +175,6 @@ class ProductTest {
     this.productService.addProduct(new AddProductRequest("Fanta", locations.get(0).getCode(), 1, 1, 10, ProductType.F_PAK), warehouse);
     this.productService.deleteAll("Fanta");
 
-    assertEquals(0, this.productService.getAvailableProducts().size());
+    assertEquals(0, this.productService.getAvailableProducts(warehouse).size());
   }
 }
