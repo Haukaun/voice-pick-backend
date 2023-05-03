@@ -28,6 +28,7 @@ public abstract class PluckListMapper {
   @Mapping(target = "user", source = "user", qualifiedByName = "userToUserDto")
   @Mapping(target = "location", source = "location", qualifiedByName = "locationToLocationDto")
   public abstract PluckListDto toPluckListDto(PluckList pluckList);
+  public abstract Set<PluckListDto> toPluckListDto(Set<PluckList> pluckList);
 
   @Named("plucksToPlucksDto")
   public Set<PluckDto> plucksToPlucksDto(Set<Pluck> plucks) {

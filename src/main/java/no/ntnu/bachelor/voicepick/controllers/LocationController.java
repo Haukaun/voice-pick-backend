@@ -2,10 +2,11 @@ package no.ntnu.bachelor.voicepick.controllers;
 
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.dtos.LocationDto;
-import no.ntnu.bachelor.voicepick.dtos.LocationEntityDto;
+import no.ntnu.bachelor.voicepick.dtos.LocationPluckListResponse;
+import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
-import no.ntnu.bachelor.voicepick.mappers.LocationEntityMapper;
 import no.ntnu.bachelor.voicepick.mappers.LocationMapper;
+import no.ntnu.bachelor.voicepick.mappers.ProductMapper;
 import no.ntnu.bachelor.voicepick.services.LocationService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -27,8 +29,7 @@ public class LocationController {
   private final UserService userService;
 
   private final LocationMapper locationMapper = Mappers.getMapper(LocationMapper.class);
-  private final LocationEntityMapper locationEntityMapper = Mappers.getMapper(LocationEntityMapper.class);
-
+  private final ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
 
   /**
    * Endpoint for adding a new location
@@ -123,18 +124,39 @@ public class LocationController {
    * @return a set of entities {@code 200 OK} if entities in location found, {@code 405 METHOD_NOT_ALLOWED} if request
    *         body is incorrect
    */
-  @GetMapping("/{code}/entities")
+  @GetMapping("/{code}/products")
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
-  public ResponseEntity<Set<LocationEntityDto>> getEntitiesInLocation(@PathVariable String code) {
-    ResponseEntity<Set<LocationEntityDto>> response;
+  public ResponseEntity<List<ProductDto>> getProductsInLocation(@PathVariable String code) {
+    ResponseEntity<List<ProductDto>> response;
     try {
       var warehouse = userService.getCurrentUser().getWarehouse();
       var entities = locationService.getEntitiesInLocation(code, warehouse);
 
-      if (entities.isEmpty()){
+      if (entities.isEmpty()) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
-      response = new ResponseEntity<>(locationEntityMapper.toLocationEntityDto(entities), HttpStatus.OK);
+      var products = locationService.getProductsInLocation(entities, warehouse);
+      response = new ResponseEntity<>(productMapper.toProductDto(products).stream().toList(), HttpStatus.OK);
+
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+    return response;
+  }
+
+  @GetMapping("/{code}/pluck-lists")
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  public ResponseEntity<List<LocationPluckListResponse>> getPluckListsInLocation(@PathVariable String code) {
+    ResponseEntity<List<LocationPluckListResponse>> response;
+    try {
+      var warehouse = userService.getCurrentUser().getWarehouse();
+      var entities = locationService.getEntitiesInLocation(code, warehouse);
+
+      if (entities.isEmpty()) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+      var pluckLists = locationService.getPluckListsInLocation(entities,warehouse);
+      response = new ResponseEntity<>(pluckLists.stream().map(pluckList -> new LocationPluckListResponse(pluckList.getId(), pluckList.getRoute(), pluckList.getDestination())).toList(), HttpStatus.OK);
 
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
