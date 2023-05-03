@@ -28,7 +28,8 @@ public class ProductService {
   /**
    * Adds a product to the repository
    * 
-   * @param product to add
+   * @param request with information about product to add
+   * @param warehouse to add the product to
    */
   public void addProduct(AddProductRequest request, Warehouse warehouse) {
     var optionalLocation = this.locationService.getLocationByCodeAndWarehouseAndLocationType(request.getLocationCode(), warehouse, LocationType.PRODUCT);
@@ -58,13 +59,13 @@ public class ProductService {
   }
 
   /**
-   * Returns a list of products that are available. By available
-   * we mean a product that has a location so it can be plucked.
+   * Returns a list of products that are available in a warehouse. By available
+   * its meant a product that has a location so it can be plucked.
    * 
    * @return a list of products
    */
-  public List<Product> getAvailableProducts() {
-    return this.productRepository.findProductsWithLocationAndQuantity(Status.INACTIVE);
+  public List<Product> getAvailableProducts(Warehouse warehouse) {
+    return this.productRepository.findProductsInWarehouseWithLocationAndQuantity(warehouse.getId(), Status.INACTIVE);
   }
 
   /**

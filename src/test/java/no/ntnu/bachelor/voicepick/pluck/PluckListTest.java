@@ -226,6 +226,8 @@ class PluckListTest {
     this.productRepository.save(product);
     var pluckListLocation = new Location("B842", 956, LocationType.PLUCK_LIST);
     this.locationRepository.save(pluckListLocation);
+    warehouse.addProduct(product);
+    warehouse.addLocation(productLocation);
     warehouse.addLocation(pluckListLocation);
 
     try {
@@ -258,6 +260,8 @@ class PluckListTest {
     this.productRepository.save(product);
     var pluckListLocation = new Location("B842", 956, LocationType.PLUCK_LIST);
     this.locationRepository.save(pluckListLocation);
+    warehouse.addProduct(product);
+    warehouse.addLocation(productLocation);
     warehouse.addLocation(pluckListLocation);
 
     try {
@@ -288,6 +292,8 @@ class PluckListTest {
     this.productRepository.save(product);
     var pluckListLocation = new Location("B842", 956, LocationType.PLUCK_LIST);
     this.locationRepository.save(pluckListLocation);
+    warehouse.addProduct(product);
+    warehouse.addLocation(productLocation);
     warehouse.addLocation(pluckListLocation);
 
     try {
@@ -341,6 +347,8 @@ class PluckListTest {
     this.productRepository.save(product);
     var pluckListLocation = new Location("B842", 956, LocationType.PLUCK_LIST);
     this.locationRepository.save(pluckListLocation);
+    warehouse.addProduct(product);
+    warehouse.addLocation(productLocation);
     warehouse.addLocation(pluckListLocation);
 
     PluckList pluckList = null;

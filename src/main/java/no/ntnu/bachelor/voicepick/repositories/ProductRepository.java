@@ -19,8 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
    * @param status the status to not be included in the result
    * @return a list of all products with a location and filtered status
    */
-  @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status AND p.quantity > 0")
-  List<Product> findProductsWithLocationAndQuantity(@Param("status") Status status);
+  @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status AND p.quantity > 0 AND p.warehouse.id = :warehouseId")
+  List<Product> findProductsInWarehouseWithLocationAndQuantity(@Param("warehouseId") Long warehouseId, @Param("status") Status status);
 
   @Query("SELECT p FROM Product p WHERE p.location IS NOT NULL AND p.status != :status AND p.name LIKE :name")
   List<Product> findProductsWithLocationByName(@Param("name") String name, @Param("status") Status status);

@@ -80,7 +80,7 @@ public class PluckListService {
     }
 
     // Retrieve all available products
-    var availableProducts = this.productService.getAvailableProducts();
+    var availableProducts = this.productService.getAvailableProducts(warehouse);
     if (availableProducts.isEmpty()) {
       throw new EmptyListException("No available products");
     }
