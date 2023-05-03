@@ -127,13 +127,17 @@ public class WarehouseController {
   @GetMapping("/users")
   public ResponseEntity<Object> getUsersInWarehouse() {
     ResponseEntity<Object> response;
-    var currentUser = userService.getCurrentUser();
     Set<User> usersInWarehouse;
     try {
+      var currentUser = userService.getCurrentUser();
       usersInWarehouse = warehouseService.findAllUsersInWarehouse(warehouseService.findWarehouseByUser(currentUser).orElse(null));
       response = new ResponseEntity<>(userMapper.toUserDto(usersInWarehouse), HttpStatus.OK);
     } catch (IllegalArgumentException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (UnauthorizedException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
     return response;
   }

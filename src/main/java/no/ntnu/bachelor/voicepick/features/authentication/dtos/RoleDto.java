@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RoleRequest {
-    private String id;
-    private String name;
+public class RoleDto {
+    private int id;
+    private String type;
 }
