@@ -152,7 +152,7 @@ public class WarehouseService {
    */
   public Set<User> findAllUsersInWarehouse(Warehouse warehouse) {
     if (warehouse == null) {
-      throw new IllegalArgumentException("Warehouse if the current user is null.");
+      throw new IllegalArgumentException("Warehouse for the current user is null.");
     }
     return warehouse.getUsers();
   }

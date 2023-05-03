@@ -1,9 +1,5 @@
 package no.ntnu.bachelor.voicepick.features.authentication.dtos;
 
-import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;

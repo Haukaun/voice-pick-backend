@@ -8,9 +8,11 @@ import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
+import no.ntnu.bachelor.voicepick.features.authentication.models.Role;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.utils.JwtUtil;
+import no.ntnu.bachelor.voicepick.mappers.RoleMapper;
 import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
 import no.ntnu.bachelor.voicepick.pojos.TokenObject;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
@@ -39,6 +41,7 @@ public class AuthService {
   private final JwtUtil jwtUtil;
 
   private final WarehouseMapper warehouseMapper = Mappers.getMapper(WarehouseMapper.class);
+  private final RoleMapper roleMapper = Mappers.getMapper(RoleMapper.class);
 
   @Value("${keycloak.base-url}")
   private String baseUrl;
@@ -114,9 +117,11 @@ public class AuthService {
 
       Warehouse warehouse = null;
       var uuid = "";
+      Set<Role> roles = new HashSet<>();
       if (currentUser.isPresent()) {
         uuid = currentUser.get().getUuid();
         warehouse = currentUser.get().getWarehouse();
+        roles = currentUser.get().getRoles();
       }
 
       loginResponse = new LoginResponse(
@@ -129,6 +134,7 @@ public class AuthService {
           userName,
           email,
           emailVerified,
+          roleMapper.toRoleDto(roles),
           warehouseMapper.toWarehouseDto(warehouse));
     } else {
       throw new EntityNotFoundException("User not found");
@@ -397,7 +403,7 @@ public class AuthService {
 
     // Get role
     var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
-    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), RoleRequest.class);
+    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), RoleDto.class);
 
     var body = new ObjectMapper().writeValueAsString(Collections.singletonList(response.getBody()));
 

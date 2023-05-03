@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.RoleDto;
+
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -15,5 +18,6 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private Set<RoleDto> roles;
 
 }

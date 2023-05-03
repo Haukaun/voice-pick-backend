@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import no.ntnu.bachelor.voicepick.dtos.WarehouseDto;
 
+import java.util.Collection;
+
 @Data
 @AllArgsConstructor
 public class LoginResponse {
@@ -17,6 +19,6 @@ public class LoginResponse {
     private String username;
     private String email;
     private Boolean emailVerified;
-
+    private Collection<RoleDto> roles;
     private WarehouseDto warehouse;
 }
