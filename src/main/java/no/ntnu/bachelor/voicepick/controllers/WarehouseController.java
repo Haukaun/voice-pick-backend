@@ -142,6 +142,26 @@ public class WarehouseController {
     return response;
   }
 
+  /**
+   * Currently authenticated user leaves their warehouse.
+   * @return HttpStatus 204 if success, 404 if the user could not be found,]
+   * 401 if the user is not authorized.
+   */
+  @DeleteMapping("/leave")
+  public ResponseEntity<String> leaveWarehouse() {
+    ResponseEntity<String> response;
+    try {
+      var currentUser = userService.getCurrentUser();
+      warehouseService.removeUserFromWarehouse(currentUser.getWarehouse(), currentUser.getUuid());
+      response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    } catch (UnauthorizedException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+    return response;
+  }
+
 
 
 }

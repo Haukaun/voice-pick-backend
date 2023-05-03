@@ -135,6 +135,12 @@ public class WarehouseService {
     return this.warehouseRepository.findByName(name);
   }
 
+  /**
+   * Removes a user from a warehouse.
+   * @param warehouse warehouse to remove user from.
+   * @param userId the user to remove.
+   * @throws EntityNotFoundException if the user to remove could not be found.
+   */
   public void removeUserFromWarehouse(Warehouse warehouse, String userId) {
     Optional<User> optionalUserToRemove = userService.getUserByUuid(userId);
     if (optionalUserToRemove.isEmpty()) {
