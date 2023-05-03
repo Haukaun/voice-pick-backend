@@ -31,7 +31,7 @@ public class ProductService {
    * @param product to add
    */
   public void addProduct(AddProductRequest request, Warehouse warehouse) {
-    var optionalLocation = this.locationService.getLocationByCodeAndWarehouseAndLocationType(request.getLocation(), warehouse, LocationType.PRODUCT);
+    var optionalLocation = this.locationService.getLocationByCodeAndWarehouseAndLocationType(request.getLocationCode(), warehouse, LocationType.PRODUCT);
 
     Product productToSave;
     if (optionalLocation.isPresent()) {

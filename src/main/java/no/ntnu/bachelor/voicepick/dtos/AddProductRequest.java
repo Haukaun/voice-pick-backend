@@ -15,7 +15,7 @@ import no.ntnu.bachelor.voicepick.models.ProductType;
 @NoArgsConstructor
 public class AddProductRequest {
   private String name;
-  private String location;
+  private String locationCode;
   private double weight;
   private double volume;
   private int quantity;
