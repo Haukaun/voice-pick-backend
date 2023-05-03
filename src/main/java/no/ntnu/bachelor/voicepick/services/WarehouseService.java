@@ -46,7 +46,7 @@ public class WarehouseService {
       throw new EntityNotFoundException("Could not find warehouse for user requesting to invite");
     }
 
-    var optionalReceiver = this.userService.getUserByEmail(recipient.getEmail());
+    var optionalReceiver = this.userService.getUserByEmail(recipient.getEmail().toLowerCase());
     if (optionalReceiver.isEmpty()) {
       throw new EntityNotFoundException("Could not find receiver with email: " + recipient.getEmail());
     }

@@ -403,7 +403,7 @@ public class AuthService {
 
     // Get role
     var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
-    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), RoleDto.class);
+    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), KeycloakRoleResponse.class);
 
     var body = new ObjectMapper().writeValueAsString(Collections.singletonList(response.getBody()));
 
