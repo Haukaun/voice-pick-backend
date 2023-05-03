@@ -13,9 +13,7 @@ import no.ntnu.bachelor.voicepick.repositories.LocationRepository;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -95,6 +93,26 @@ public class LocationService {
         }
 
         return optionalLocation.get().getEntities();
+    }
+
+    public List<Product> getProductsInLocation(Set<LocationEntity> entities, Warehouse warehouse){
+        var products = new ArrayList<Product>();
+        for (var entity : entities) {
+            if (entity instanceof Product) {
+                products.add((Product) entity);
+            }
+        }
+        return products;
+    }
+
+    public List<PluckList> getPluckListsInLocation(Set<LocationEntity> entities, Warehouse warehouse){
+        var pluckLists = new ArrayList<PluckList>();
+        for (var entity : entities) {
+            if (entity instanceof PluckList) {
+                pluckLists.add((PluckList) entity);
+            }
+        }
+        return pluckLists;
     }
 
     /**
