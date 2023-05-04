@@ -1,9 +1,6 @@
 package no.ntnu.bachelor.voicepick.services;
 
-import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.pojos.TokenObject;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.HashMap;

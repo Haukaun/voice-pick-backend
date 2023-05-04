@@ -17,6 +17,7 @@ import no.ntnu.bachelor.voicepick.mappers.WarehouseMapper;
 import no.ntnu.bachelor.voicepick.pojos.TokenObject;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
 import no.ntnu.bachelor.voicepick.services.TokenStore;
+import no.ntnu.bachelor.voicepick.services.WarehouseService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -37,6 +38,8 @@ public class AuthService {
   private final RestTemplate restTemplate;
 
   private final UserService userService;
+
+  private final WarehouseService warehouseService;
 
   private final JwtUtil jwtUtil;
 
@@ -251,8 +254,8 @@ public class AuthService {
    * @return the random password set to the user
    */
   public String forgotPassword(String uuid) throws EntityNotFoundException, JsonProcessingException, ResetPasswordException {
-    var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    var LENGTH = 8;
+    final var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    final var LENGTH = 8;
     var random = new SecureRandom();
 
     var newPassword = new StringBuilder(LENGTH);
@@ -397,12 +400,52 @@ public class AuthService {
   }
 
   /**
-   * Adds a role to a user
+   * Adds a role to a user. Role is only applied if both users are in the same warehouse
    *
-   * @param userId of the user to add the role to
-   * @param role   the role to be added
+   * @param requestingUuid uuid of the user sending the request.
+   * @param promotingUuid of the user to add the role to
+   * @param role the role to be added
+   * @throws JsonProcessingException if the role cannot be added.
+   * @return the user that was promoted.
    */
-  public void addRole(String userId, RoleType role) throws JsonProcessingException {
+  public User tryAddRole(String requestingUuid, String promotingUuid, RoleType role) throws JsonProcessingException {
+    if (Boolean.FALSE.equals(this.warehouseService.inSameWarehouse(requestingUuid, promotingUuid))) {
+      throw new IllegalArgumentException("Users are not in the same warehouse.");
+    }
+    var promotedUser = userService.getUserByUuid(promotingUuid);
+    if (promotedUser.isEmpty()) {
+      throw new EntityNotFoundException("User to promote was not found.");
+    }
+    addRole(promotingUuid, role);
+    return promotedUser.get();
+  }
+
+  /**
+   * Removes a role from a user. Role is only removed if both users are in the same warehouse.
+   * @param requestingUuid uuid of the user sending the request.
+   * @param demotingUuid uuid of the user to remove role from.
+   * @param role the role to remove.
+   * @throws JsonProcessingException if the role cannot be added.
+   */
+  public User tryRemoveRole(String requestingUuid, String demotingUuid, RoleType role) throws JsonProcessingException {
+    if (Boolean.FALSE.equals(this.warehouseService.inSameWarehouse(requestingUuid, demotingUuid))) {
+      throw new IllegalArgumentException("Users are not in the same warehouse.");
+    }
+    var demotedUser = userService.getUserByUuid(demotingUuid);
+    if (demotedUser.isEmpty()) {
+      throw new EntityNotFoundException("User to demote was not found.");
+    }
+    removeRole(demotingUuid, role);
+    return demotedUser.get();
+  }
+
+  /**
+   * Adds a role to a user. Role is only applied if both users are in the same warehouse
+   *
+   * @param promotingUuid of the user to add the role to
+   * @param role the role to be added
+   */
+  public void addRole(String promotingUuid, RoleType role) throws JsonProcessingException {
     // Add admin token to headers
     HttpHeaders headers = this.getAdminHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -415,11 +458,30 @@ public class AuthService {
 
     HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
-    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm";
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + promotingUuid + "/role-mappings/realm";
     var updateResponse = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
 
     if (updateResponse.getStatusCode().is2xxSuccessful()) {
-      this.userService.addRole(userId, role);
+      this.userService.addRole(promotingUuid, role);
+    }
+  }
+
+  public void removeRole(String demotingUuid, RoleType role) throws JsonProcessingException {
+    HttpHeaders headers = this.getAdminHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    var roleUrl = baseUrl + "/auth/admin/realms/" + realm + "/roles/" + role.label;
+    var response = restTemplate.exchange(roleUrl, HttpMethod.GET, new HttpEntity<>(headers), KeycloakRoleResponse.class);
+
+    var body = new ObjectMapper().writeValueAsString(Collections.singletonList(response.getBody()));
+
+    HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+
+    var url = baseUrl + "/auth/admin/realms/" + realm + "/users/" + demotingUuid + "/role-mappings/realm";
+    var updateResponse = restTemplate.exchange(url, HttpMethod.DELETE, httpEntity, String.class);
+
+    if (updateResponse.getStatusCode().is2xxSuccessful()) {
+      this.userService.removeRole(demotingUuid, role);
     }
   }
 

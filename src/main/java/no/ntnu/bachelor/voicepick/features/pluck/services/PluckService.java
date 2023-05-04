@@ -1,7 +1,6 @@
 package no.ntnu.bachelor.voicepick.features.pluck.services;
 
 import jakarta.persistence.EntityNotFoundException;
-import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckDto;
 import no.ntnu.bachelor.voicepick.features.pluck.dtos.UpdatePluckRequest;
 import no.ntnu.bachelor.voicepick.repositories.ProductRepository;
 import org.springframework.stereotype.Service;

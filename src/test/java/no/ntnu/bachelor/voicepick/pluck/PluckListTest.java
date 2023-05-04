@@ -329,8 +329,9 @@ class PluckListTest {
   @DisplayName("Update pluck list with invalid pluck list id")
   void updateInvalidPluckListId() {
     var now = LocalDateTime.now();
+    var request = new UpdatePluckListRequest(now, now);
     try {
-      this.pluckListService.updatePluckList(1L, new UpdatePluckListRequest(now, now));
+      this.pluckListService.updatePluckList(1L, request);
       fail();
     } catch (EntityNotFoundException e) {
       assertTrue(true);

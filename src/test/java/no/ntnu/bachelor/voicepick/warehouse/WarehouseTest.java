@@ -8,6 +8,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
+import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
 import no.ntnu.bachelor.voicepick.services.WarehouseService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,9 @@ class WarehouseTest {
 
   @Autowired
   private WarehouseService warehouseService;
+
+  @Autowired
+  private WarehouseRepository warehouseRepository;
 
   @Autowired
   private UserService userService;
@@ -71,7 +75,7 @@ class WarehouseTest {
   }
 
   @Test
-  @DisplayName("Successfully delete user when warehouse is set to null")
+  @DisplayName("Successfully remove user when warehouse is set to null")
   void removeUserWithNoWarehouseOnDelete() {
     try {
       User user = new User("qweqwe", "Ola", "Nordmann", "ola@nordmann.no");
@@ -136,5 +140,29 @@ class WarehouseTest {
     } catch (IllegalArgumentException e) {
       assertTrue(true);
     }
+  }
+
+  @Test
+  @DisplayName("Successfully check if two users are in the same warehouse.")
+  void successfullyCheckIfUsersInTheSameWarehouse() {
+    User userObject = new User("qweqwe", "Ola", "Nordmann", "ola@nordmann.no");
+    userService.createUser(userObject);
+    var warehouse = leader.getWarehouse();
+
+    Optional<User> optionalUser = userService.getUserByUuid("qweqwe");
+
+    var user = optionalUser.get();
+    warehouse.addUser(user);
+
+    assertTrue(warehouseService.inSameWarehouse("qweqwe", UUID));
+  }
+
+  @Test
+  @DisplayName("Successfully check two users are not in the same warehouse.")
+  void successfullyCheckIfTwoUsersNotInTheSameWarehouse() {
+    User userObject = new User("qweqwe", "Ola", "Nordmann", "ola@nordmann.no");
+    userService.createUser(userObject);
+
+    assertFalse(warehouseService.inSameWarehouse("qweqwe", UUID));
   }
 }

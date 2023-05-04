@@ -1,11 +1,13 @@
 package no.ntnu.bachelor.voicepick.features.pluck.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -35,8 +37,9 @@ public class CargoCarrier {
   private int identifier;
 
 
-  @OneToMany(mappedBy = "cargoCarrier", fetch = FetchType.EAGER)
-  private Set<PluckList> pluckLists = new HashSet<>();
+  @JsonIgnore
+  @OneToMany(mappedBy = "cargoCarrier")
+  private Set<PluckList> pluckLists = new LinkedHashSet<>();
 
   @Column(name = "phonetic_identifier")
   private String phoneticIdentifier;

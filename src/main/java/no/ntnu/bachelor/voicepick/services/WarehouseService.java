@@ -166,6 +166,31 @@ public class WarehouseService {
   }
 
   /**
+   * Checks if two users are in the same warehouse.
+   *
+   * @param uuidOne sending the request
+   * @param uuidTwo
+   * @return
+   */
+  public boolean inSameWarehouse(String uuidOne, String uuidTwo) {
+    var optionalUserOne = userService.getUserByUuid(uuidOne);
+    var optionalUserTwo = userService.getUserByUuid(uuidTwo);
+
+    if (optionalUserOne.isEmpty() || optionalUserTwo.isEmpty()) {
+      return false;
+    }
+
+    var userOne = optionalUserOne.get();
+    var userTwo = optionalUserTwo.get();
+
+    if (userOne.getWarehouse() == null || userTwo.getWarehouse() == null) {
+      return false;
+    }
+
+    return userOne.getWarehouse().getId().equals(userTwo.getWarehouse().getId());
+  }
+
+  /**
    * Deletes a warehouse after clearing its belonging properties.
    * @param warehouse warehouse to delete.
    */
