@@ -7,10 +7,14 @@ import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
+import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
+import no.ntnu.bachelor.voicepick.mappers.UserMapper;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,7 +27,10 @@ import no.ntnu.bachelor.voicepick.features.authentication.services.AuthService;
 public class AuthController {
 
   private final AuthService authService;
+  private final UserService userService;
   private final EmailSender emailSender;
+
+  private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -190,16 +197,31 @@ public class AuthController {
     return response;
   }
 
-  @PostMapping("/users/{id}/roles/leader")
-  public ResponseEntity<String> addLeaderRole(@PathVariable("id") String id) {
-    ResponseEntity<String> response;
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  @PostMapping("/users/{uuid}/roles/leader")
+  public ResponseEntity<Object> addLeaderRole(@PathVariable("uuid") String uuid) {
+    ResponseEntity<Object> response;
     try {
-      authService.addRole(id, RoleType.LEADER);
-      response = new ResponseEntity<>(HttpStatus.OK);
+      var requestingUser = this.userService.getCurrentUser();
+      var user = authService.tryAddRole(requestingUser.getUuid(), uuid, RoleType.LEADER);
+      response = new ResponseEntity<>(userMapper.toUserDto(user), HttpStatus.OK);
     } catch (JsonProcessingException e) {
        response = new ResponseEntity<>("Failed to add role", HttpStatus.BAD_REQUEST);
     }
     return response;
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+  @DeleteMapping("/users/{uuid}/roles/leader")
+  public ResponseEntity<Object> removeLeaderRole(@PathVariable("uuid") String uuid) {
+    ResponseEntity<Object> response;
+    try {
+      var requestingUser = this.userService.getCurrentUser();
+      var user = authService.tryRemoveRole(requestingUser.getUuid(), uuid, RoleType.LEADER);
+      response = new ResponseEntity<>(userMapper.toUserDto(user), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>("Could not remove role.", HttpStatus.BAD_REQUEST);
+    }
+    return response;
+  }
 }

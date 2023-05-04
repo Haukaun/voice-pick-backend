@@ -11,7 +11,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class TokenStoreTests {
+class TokenStoreTests {
 
     private TokenStore<String, TokenObject> myStore;
 

@@ -2,13 +2,6 @@ package no.ntnu.bachelor.voicepick.features.smtp.models;
 
 import lombok.Getter;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
-import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 @Getter

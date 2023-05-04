@@ -82,6 +82,19 @@ public class UserService {
         this.userRepository.save(user);
     }
 
+    public void removeRole(String uuid, RoleType roleType) {
+        var optionalUser = this.userRepository.findByUuid(uuid);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException("Could not find user with uuid: " + uuid);
+        }
+
+        var user = optionalUser.get();
+        var optionalRole = this.roleRepository.findByType(roleType);
+
+        optionalRole.ifPresent(user::removeRole);
+        this.userRepository.save(user);
+    }
+
     /**
      * Returns the current user authenticated
      *

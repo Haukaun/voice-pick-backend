@@ -11,5 +11,4 @@ public interface CargoCarrierRepository extends JpaRepository<CargoCarrier, Long
   Optional<CargoCarrier> findByIdentifier(int identifier);
 
   List<CargoCarrier> findByIsActiveTrue();
-
 }
