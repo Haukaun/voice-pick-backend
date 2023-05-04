@@ -96,4 +96,8 @@ public class PluckListController {
     return response;
   }
 
+  @GetMapping("/users/{uuid}")
+  public ResponseEntity<Integer> getNumberOfCompletedPlucks(@PathVariable String uuid) {
+     return new ResponseEntity<>(this.pluckListService.getNumberOfCompletedPluckLists(uuid), HttpStatus.OK);
+  }
 }

@@ -221,4 +221,14 @@ public class PluckListService {
     pluckLists.forEach(pluckList -> this.deletePluckList(pluckList.getId()));
   }
 
+  /**
+   * Returns number of completed pluck lists for a specific user
+   *
+   * @param uuid of the user to check for
+   * @return the number of completed pluck lists
+   */
+  public int getNumberOfCompletedPluckLists(String uuid) {
+    return this.pluckListRepository.countCompletedPluckList(uuid);
+  }
+
 }

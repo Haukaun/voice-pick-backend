@@ -37,7 +37,7 @@ public class SecurityConfig {
             .requestMatchers("/users/**").authenticated()
             .requestMatchers("/profile-picture/**").authenticated()
             .requestMatchers("/warehouse/**").authenticated()
-            .requestMatchers("/pluck-lists").authenticated()
+            .requestMatchers("/pluck-lists/**").authenticated()
             .requestMatchers("/plucks").authenticated()
             .requestMatchers("/locations/**").authenticated()
             .anyRequest().permitAll())
