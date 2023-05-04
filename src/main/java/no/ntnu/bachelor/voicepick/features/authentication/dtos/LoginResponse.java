@@ -17,7 +17,7 @@ public class LoginResponse {
 
     private String uuid;
     private String username;
-    private String pictureUrl;
+    private String profilePictureName;
     private String email;
     private Boolean emailVerified;
     private Collection<RoleDto> roles;
