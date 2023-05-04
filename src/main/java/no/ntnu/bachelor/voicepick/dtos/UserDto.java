@@ -19,5 +19,5 @@ public class UserDto {
     private String lastName;
     private String email;
     private Set<RoleDto> roles;
-
+    private String profilePictureName;
 }
