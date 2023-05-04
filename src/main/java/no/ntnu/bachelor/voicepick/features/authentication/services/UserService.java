@@ -11,6 +11,8 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.RoleRepository;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
+import no.ntnu.bachelor.voicepick.models.ProfilePicture;
+import no.ntnu.bachelor.voicepick.repositories.ProfilePictureRepository;
 import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,7 @@ public class UserService {
     private final PluckListRepository pluckListRepository;
     private final WarehouseRepository warehouseRepository;
     private final RoleRepository roleRepository;
+    private final ProfilePictureRepository profilePictureRepository;
 
     /**
      * Saves a user to the repository
@@ -115,6 +118,32 @@ public class UserService {
     }
 
     /**
+     * Updates the profile picture of a user
+     *
+     * @param uuid of the user to be updated
+     * @param pictureName name of the picture to update
+     */
+    public void updateProfilePicture(String uuid, String pictureName) {
+
+        var optionalUser = this.userRepository.findByUuid(uuid);
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException("Could not find user with id: " + uuid);
+        }
+
+        var optionalPicture = this.profilePictureRepository.findByName(pictureName);
+        if (optionalPicture.isEmpty()) {
+            throw new EntityNotFoundException("Could not find profile picture with name: " + pictureName);
+        }
+
+        var user = optionalUser.get();
+        var picture = optionalPicture.get();
+
+        picture.addUser(user);
+
+        this.userRepository.save(user);
+    }
+
+    /**
      * Deletes a user based on id
      *
      * @param id of the user to delete
@@ -125,15 +154,20 @@ public class UserService {
         if (optionalUser.isEmpty()) {
             throw new EntityNotFoundException("User with id (" + id + ") can't be deleted because it does not exist.");
         }
-        List<PluckList> pluckLists = pluckListRepository.findByUser(optionalUser.get());
+        var user = optionalUser.get();
+        List<PluckList> pluckLists = pluckListRepository.findByUser(user);
         for (PluckList pluckList : pluckLists) {
             pluckList.setUser(null);
             pluckListRepository.save(pluckList);
         }
-        var warehouse = optionalUser.get().getWarehouse();
+        var warehouse = user.getWarehouse();
         if (warehouse != null) {
-            warehouse.removeUser(optionalUser.get());
+            warehouse.removeUser(user);
             warehouseRepository.save(warehouse);
+        }
+        var profilePicture = user.getProfilePicture();
+        if (profilePicture != null) {
+            profilePicture.removeUser(user);
         }
         userRepository.deleteByUuid(id);
     }

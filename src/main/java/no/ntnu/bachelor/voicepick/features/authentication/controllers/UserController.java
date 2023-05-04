@@ -2,7 +2,9 @@ package no.ntnu.bachelor.voicepick.features.authentication.controllers;
 
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.features.authentication.dtos.ProfilePictureDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +51,24 @@ public class UserController {
         response = optionalUser
             .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+        return response;
+    }
+
+    @PatchMapping("/{uuid}/profile-picture")
+    public ResponseEntity<String> updateProfilePicture(@PathVariable String uuid, @RequestBody ProfilePictureDto request) {
+        ResponseEntity<String> response;
+
+        if (!this.userService.getCurrentUser().getUuid().equals(uuid)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            this.userService.updateProfilePicture(uuid, request.getPictureName());
+            response = new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            response = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         return response;
     }

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
+import no.ntnu.bachelor.voicepick.models.ProfilePicture;
 import no.ntnu.bachelor.voicepick.models.Warehouse;
 
 import java.util.LinkedHashSet;
@@ -55,6 +56,11 @@ public class User {
     @ManyToOne
     @JoinColumn(name = Warehouse.PRIMARY_KEY)
     private Warehouse warehouse;
+
+    @JsonManagedReference
+    @ManyToOne
+    @JoinColumn(name = ProfilePicture.PRIMARY_KEY)
+    private ProfilePicture profilePicture;
 
     public User(String uuid, String firstName, String lastName, String email) {
         if (uuid == null || uuid.isBlank()) throw new IllegalArgumentException("uuid cannot be empty");
