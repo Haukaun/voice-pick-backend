@@ -175,7 +175,6 @@ public class PluckListService {
     var cargoCarrier = cargoCarrierOpt.get();
 
     cargoCarrier.addToPluckList(pluckList);
-    this.cargoCarrierRepository.save(cargoCarrier);
     this.pluckListRepository.save(pluckList);
   }
 

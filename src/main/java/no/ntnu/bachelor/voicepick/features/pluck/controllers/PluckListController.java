@@ -82,4 +82,18 @@ public class PluckListController {
     return response;
   }
 
+  @PatchMapping("/{pluckId}/cargo-carriers/{cargoIdentifier}")
+  public ResponseEntity<String> changeCargoCarrier(@PathVariable Long pluckId, @PathVariable int cargoIdentifier) {
+    ResponseEntity<String> response;
+
+    try {
+      this.pluckListService.updateCargoCarrier(pluckId, cargoIdentifier);
+      response = new ResponseEntity<>(HttpStatus.OK);
+    } catch (EntityNotFoundException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    return response;
+  }
+
 }
