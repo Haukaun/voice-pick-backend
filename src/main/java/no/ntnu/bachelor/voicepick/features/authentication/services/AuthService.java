@@ -117,11 +117,16 @@ public class AuthService {
 
       Warehouse warehouse = null;
       var uuid = "";
+      String profilePictureName = null;
       Set<Role> roles = new HashSet<>();
       if (currentUser.isPresent()) {
         uuid = currentUser.get().getUuid();
         warehouse = currentUser.get().getWarehouse();
         roles = currentUser.get().getRoles();
+        var profilePicture = currentUser.get().getProfilePicture();
+        if (profilePicture != null) {
+          profilePictureName = profilePicture.getName();
+        }
       }
 
       loginResponse = new LoginResponse(
@@ -132,6 +137,7 @@ public class AuthService {
           keycloakResponseBody.getToken_type(),
           uuid,
           userName,
+          profilePictureName,
           email,
           emailVerified,
           roleMapper.toRoleDto(roles),

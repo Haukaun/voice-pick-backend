@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
+import no.ntnu.bachelor.voicepick.models.ProfilePicture;
+import no.ntnu.bachelor.voicepick.services.ProfilePictureService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,8 @@ public class UserTests {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProfilePictureService profilePictureService;
 
     @AfterEach
     void teardown() {
@@ -196,5 +200,40 @@ public class UserTests {
         var optionalUser = this.userService.getUserByEmail(email);
 
         assertTrue(optionalUser.isPresent());
+    }
+
+    @Test
+    @DisplayName("Update profile picture with null image")
+    void updateProfilePictureWithNullImage() {
+        var email = "hans@val.com";
+        this.userService.createUser(new User("123", "Hans", "Val", email));
+
+        try {
+            this.userService.updateProfilePicture("123", "my-profile-image");
+            fail();
+        } catch (EntityNotFoundException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    @DisplayName("Update profile picture with valid image")
+    void updateProfilePicture() {
+        var uuid = "123";
+        var email = "hans@val.com";
+        this.userService.createUser(new User(uuid, "Hans", "Val", email));
+
+        var imgName = "my-profile-picture";
+        this.profilePictureService.addProfilePicture(new ProfilePicture(imgName));
+
+        this.userService.updateProfilePicture(uuid, imgName);
+
+        var optionalUser = this.userService.getUserByEmail(email);
+        if (optionalUser.isEmpty()) {
+            fail();
+        }
+        var user = optionalUser.get();
+
+        assertEquals(imgName, user.getProfilePicture().getName());
     }
 }
