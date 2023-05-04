@@ -145,36 +145,40 @@ public class ProductService {
     this.productRepository.save(product);
   }
 
-
-
-
-
-  public void updateProduct(Long productId, UpdateProductRequest dto) {
+  public Product updateProduct(Long productId, UpdateProductRequest dto) {
     var optionalProduct = this.productRepository.findById(productId);
-    var optionalUser = this.userService.getCurrentUser();
-    var optionalWarehouse = this.warehouseService.findWarehouseByUser(optionalUser);
+    if (optionalProduct.isEmpty()) {
+      throw new EntityNotFoundException("Could not find product id: " + productId);
+    }
+    var product = optionalProduct.get();
 
+    var user = this.userService.getCurrentUser();
+    var optionalWarehouse = this.warehouseService.findWarehouseByUser(user);
     if (optionalWarehouse.isEmpty()) {
       throw new EntityNotFoundException("User is not in a warehouse.");
     }
 
     var optionalLocation = this.locationService.getLocationByCodeAndWarehouse(dto.getLocationCode(), optionalWarehouse.get());
 
-    if (optionalProduct.isEmpty()) {
-      throw new EntityNotFoundException("Could not find product id: " + productId);
+    Status status;
+    if (dto.getQuantity() == 0) {
+      status = Status.EMPTY;
+    } else if (optionalLocation.isEmpty()) {
+      status = Status.WITHOUT_LOCATION;
+    } else {
+      status = Status.READY;
     }
-
-    var product = optionalProduct.get();
-
 
     product.setName(dto.getName());
     product.setWeight(dto.getWeight());
     product.setVolume(dto.getVolume());
     product.setQuantity(dto.getQuantity());
     product.setType(dto.getType());
-    product.setStatus(dto.getStatus());
     product.setLocation(optionalLocation.orElse(null));
+    product.setStatus(status);
 
     this.productRepository.save(product);
+
+    return product;
   }
 }

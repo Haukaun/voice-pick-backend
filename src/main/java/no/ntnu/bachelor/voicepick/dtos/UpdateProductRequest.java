@@ -13,6 +13,5 @@ public class UpdateProductRequest {
   private double volume;
   private int quantity;
   private ProductType type;
-  private Status status;
   private String locationCode;
 }

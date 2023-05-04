@@ -96,17 +96,17 @@ public class ProductController {
   /**
    * Endpoint for updating a product
    * 
-   * @param a request body containing information about the product
+   * @param request body containing information about the product
    * @return {@code 200 Ok} if added, {@code 404 METHOD_NOT_ALLOWED} if body
    *         incorrect.
    */
   @PatchMapping("/{id}")
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
-  public ResponseEntity<String> updateProduct(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
-    ResponseEntity<String> response;
+  public ResponseEntity<Object> updateProduct(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
+    ResponseEntity<Object> response;
     try {
-      this.productService.updateProduct(id, request);
-      response = new ResponseEntity<>(HttpStatus.OK);
+      var product = this.productService.updateProduct(id, request);
+      response = new ResponseEntity<>(this.productMapper.toProductDto(product), HttpStatus.OK);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
