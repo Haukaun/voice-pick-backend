@@ -1,5 +1,6 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.ProfilePictureDto;
 import no.ntnu.bachelor.voicepick.models.ProfilePicture;
@@ -20,8 +21,18 @@ public class ProfilePictureController {
 
     @PostMapping
     public ResponseEntity<String> addPicture(@RequestBody ProfilePictureDto request) {
-        profilePictureService.addProfilePicture(new ProfilePicture(request.getPictureName()));
-        return new ResponseEntity<>(HttpStatus.OK);
+        ResponseEntity<String> response;
+
+        try {
+            profilePictureService.addProfilePicture(new ProfilePicture(request.getPictureName()));
+            response = new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (EntityExistsException e) {
+            response = new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+
+        return response;
     }
 
 }
