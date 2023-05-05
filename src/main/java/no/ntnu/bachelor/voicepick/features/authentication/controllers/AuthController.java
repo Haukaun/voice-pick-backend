@@ -11,6 +11,7 @@ import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.mappers.UserMapper;
+import org.apache.coyote.Response;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +71,19 @@ public class AuthController {
     } else {
       return new ResponseEntity<>("Something went wrong! Could not sign you out.", HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<Object> refresh(@RequestBody TokenRequest request) {
+    ResponseEntity<Object> response;
+    try {
+      response = new ResponseEntity<>(this.authService.refresh(request), HttpStatus.OK);
+    } catch (HttpClientErrorException e) {
+      response = new ResponseEntity<>(e.getMessage(), e.getStatusCode());
+    } catch (Exception e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return response;
   }
 
   @PostMapping("/introspect")
