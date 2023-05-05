@@ -85,6 +85,12 @@ public class PluckListService {
       throw new EmptyListException("No available products");
     }
 
+    // If user has an unfinished pluck list, return this
+    var unfinishedPluckList = this.pluckListRepository.findUnfinishedPluckListByUser(currentUser.get().getUuid());
+    if (unfinishedPluckList.isPresent()) {
+      return unfinishedPluckList.get();
+    }
+
     // Generate a random pluck list
     var randomDestinationIndex = random.nextInt(DESTINATIONS.length);
     var pluckList = new PluckList(
@@ -104,10 +110,17 @@ public class PluckListService {
     final int maxPluckAmount = min(10, availableProducts.size());
     var productsToPluck = this.extractRandomProduct(availableProducts, minPluckAmount, maxPluckAmount);
 
-    // Generate random plucks based on products to pluck
+    // Maximum amount of items per pluck
     final int PLUCK_AMOUNT_UPPER_BOUND = 10;
+    // Generate random plucks based on products to pluck
     for (var product : productsToPluck) {
-      var amountToPluck = min(product.getQuantity(), random.nextInt((PLUCK_AMOUNT_UPPER_BOUND - 1) + 1));
+      // Randomly generate an amount of pluck of a product
+      int amountToPluck;
+      if (product.getQuantity() >= 10) {
+        amountToPluck = random.nextInt(PLUCK_AMOUNT_UPPER_BOUND) + 1;
+      } else {
+        amountToPluck = random.nextInt(product.getQuantity()) + 1;
+      }
 
       var pluck = new Pluck(
           product,

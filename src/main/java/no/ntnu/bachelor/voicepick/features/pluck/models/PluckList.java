@@ -39,6 +39,9 @@ public class PluckList extends LocationEntity {
   @Column(name = "destination")
   private String destination;
 
+  @Column(name = "created_at")
+  private LocalDateTime createdAt;
+
   @Column(name = "confirmed_at")
   private LocalDateTime confirmedAt;
 
@@ -71,6 +74,7 @@ public class PluckList extends LocationEntity {
     this.route = route;
     this.destination = destination;
     this.user = user;
+    this.createdAt = LocalDateTime.now();
   }
 
   public PluckList(String route, String destination) {
@@ -79,6 +83,7 @@ public class PluckList extends LocationEntity {
 
     this.route = route;
     this.destination = destination;
+    this.createdAt = LocalDateTime.now();
   }
 
   /**

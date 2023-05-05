@@ -19,4 +19,7 @@ public interface PluckListRepository extends JpaRepository<PluckList, Long> {
   @Query("SELECT COUNT(PluckList) FROM PluckList p WHERE p.finishedAt IS NOT NULL AND p.user.uuid = :uuid")
   Integer countCompletedPluckList(@Param("uuid") String uuid);
 
+  @Query("SELECT p FROM PluckList p WHERE p.finishedAt IS NULL AND p.user.uuid = :uuid ORDER BY p.createdAt ASC LIMIT 1")
+  Optional<PluckList> findUnfinishedPluckListByUser(@Param("uuid") String uuid);
+
 }
