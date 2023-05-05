@@ -247,6 +247,23 @@ public class AuthService {
     }
   }
 
+  public KeycloakLoginResponse refresh(TokenRequest token) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add(CLIENT_ID_KEY, this.clientId);
+    map.add(CLIENT_SECRET_KEY, this.clientSecret);
+    map.add(REFRESH_TOKEN_KEY, token.getToken());
+    map.add(GRANT_TYPE_KEY, REFRESH_TOKEN_KEY);
+
+    HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
+    var loginUrl = baseUrl + "/auth/realms/" + realm + "/protocol/openid-connect/token";
+    ResponseEntity<KeycloakLoginResponse> response = restTemplate.postForEntity(loginUrl, httpEntity, KeycloakLoginResponse.class);
+
+    return response.getBody();
+  }
+
   /**
    * Updates the password of the user to a new random password
    *

@@ -153,11 +153,14 @@ public class WarehouseController {
     try {
       var currentUser = userService.getCurrentUser();
       warehouseService.removeUserFromWarehouse(currentUser.getWarehouse(), currentUser.getUuid());
+      authService.removeRole(currentUser.getUuid(), RoleType.LEADER);
       response = new ResponseEntity<>(HttpStatus.NO_CONTENT);
     } catch (EntityNotFoundException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     } catch (UnauthorizedException e) {
       response = new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    } catch (JsonProcessingException e) {
+      response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return response;
   }
