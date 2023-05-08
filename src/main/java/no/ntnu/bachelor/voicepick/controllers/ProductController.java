@@ -1,5 +1,12 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.mappers.ProductMapper;
@@ -38,6 +45,12 @@ public class ProductController {
    */
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @PostMapping
+  @Operation(summary = "Add a new product")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Product created", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "405", description = "Method not allowed", content = @Content)
+  })
   public ResponseEntity<String> addProduct(@RequestBody AddProductRequest request) {
     ResponseEntity<String> response;
     try {
@@ -57,6 +70,14 @@ public class ProductController {
    *         body is incorrect
    */
   @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a product")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Product deleted successfully", content = @Content),
+          @ApiResponse(responseCode = "404", description = "Product not found", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
+
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) {
     ResponseEntity<String> response;
@@ -79,6 +100,15 @@ public class ProductController {
    *         body is incorrect
    */
   @GetMapping
+  @Operation(summary = "Get all products in an user's warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Success", content = {
+                  @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+          }),
+          @ApiResponse(responseCode = "404", description = "The user's warehouse was not found", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<Object> getProducts() {
     ResponseEntity<Object> response;
@@ -101,6 +131,12 @@ public class ProductController {
    *         incorrect.
    */
   @PatchMapping("/{id}")
+  @Operation(summary = "Updates a product")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Product updated", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "405", description = "Method not allowed", content = @Content)
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<Object> updateProduct(@PathVariable Long id, @RequestBody UpdateProductRequest request) {
     ResponseEntity<Object> response;

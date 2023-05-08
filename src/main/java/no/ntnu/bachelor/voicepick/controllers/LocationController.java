@@ -1,5 +1,12 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import no.ntnu.bachelor.voicepick.features.pluck.dtos.PluckListDto;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import no.ntnu.bachelor.voicepick.dtos.LocationDto;
 import no.ntnu.bachelor.voicepick.dtos.LocationPluckListResponse;
@@ -39,6 +46,12 @@ public class LocationController {
    *         body is incorrect
    */
   @PostMapping
+  @Operation(summary = "Add a new Location")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Location created", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "405", description = "Method not allowed", content = @Content)
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<String> addLocation(@RequestBody LocationDto location) {
     ResponseEntity<String> response;
@@ -60,6 +73,13 @@ public class LocationController {
    *         body is incorrect
    */
   @DeleteMapping("/{code}")
+  @Operation(summary = "Delete a location")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Location deleted successfully", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "404", description = "Location not found", content = @Content)
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<String> deleteLocation(@PathVariable("code") String code) {
     ResponseEntity<String> response;
@@ -82,6 +102,14 @@ public class LocationController {
    *         body is incorrect
    */
   @GetMapping()
+  @Operation(summary = "Gets all the locations in a warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Success", content = {
+                  @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = LocationDto.class)))
+          }),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
+  })
   public ResponseEntity<Set<LocationDto>> getAllLocationsInWarehouse() {
     ResponseEntity<Set<LocationDto>> response;
     try {
@@ -104,6 +132,12 @@ public class LocationController {
    *         body is incorrect
    */
   @PatchMapping("/{locationCode}")
+  @Operation(summary = "Updates a location")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Location Updated", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "405", description = "Method not allowed", content = @Content)
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<String> updateLocation(@PathVariable("locationCode") String locationCode, @RequestBody LocationDto location) {
     ResponseEntity<String> response;
@@ -125,6 +159,15 @@ public class LocationController {
    *         body is incorrect
    */
   @GetMapping("/{code}/products")
+  @Operation(summary = "Gets all the products in a location")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Success", content = {
+                  @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+          }),
+          @ApiResponse(responseCode = "404", description = "Location has no products", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<List<ProductDto>> getProductsInLocation(@PathVariable String code) {
     ResponseEntity<List<ProductDto>> response;
@@ -145,6 +188,15 @@ public class LocationController {
   }
 
   @GetMapping("/{code}/pluck-lists")
+  @Operation(summary = "Gets all the pluck_lists in a location")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Success", content = {
+                  @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PluckListDto.class)))
+          }),
+          @ApiResponse(responseCode = "404", description = "Location has no products", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
+  })
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   public ResponseEntity<List<LocationPluckListResponse>> getPluckListsInLocation(@PathVariable String code) {
     ResponseEntity<List<LocationPluckListResponse>> response;

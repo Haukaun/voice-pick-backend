@@ -1,10 +1,17 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.dtos.AddWarehouseDto;
 import no.ntnu.bachelor.voicepick.dtos.EmailDto;
+import no.ntnu.bachelor.voicepick.dtos.ProductDto;
 import no.ntnu.bachelor.voicepick.exceptions.InvalidInviteCodeException;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.VerificationCodeInfo;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
@@ -42,6 +49,13 @@ public class WarehouseController {
    */
   @PreAuthorize("hasRole('LEADER')")
   @PostMapping("/invite")
+  @Operation(summary = "Send an invitation mail")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Email sent", content = @Content),
+          @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+          @ApiResponse(responseCode = "500", description = "Error occurred while sending mail", content = @Content)
+  })
   public ResponseEntity<String> sendInviteMail(@RequestBody EmailDto recipient) {
     ResponseEntity<String> response;
     try {
@@ -65,6 +79,13 @@ public class WarehouseController {
    * authenticated user. 401 UNAUTHORIZED if the user isn't authorized.
    */
   @PostMapping("/join")
+  @Operation(summary = "Join a warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "User joined the warehouse", content = @Content),
+          @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+          @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+  })
   public ResponseEntity<Object> joinWarehouse(@RequestBody VerificationCodeInfo verificationCodeInfo) {
     ResponseEntity<Object> response;
       try {
@@ -88,6 +109,13 @@ public class WarehouseController {
    * if the user is not found.
    */
   @PostMapping
+  @Operation(summary = "Create a warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Created the warehouse", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+          @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+  })
   public ResponseEntity<Object> createWarehouse(@RequestBody AddWarehouseDto addWarehouseDto) {
     ResponseEntity<Object> response;
     try {
@@ -110,6 +138,12 @@ public class WarehouseController {
    */
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @DeleteMapping("/users/{id}")
+  @Operation(summary = "Remove user from warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "User removed from the warehouse", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User not authorized", content = @Content),
+          @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+  })
   public ResponseEntity<String> removeUserFromWarehouse(@PathVariable("id") String userId) {
     ResponseEntity<String> response;
     try {
@@ -125,6 +159,16 @@ public class WarehouseController {
 
   @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
   @GetMapping("/users")
+  @Operation(summary = "Get all users in a warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Success", content = {
+                  @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+          }),
+          @ApiResponse(responseCode = "404", description = "The warehouse was not found", content = @Content),
+          @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User is not authorized", content = @Content)
+
+  })
   public ResponseEntity<Object> getUsersInWarehouse() {
     ResponseEntity<Object> response;
     Set<User> usersInWarehouse;
@@ -148,6 +192,12 @@ public class WarehouseController {
    * 401 if the user is not authorized.
    */
   @DeleteMapping("/leave")
+  @Operation(summary = "Leave warehouse")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "User left the warehouse", content = @Content),
+          @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+          @ApiResponse(responseCode = "401", description = "User is not authorized", content = @Content)
+  })
   public ResponseEntity<String> leaveWarehouse() {
     ResponseEntity<String> response;
     try {

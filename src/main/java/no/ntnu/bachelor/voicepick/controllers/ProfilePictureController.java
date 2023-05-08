@@ -1,5 +1,9 @@
 package no.ntnu.bachelor.voicepick.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.ProfilePictureDto;
@@ -20,6 +24,11 @@ public class ProfilePictureController {
     private final ProfilePictureService profilePictureService;
 
     @PostMapping
+    @Operation(summary = "Add a new picture")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Picture added", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Picture conflict", content = @Content)
+    })
     public ResponseEntity<String> addPicture(@RequestBody ProfilePictureDto request) {
         ResponseEntity<String> response;
 
