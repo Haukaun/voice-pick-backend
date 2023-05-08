@@ -1,10 +1,8 @@
 package no.ntnu.bachelor.voicepick.services;
 
 import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.UserRepository;
-import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.models.ProfilePicture;
 import no.ntnu.bachelor.voicepick.repositories.ProfilePictureRepository;
 import org.springframework.stereotype.Service;

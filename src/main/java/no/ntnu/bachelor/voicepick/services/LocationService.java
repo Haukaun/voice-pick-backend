@@ -95,7 +95,7 @@ public class LocationService {
         return optionalLocation.get().getEntities();
     }
 
-    public List<Product> getProductsInLocation(Set<LocationEntity> entities, Warehouse warehouse){
+    public List<Product> getProductsInLocation(Set<LocationEntity> entities){
         var products = new ArrayList<Product>();
         for (var entity : entities) {
             if (entity instanceof Product) {
@@ -105,7 +105,7 @@ public class LocationService {
         return products;
     }
 
-    public List<PluckList> getPluckListsInLocation(Set<LocationEntity> entities, Warehouse warehouse){
+    public List<PluckList> getPluckListsInLocation(Set<LocationEntity> entities){
         var pluckLists = new ArrayList<PluckList>();
         for (var entity : entities) {
             if (entity instanceof PluckList) {

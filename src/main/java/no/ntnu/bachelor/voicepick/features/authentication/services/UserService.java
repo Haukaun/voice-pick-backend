@@ -11,7 +11,6 @@ import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.repositories.RoleRepository;
 import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 import no.ntnu.bachelor.voicepick.features.pluck.repositories.PluckListRepository;
-import no.ntnu.bachelor.voicepick.models.ProfilePicture;
 import no.ntnu.bachelor.voicepick.repositories.ProfilePictureRepository;
 import no.ntnu.bachelor.voicepick.repositories.WarehouseRepository;
 import org.springframework.security.core.Authentication;
