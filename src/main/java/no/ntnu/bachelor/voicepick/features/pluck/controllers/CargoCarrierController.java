@@ -9,6 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import java.util.List;
 
 @RestController
@@ -19,11 +24,21 @@ public class CargoCarrierController {
   private final CargoCarrierService service;
 
   @GetMapping
+  @Operation(summary = "Get all cargo carriers")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Cargo carriers found", content = @Content),
+    @ApiResponse(responseCode = "404", description = "Cargo carriers not found", content = @Content)
+  })
   public ResponseEntity<List<CargoCarrier>> getCargoCarriers() {
     return new ResponseEntity<>(this.service.findAllActive(), HttpStatus.OK);
   }
 
   @PostMapping
+  @Operation(summary = "Add a cargo carrier")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Cargo carrier added", content = @Content),
+    @ApiResponse(responseCode = "409", description = "Cargo carrier already exists", content = @Content)
+  })
   public ResponseEntity<String> addCargoCarrier(@RequestBody CargoCarrierDto body) {
 
     ResponseEntity<String> response;
