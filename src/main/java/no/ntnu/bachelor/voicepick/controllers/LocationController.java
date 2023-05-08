@@ -178,7 +178,7 @@ public class LocationController {
       if (entities.isEmpty()) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
-      var products = locationService.getProductsInLocation(entities, warehouse);
+      var products = locationService.getProductsInLocation(entities);
       response = new ResponseEntity<>(productMapper.toProductDto(products).stream().toList(), HttpStatus.OK);
 
     } catch (EntityNotFoundException e) {
@@ -207,7 +207,7 @@ public class LocationController {
       if (entities.isEmpty()) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
-      var pluckLists = locationService.getPluckListsInLocation(entities,warehouse);
+      var pluckLists = locationService.getPluckListsInLocation(entities);
       response = new ResponseEntity<>(pluckLists.stream().map(pluckList -> new LocationPluckListResponse(pluckList.getId(), pluckList.getRoute(), pluckList.getDestination())).toList(), HttpStatus.OK);
 
     } catch (EntityNotFoundException e) {

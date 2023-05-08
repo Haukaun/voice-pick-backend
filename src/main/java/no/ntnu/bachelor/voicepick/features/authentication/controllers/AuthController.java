@@ -6,13 +6,11 @@ import no.ntnu.bachelor.voicepick.dtos.EmailDto;
 import no.ntnu.bachelor.voicepick.features.authentication.dtos.*;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.InvalidPasswordException;
 import no.ntnu.bachelor.voicepick.features.authentication.exceptions.ResetPasswordException;
-import no.ntnu.bachelor.voicepick.features.authentication.exceptions.UnauthorizedException;
 import no.ntnu.bachelor.voicepick.features.authentication.models.RoleType;
 import no.ntnu.bachelor.voicepick.features.authentication.services.UserService;
 import no.ntnu.bachelor.voicepick.features.smtp.models.Email;
 import no.ntnu.bachelor.voicepick.features.smtp.services.EmailSender;
 import no.ntnu.bachelor.voicepick.mappers.UserMapper;
-import org.apache.coyote.Response;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -145,8 +143,6 @@ public class AuthController {
       response = new ResponseEntity<>(e.getStatusCode());
     } catch (Exception e) {
       response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    } finally {
-      response = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     return response;

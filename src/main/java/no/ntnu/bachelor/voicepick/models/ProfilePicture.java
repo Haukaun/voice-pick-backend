@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import no.ntnu.bachelor.voicepick.features.authentication.models.User;
-import no.ntnu.bachelor.voicepick.features.pluck.models.PluckList;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
