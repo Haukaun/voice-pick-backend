@@ -107,7 +107,7 @@ public class PluckListService {
     // Generate random plucks based on products to pluck
     final int PLUCK_AMOUNT_UPPER_BOUND = 10;
     for (var product : productsToPluck) {
-      var amountToPluck = min(product.getQuantity(), random.nextInt((PLUCK_AMOUNT_UPPER_BOUND - 1) + 1));
+      var amountToPluck = min(product.getQuantity(), random.nextInt((PLUCK_AMOUNT_UPPER_BOUND) + 1));
 
       var pluck = new Pluck(
           product,
