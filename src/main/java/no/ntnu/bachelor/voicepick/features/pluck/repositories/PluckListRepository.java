@@ -13,8 +13,9 @@ import java.util.Optional;
 
 public interface PluckListRepository extends JpaRepository<PluckList, Long> {
 
-  List<PluckList> findByUser(User user);
   Optional<PluckList> findByIdAndWarehouse(Long id, Warehouse warehouse);
+  
+  List<PluckList> findByUser(User user);
 
   @Query("SELECT COUNT(PluckList) FROM PluckList p WHERE p.finishedAt IS NOT NULL AND p.user.uuid = :uuid")
   Integer countCompletedPluckList(@Param("uuid") String uuid);
