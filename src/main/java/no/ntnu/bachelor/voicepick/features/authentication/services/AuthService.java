@@ -55,11 +55,6 @@ public class AuthService {
   @Value("${keycloak.client-secret}")
   private String clientSecret;
 
-  @Value("${keycloak.manager.username}")
-  private String managerUsername;
-  @Value("${keycloak.manager.password}")
-  private String managerPassword;
-
   private static final String CLIENT_ID_KEY = "client_id";
   private static final String CLIENT_SECRET_KEY = "client_secret";
   private static final String TOKEN_KEY = "token";
@@ -74,7 +69,7 @@ public class AuthService {
    */
   public enum GrantType {
     PASSWORD("password"),
-    CREDENTIALS("credentials");
+    CREDENTIALS("client_credentials");
 
     private final String label;
 
@@ -525,9 +520,7 @@ public class AuthService {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add(CLIENT_ID_KEY, this.clientId);
     map.add(CLIENT_SECRET_KEY, this.clientSecret);
-    map.add(GRANT_TYPE_KEY, GrantType.PASSWORD.value());
-    map.add("username", this.managerUsername);
-    map.add("password", this.managerPassword);
+    map.add(GRANT_TYPE_KEY, GrantType.CREDENTIALS.value());
 
     HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(map, headers);
 
@@ -537,7 +530,7 @@ public class AuthService {
     var body = response.getBody();
 
     if (body == null) {
-      throw new EntityNotFoundException("Did not find any users with username: " + this.managerUsername);
+      throw new EntityNotFoundException("Failed to find the admin user");
     }
 
     headers.set(AUTHORIZATION_KEY, this.getAuthorizationValue(body.getAccess_token()));
